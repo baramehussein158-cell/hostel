@@ -267,7 +267,7 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount,
                 />
               </div>
               {feedback && <p className={`message ${feedback.type}`}>{feedback.text}</p>}
-              {isSyncing && <p className="message sync">Connecting to Firebase data...</p>}
+              {isSyncing && <p className="message sync">Connecting data...</p>}
               <button type="submit" className="login-btn" disabled={isSubmitting || isSyncing}>
                 {isSubmitting ? 'Please wait...' : 'Login'}
               </button>
@@ -361,7 +361,7 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount,
                 </div>
               </div>
               {feedback && <p className={`message ${feedback.type}`}>{feedback.text}</p>}
-              {isSyncing && <p className="message sync">Connecting to Firebase data...</p>}
+              {isSyncing && <p className="message sync">Connecting data...</p>}
               <button type="submit" className="login-btn" disabled={isSubmitting || isSyncing}>
                 {isSubmitting ? 'Please wait...' : 'Register Account'}
               </button>
@@ -392,11 +392,11 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount,
                   disabled={isSubmitting}
                 />
               </div>
-              <div className="credentials-hint">
+              {/* <div className="credentials-hint">
                 <strong>Demo admin credentials</strong>
                 <span>{ADMIN_ACCOUNT.email}</span>
                 <span>{ADMIN_ACCOUNT.password}</span>
-              </div>
+              </div> */}
               {feedback && <p className={`message ${feedback.type}`}>{feedback.text}</p>}
               <button type="submit" className="login-btn" disabled={isSubmitting}>
                 {isSubmitting ? 'Please wait...' : 'Open Admin Portal'}

@@ -90,7 +90,7 @@ function AppContent() {
     ensureRoomInventorySeeded().catch((error) => {
       console.error('Failed to seed rooms:', error);
       if (isMounted) {
-        setSyncError('Firebase room setup failed. Check your Firestore permissions and config.');
+        setSyncError('room setup failed. Check your Firestore permissions and config.');
       }
     });
 
@@ -105,7 +105,7 @@ function AppContent() {
       (error) => {
         console.error('Users subscription failed:', error);
         if (isMounted) {
-          setSyncError('Could not load student accounts from Firebase.');
+          setSyncError('Could not load student accounts from  database.');
           markLoaded('users');
         }
       }
@@ -122,7 +122,7 @@ function AppContent() {
       (error) => {
         console.error('Applications subscription failed:', error);
         if (isMounted) {
-          setSyncError('Could not load applications from Firebase.');
+          setSyncError('Could not load applications from database.');
           markLoaded('applications');
         }
       }
@@ -139,7 +139,7 @@ function AppContent() {
       (error) => {
         console.error('Rooms subscription failed:', error);
         if (isMounted) {
-          setSyncError('Could not load room inventory from Firebase.');
+          setSyncError('Could not load room inventory from Database.');
           markLoaded('rooms');
         }
       }
@@ -188,7 +188,7 @@ function AppContent() {
 
   const handleStudentLogin = async (credentials) => {
     if (isSyncing) {
-      return { success: false, message: 'Firebase data is still loading. Please wait a moment and try again.' };
+      return { success: false, message: 'Database data is still loading. Please wait a moment and try again.' };
     }
 
     const matchedUser = users.find(
@@ -251,10 +251,10 @@ function AppContent() {
         ...user,
         localKey: createId('user'),
       });
-      return { success: true, message: 'Account created successfully in Firebase. You can now log in.' };
+      return { success: true, message: 'Account created successfully in Dataebase. You can now log in.' };
     } catch (error) {
       console.error('Failed to register user:', error);
-      return { success: false, message: 'Failed to create the Firebase account. Check your Firestore rules.' };
+      return { success: false, message: 'Failed to create the Database account. Check your Firestore rules.' };
     }
   };
 
@@ -315,7 +315,7 @@ function AppContent() {
       return { success: true, message: 'Application submitted successfully.' };
     } catch (error) {
       console.error('Failed to create application:', error);
-      return { success: false, message: 'Failed to submit application to Firebase.' };
+      return { success: false, message: 'Failed to submit application to Database.' };
     }
   };
 
@@ -346,7 +346,7 @@ function AppContent() {
       return { success: true, message: `${existingRoom.label} updated successfully.` };
     } catch (error) {
       console.error('Failed to update room:', error);
-      return { success: false, message: 'Failed to save room changes to Firebase.' };
+      return { success: false, message: 'Failed to save room changes to Database.' };
     }
   };
 
@@ -392,7 +392,7 @@ function AppContent() {
       return { success: true, message: `Application moved to ${nextStatus}.` };
     } catch (error) {
       console.error('Failed to update application:', error);
-      return { success: false, message: 'Failed to update application in Firebase.' };
+      return { success: false, message: 'Failed to update application in Database.' };
     }
   };
 
@@ -409,7 +409,7 @@ function AppContent() {
       console.error('Failed to upload profile image:', error);
       return {
         success: false,
-        message: 'Failed to upload the profile image to Firebase Storage. Check your storage rules.',
+        message: 'Failed to upload the profile image to Database Storage. Check your storage rules.',
       };
     }
   };
