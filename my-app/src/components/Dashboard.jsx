@@ -1,37 +1,81 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { FaSun, FaMoon, FaCheckCircle, FaClock, FaBed, FaCalendarAlt, FaClipboardList } from 'react-icons/fa';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  FaBed,
+  FaCalendarAlt,
+  FaCheckCircle,
+  FaClipboardList,
+  FaClock,
+  FaMoon,
+  FaSun,
+} from 'react-icons/fa';
 import emailjs from '@emailjs/browser';
 import { useTheme } from '../contexts/ThemeContext';
+import { APPLICATION_STATUS_LABELS } from '../data/portalData';
 import './Dashboard.scss';
+
+const getProfileImageStorageKey = (student) => `campusStay.profileImage.${student.regNumber}`;
+
+const STUDENT_STATUS_COPY = {
+  pending: {
+    title: 'Submitted',
+    summary: 'Your room request is waiting for admin review.',
+    eta: '3-5 days',
+  },
+  approved: {
+    title: 'Approved',
+    summary: 'Your room has been approved and is ready for allocation details.',
+    eta: 'Allocated',
+  },
+  waitlisted: {
+    title: 'Waitlisted',
+    summary: 'You are on the waiting list while room capacity is reviewed.',
+    eta: 'Queue active',
+  },
+  rejected: {
+    title: 'Needs update',
+    summary: 'Your last application was rejected. You can submit a fresh request.',
+    eta: 'Re-apply now',
+  },
+};
 
 const Dashboard = ({
   onLogout,
   student,
   campus,
   totalRooms,
-  appliedCount,
+  occupiedRooms,
   remainingRooms,
   roomClosed,
   pastDeadline,
   deadline,
-  applicationSubmitted,
-  applicationData,
+  latestApplication,
+  studentApplications,
   onRoomApplication,
 }) => {
-  const consumedRooms = appliedCount;
   const campusName = campus === 'RP' ? 'Rwanda Polytechnic' : 'University of Rwanda';
-  const campusTagline = campus === 'RP'
-    ? 'RP dashboard with yellow, green, blue, and white brand accents.'
-    : 'UR dashboard with clean blue and white campus styling.';
-  const occupancyRate = Math.round((consumedRooms / totalRooms) * 100);
   const { theme, toggleTheme } = useTheme();
   const [showForm, setShowForm] = useState(false);
   const [viewMode, setViewMode] = useState('status');
   const [notification, setNotification] = useState('');
-  const [profileImage, setProfileImage] = useState(null);
+  const [profileImage, setProfileImage] = useState(() => {
+    try {
+      return localStorage.getItem(getProfileImageStorageKey(student));
+    } catch (error) {
+      console.error('Failed to read stored profile image:', error);
+      return null;
+    }
+  });
   const formRef = useRef(null);
   const statusRef = useRef(null);
-  const canApply = !roomClosed && !applicationSubmitted;
+  const occupancyRate = totalRooms > 0 ? Math.round((occupiedRooms / totalRooms) * 100) : 0;
+  const applicationStatus = latestApplication?.status ?? 'ready';
+  const hasApplication = Boolean(latestApplication);
+  const canApply = !roomClosed && (!latestApplication || latestApplication.status === 'rejected');
+  const statusCopy = STUDENT_STATUS_COPY[applicationStatus] ?? {
+    title: 'Ready to start',
+    summary: 'Complete your room application to begin the review process.',
+    eta: 'Next step',
+  };
 
   useEffect(() => {
     if (showForm && formRef.current) {
@@ -40,29 +84,53 @@ const Dashboard = ({
   }, [showForm]);
 
   useEffect(() => {
-    if (!notification) return;
-    const timer = setTimeout(() => {
-      setNotification('');
-    }, 4200);
+    if (!notification) {
+      return undefined;
+    }
+
+    const timer = setTimeout(() => setNotification(''), 4200);
     return () => clearTimeout(timer);
   }, [notification]);
 
-  const handleApplicationSubmit = (data) => {
-    onRoomApplication(data);
+  useEffect(() => {
+    try {
+      const savedProfileImage = localStorage.getItem(getProfileImageStorageKey(student));
+      setProfileImage(savedProfileImage);
+    } catch (error) {
+      console.error('Failed to restore stored profile image:', error);
+    }
+  }, [student]);
+
+  const handleApplicationSubmit = (formData) => {
+    const result = onRoomApplication(formData);
+    if (!result.success) {
+      setNotification(result.message);
+      return result;
+    }
+
     setShowForm(false);
     setViewMode('status');
-    setNotification('Your hostel room application was submitted successfully. We will review it soon.');
+    setNotification('Your hostel room application was submitted successfully. Admin review is now pending.');
+    return result;
   };
 
-  const handleProfileUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setProfileImage(reader.result);
-      };
-      reader.readAsDataURL(file);
+  const handleProfileUpload = (event) => {
+    const file = event.target.files[0];
+    if (!file) {
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        localStorage.setItem(getProfileImageStorageKey(student), reader.result);
+      } catch (error) {
+        console.error('Failed to store profile image:', error);
+      }
+
+      setProfileImage(reader.result);
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
@@ -72,27 +140,32 @@ const Dashboard = ({
           <div>
             <p className="eyebrow">CampusStay Student Portal</p>
             <h1>Welcome back, {student.name}</h1>
-            <p className="subheading">Manage your room application, track progress, and update details from one polished portal.</p>
+            <p className="subheading">
+              Manage your room application, track review decisions, and keep your student profile ready from one
+              portal.
+            </p>
             <div className="campus-intro">
               <span className="campus-label">{campusName}</span>
               <div className="campus-chip-group">
-                <button type="button" className="campus-chip"><FaBed /> Room Application</button>
-                <button type="button" className="campus-chip"><FaClipboardList /> Application Status</button>
-                <button type="button" className="campus-chip"><FaCalendarAlt /> Deadlines</button>
+                <button type="button" className="campus-chip">
+                  <FaBed /> Room Application
+                </button>
+                <button type="button" className="campus-chip">
+                  <FaClipboardList /> Status Tracking
+                </button>
+                <button type="button" className="campus-chip">
+                  <FaCalendarAlt /> Deadline Monitor
+                </button>
               </div>
             </div>
           </div>
+
           <div className="profile-block">
-            <div className="avatar">
-              {profileImage ? (
-                <img src={profileImage} alt="Profile" />
-              ) : (
-                student.name?.charAt(0).toUpperCase()
-              )}
-            </div>
+            <div className="avatar">{profileImage ? <img src={profileImage} alt="Profile" /> : student.name?.charAt(0).toUpperCase()}</div>
             <div className="profile-info">
               <strong>{student.name}</strong>
-              <span>{student.email || 'student@university.edu'}</span>
+              <span>{student.email}</span>
+              <span>{student.regNumber}</span>
               <label htmlFor="profile-upload" className="profile-upload-btn">
                 Change Photo
               </label>
@@ -106,11 +179,14 @@ const Dashboard = ({
             </div>
           </div>
         </div>
+
         <div className="header-actions">
           <button onClick={toggleTheme} className="theme-toggle" aria-label="Toggle theme">
             {theme === 'dark' ? <FaSun /> : <FaMoon />}
           </button>
-          <button onClick={onLogout} className="logout-btn">Logout</button>
+          <button onClick={onLogout} className="logout-btn">
+            Logout
+          </button>
         </div>
       </header>
 
@@ -125,8 +201,12 @@ const Dashboard = ({
         <section className="top-grid">
           <article className="hero-panel">
             <div className="hero-pill">Application Overview</div>
-            <h2>Fast, guided hostel application for modern student life.</h2>
-            <p>Complete your details, submit preferences, and get updates in real time. The next available room can be reserved with one smooth workflow.</p>
+            <h2>Stay on top of your housing request without leaving the portal.</h2>
+            <p>
+              Track your latest application status, watch room availability for your campus, and reapply quickly
+              if admin asks for changes.
+            </p>
+
             <div className="hero-actions">
               <button
                 className="primary-action"
@@ -136,40 +216,51 @@ const Dashboard = ({
                 }}
                 disabled={!canApply}
               >
-                {applicationSubmitted ? 'Application Submitted' : 'Apply for Room'}
+                {latestApplication?.status === 'rejected'
+                  ? 'Submit New Application'
+                  : hasApplication
+                    ? 'Application Active'
+                    : 'Apply for Room'}
               </button>
               <button
                 className="secondary-action"
                 onClick={() => {
                   setShowForm(false);
                   setViewMode('status');
-                  if (statusRef.current) {
-                    statusRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  }
+                  statusRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }}
               >
                 See Status
               </button>
             </div>
+
             <div className="hero-footline">
               <span className="room-badge">{remainingRooms} rooms remaining</span>
               <p className="hero-note">Current view: {viewMode === 'form' ? 'Application form' : 'Status summary'}</p>
             </div>
+
             {roomClosed && (
               <div className="hero-alert">
                 {pastDeadline ? (
-                  <p>Applications are closed because the university deadline of {deadline.toLocaleDateString()} has passed.</p>
+                  <p>Applications are closed because the deadline of {deadline.toLocaleDateString()} has passed.</p>
                 ) : (
-                  <p>Applications are closed because all rooms have been allocated.</p>
+                  <p>Applications are closed because no more approved room capacity remains for your campus.</p>
                 )}
               </div>
             )}
+
+            {latestApplication?.status === 'rejected' && (
+              <div className="hero-alert warning">
+                <p>Your last application was rejected. You can submit a corrected request now.</p>
+              </div>
+            )}
           </article>
+
           <div className="metric-cards">
             <div className="metric-card">
               <FaClipboardList className="metric-icon" />
-              <span>Steps to finish</span>
-              <strong>4</strong>
+              <span>Applications sent</span>
+              <strong>{studentApplications.length}</strong>
             </div>
             <div className="metric-card">
               <FaBed className="metric-icon" />
@@ -178,8 +269,8 @@ const Dashboard = ({
             </div>
             <div className="metric-card">
               <FaCalendarAlt className="metric-icon" />
-              <span>Review window</span>
-              <strong>3–5 days</strong>
+              <span>Latest status</span>
+              <strong>{hasApplication ? APPLICATION_STATUS_LABELS[latestApplication.status] : 'Ready'}</strong>
             </div>
           </div>
         </section>
@@ -189,55 +280,64 @@ const Dashboard = ({
             <div className="card-header">
               <div>
                 <p className="eyebrow">Application status</p>
-                <h3>{applicationSubmitted ? 'Submitted' : 'Ready to start'}</h3>
+                <h3>{statusCopy.title}</h3>
               </div>
-              <span className={`status-badge ${applicationSubmitted ? 'approved' : 'pending'}`}>
-                {applicationSubmitted ? 'Submitted' : 'Pending'}
+              <span className={`status-badge ${applicationStatus}`}>
+                {hasApplication ? APPLICATION_STATUS_LABELS[latestApplication.status] : 'Pending'}
               </span>
             </div>
 
             <div className="status-summary">
               <div>
-                <strong>{applicationSubmitted ? '3-5 days' : 'Next step'}</strong>
-                <p>{applicationSubmitted ? 'Review in progress' : 'Complete your room application'}</p>
+                <strong>{statusCopy.eta}</strong>
+                <p>{statusCopy.summary}</p>
               </div>
               <div>
-                <strong>{applicationSubmitted ? remainingRooms : '4'}</strong>
-                <p>{applicationSubmitted ? 'Rooms available' : 'Workflow steps'}</p>
+                <strong>{remainingRooms}</strong>
+                <p>Rooms still available on your campus</p>
               </div>
             </div>
 
-            {applicationSubmitted && applicationData ? (
+            {hasApplication ? (
               <>
                 <div className="summary-block">
                   <div>
                     <span>Name</span>
-                    <strong>{applicationData.name}</strong>
+                    <strong>{latestApplication.name}</strong>
                   </div>
                   <div>
                     <span>Study campus</span>
-                    <strong>{applicationData.campus}</strong>
+                    <strong>{latestApplication.campus}</strong>
                   </div>
                   <div>
                     <span>Room choice</span>
-                    <strong>{applicationData.roomType}</strong>
+                    <strong>{latestApplication.roomType}</strong>
                   </div>
                   <div>
                     <span>Phone</span>
-                    <strong>{applicationData.phone}</strong>
+                    <strong>{latestApplication.phone}</strong>
+                  </div>
+                  <div>
+                    <span>Submitted on</span>
+                    <strong>{new Date(latestApplication.submittedAt).toLocaleDateString()}</strong>
+                  </div>
+                  <div>
+                    <span>Assigned room</span>
+                    <strong>{latestApplication.assignedRoom || 'Waiting for admin assignment'}</strong>
                   </div>
                 </div>
+
                 <div className="room-usage-block">
                   <div className="room-card room-card-consumed">
-                    <span>Applied rooms</span>
-                    <strong>{consumedRooms}</strong>
+                    <span>Approved rooms on campus</span>
+                    <strong>{occupiedRooms}</strong>
                   </div>
                   <div className="room-card room-card-free">
                     <span>Remaining free rooms</span>
                     <strong>{remainingRooms}</strong>
                   </div>
                   <div className="room-occupancy">
-                    <span>Occupancy status</span>
+                    <span>Campus occupancy</span>
                     <div className="occupancy-bar">
                       <div className="occupancy-fill" style={{ width: `${occupancyRate}%` }} />
                     </div>
@@ -247,7 +347,7 @@ const Dashboard = ({
               </>
             ) : (
               <div className="summary-block empty">
-                <p>Submit the application form to see your room request and timeline here.</p>
+                <p>Submit your first hostel application to see admin review updates here.</p>
               </div>
             )}
           </div>
@@ -257,16 +357,22 @@ const Dashboard = ({
               <h3>Helpful timeline</h3>
             </div>
             <ul>
-              <li><FaClock /> Fill out the application in one go.</li>
-              <li><FaCheckCircle /> Receive confirmation by email.</li>
-              <li><FaBed /> Room allocated within days.</li>
+              <li>
+                <FaClock /> Fill out the application in one sitting.
+              </li>
+              <li>
+                <FaCheckCircle /> Wait for admin review and room decision.
+              </li>
+              <li>
+                <FaBed /> Check your assigned room once approved.
+              </li>
             </ul>
           </aside>
         </section>
 
         {showForm && (
           <div ref={formRef} className="form-anchor">
-            <ApplicationForm onBack={() => setShowForm(false)} onSubmit={handleApplicationSubmit} />
+            <ApplicationForm student={student} onBack={() => setShowForm(false)} onSubmit={handleApplicationSubmit} />
           </div>
         )}
       </div>
@@ -274,47 +380,52 @@ const Dashboard = ({
   );
 };
 
-const ApplicationForm = ({ onBack, onSubmit }) => {
+const ApplicationForm = ({ student, onBack, onSubmit }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    name: student.name,
+    email: student.email,
     phone: '',
+    campus: student.campus,
     roomType: 'single',
     accessibility: '',
-    comments: ''
+    comments: '',
   });
   const [emailError, setEmailError] = useState('');
+  const [formMessage, setFormMessage] = useState('');
 
-  const validateEmail = (email) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  };
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (e.target.name === 'email') {
+  const handleChange = (event) => {
+    setFormData({ ...formData, [event.target.name]: event.target.value });
+    if (event.target.name === 'email') {
       setEmailError('');
     }
+    setFormMessage('');
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
     if (!validateEmail(formData.email)) {
       setEmailError('Please enter a valid email address.');
       return;
     }
 
-    // Submit the application
-    onSubmit(formData);
+    const result = onSubmit(formData);
+    if (!result.success) {
+      setFormMessage(result.message);
+      return;
+    }
 
-    // Send confirmation email
+    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+    if (!serviceId || !templateId || !publicKey) {
+      return;
+    }
+
     try {
-      // Replace these with your actual EmailJS credentials from https://www.emailjs.com/
-      const serviceId = 'your_service_id_here'; // e.g., 'service_123456'
-      const templateId = 'your_template_id_here'; // e.g., 'template_abcdef'
-      const publicKey = 'your_public_key_here'; // e.g., 'ABC123def456'
-
       await emailjs.send(
         serviceId,
         templateId,
@@ -327,10 +438,9 @@ const ApplicationForm = ({ onBack, onSubmit }) => {
         },
         publicKey
       );
-      alert('Application submitted successfully! A confirmation email has been sent to ' + formData.email + '. Check your inbox (and spam folder) on your phone or computer.');
     } catch (error) {
       console.error('Email send failed:', error);
-      alert('Application submitted, but email confirmation failed. Please contact support or check your email later. Error: ' + error.text);
+      setFormMessage('Application saved, but email confirmation could not be sent.');
     }
   };
 
@@ -341,7 +451,9 @@ const ApplicationForm = ({ onBack, onSubmit }) => {
           <p className="eyebrow">Detailed application</p>
           <h2>Hostel room request</h2>
         </div>
-        <button onClick={onBack} className="back-btn">← Back</button>
+        <button onClick={onBack} className="back-btn" type="button">
+          Back
+        </button>
       </div>
 
       <form onSubmit={handleSubmit}>
@@ -373,16 +485,39 @@ const ApplicationForm = ({ onBack, onSubmit }) => {
         </div>
 
         <div className="form-group">
+          <label htmlFor="campus">Campus</label>
+          <input type="text" id="campus" name="campus" value={formData.campus} readOnly />
+        </div>
+
+        <div className="form-group">
           <label htmlFor="accessibility">Accessibility Needs</label>
-          <textarea id="accessibility" name="accessibility" value={formData.accessibility} onChange={handleChange} rows="3" placeholder="Describe requirements..."></textarea>
+          <textarea
+            id="accessibility"
+            name="accessibility"
+            value={formData.accessibility}
+            onChange={handleChange}
+            rows="3"
+            placeholder="Describe requirements..."
+          />
         </div>
 
         <div className="form-group">
           <label htmlFor="comments">Additional Comments</label>
-          <textarea id="comments" name="comments" value={formData.comments} onChange={handleChange} rows="3" placeholder="Any preferences or notes..."></textarea>
+          <textarea
+            id="comments"
+            name="comments"
+            value={formData.comments}
+            onChange={handleChange}
+            rows="3"
+            placeholder="Any preferences or notes..."
+          />
         </div>
 
-        <button type="submit" className="submit-btn">Submit Application</button>
+        {formMessage && <p className="error">{formMessage}</p>}
+
+        <button type="submit" className="submit-btn">
+          Submit Application
+        </button>
       </form>
     </div>
   );

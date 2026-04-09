@@ -396,6 +396,12 @@
   font-weight: 700;
   margin-bottom: 1.4rem;
 }
+
+.hero-alert.warning {
+  background: rgba(245, 158, 11, 0.14);
+  border-color: rgba(245, 158, 11, 0.24);
+  color: #fef3c7;
+}
 .metric-icon {
   font-size: 2rem;
   color: #06b6d4;
@@ -456,9 +462,20 @@
   color: #d1fae5;
 }
 
+.status-badge.ready,
 .status-badge.pending {
   background: rgba(251, 191, 36, 0.18);
   color: #fde68a;
+}
+
+.status-badge.waitlisted {
+  background: rgba(59, 130, 246, 0.18);
+  color: #dbeafe;
+}
+
+.status-badge.rejected {
+  background: rgba(248, 113, 113, 0.18);
+  color: #fee2e2;
 }
 
 .status-summary {

@@ -1,0 +1,380 @@
+.admin-portal {
+  min-height: 100vh;
+  padding-bottom: 3rem;
+}
+
+.admin-portal.light {
+  background: linear-gradient(135deg, #f8fafc 0%, #dbeafe 55%, #fef3c7 100%);
+  color: #172033;
+}
+
+.admin-portal.dark {
+  background: linear-gradient(135deg, #0f172a 0%, #16213c 55%, #1f2937 100%);
+  color: #eef2ff;
+}
+
+.admin-header,
+.admin-content {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.admin-header {
+  padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.admin-copy {
+  max-width: 720px;
+  line-height: 1.75;
+  opacity: 0.85;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-content {
+  padding: 0 2rem 4rem;
+}
+
+.admin-card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 22px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16);
+  padding: 1.5rem;
+}
+
+.admin-portal.light .admin-card,
+.admin-portal.light .campus-summary-card,
+.admin-portal.light .pipeline-list div,
+.admin-portal.light .room-row,
+.admin-portal.light .application-row,
+.admin-portal.light .empty-state {
+  background: rgba(255, 255, 255, 0.66);
+  border-color: rgba(148, 163, 184, 0.24);
+}
+
+.admin-portal.light .room-controls input,
+.admin-portal.light .room-controls select,
+.admin-portal.light .applicant-filters select,
+.admin-portal.light .application-controls input {
+  background: rgba(255, 255, 255, 0.82);
+  border-color: rgba(148, 163, 184, 0.3);
+  color: #172033;
+}
+
+.admin-portal.light .status-pill.pending,
+.admin-portal.light .waitlist {
+  color: #854d0e;
+}
+
+.admin-portal.light .status-pill.approved,
+.admin-portal.light .approve {
+  color: #166534;
+}
+
+.admin-portal.light .status-pill.rejected,
+.admin-portal.light .reject {
+  color: #991b1b;
+}
+
+.admin-portal.light .status-pill.waitlisted {
+  color: #1d4ed8;
+}
+
+.admin-portal.light .empty-state {
+  color: #475569;
+}
+
+.admin-flash {
+  margin-bottom: 1.5rem;
+  border-radius: 18px;
+  padding: 1rem 1.2rem;
+  font-weight: 600;
+}
+
+.admin-flash.success {
+  background: rgba(34, 197, 94, 0.14);
+  border: 1px solid rgba(34, 197, 94, 0.24);
+}
+
+.admin-flash.error {
+  background: rgba(248, 113, 113, 0.14);
+  border: 1px solid rgba(248, 113, 113, 0.24);
+}
+
+.admin-stat-grid,
+.admin-report-grid,
+.admin-layout,
+.campus-summary-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.admin-stat-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 1.5rem;
+}
+
+.admin-report-grid {
+  grid-template-columns: 1.2fr 0.8fr;
+  margin-bottom: 1.5rem;
+}
+
+.admin-layout {
+  grid-template-columns: 0.9fr 1.1fr;
+}
+
+.stat-card {
+  display: grid;
+  gap: 0.5rem;
+  text-align: left;
+}
+
+.stat-icon,
+.section-icon {
+  font-size: 1.35rem;
+  color: #60a5fa;
+}
+
+.stat-card strong {
+  font-size: 1.8rem;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-size: 1.45rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  opacity: 0.75;
+}
+
+.campus-summary-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.campus-summary-card,
+.pipeline-list div,
+.room-row,
+.application-row {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+}
+
+.campus-summary-card {
+  padding: 1rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.campus-summary-card strong {
+  font-size: 1.1rem;
+}
+
+.campus-summary-card p {
+  margin: 0;
+  line-height: 1.6;
+  opacity: 0.8;
+}
+
+.pipeline-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.pipeline-list div {
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.room-list,
+.application-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.room-row,
+.application-row {
+  padding: 1rem;
+}
+
+.room-row {
+  display: grid;
+  gap: 1rem;
+}
+
+.room-row-main {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.room-row-main span,
+.application-meta,
+.application-main p {
+  opacity: 0.8;
+}
+
+.room-controls,
+.applicant-filters,
+.application-controls,
+.application-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.room-controls label {
+  display: grid;
+  gap: 0.4rem;
+  flex: 1 1 160px;
+}
+
+.room-controls input,
+.room-controls select,
+.applicant-filters select,
+.application-controls input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+}
+
+.action-button,
+.application-actions button {
+  border: none;
+  cursor: pointer;
+  border-radius: 14px;
+  padding: 0.85rem 1.05rem;
+  font-weight: 700;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.action-button {
+  background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%);
+  color: #fff;
+}
+
+.application-main {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.application-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.application-meta {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  font-size: 0.95rem;
+}
+
+.application-main p {
+  margin: 0;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.status-pill.pending,
+.waitlist {
+  background: rgba(250, 204, 21, 0.18);
+  color: #4b5563;
+}
+
+.status-pill.approved,
+.approve {
+  background: rgba(34, 197, 94, 0.16);
+  color: #ecfdf5;
+}
+
+.status-pill.rejected,
+.reject {
+  background: rgba(248, 113, 113, 0.18);
+  color: #fee2e2;
+}
+
+.status-pill.waitlisted {
+  background: rgba(251, 191, 36, 0.18);
+  color: #fef3c7;
+}
+
+.application-actions button {
+  color: inherit;
+}
+
+.empty-state {
+  border-radius: 18px;
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.76);
+}
+
+.application-actions button:hover,
+.action-button:hover {
+  transform: translateY(-1px);
+  opacity: 0.95;
+}
+
+@media (max-width: 1100px) {
+  .admin-stat-grid,
+  .admin-report-grid,
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .admin-header,
+  .admin-content {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .admin-stat-grid,
+  .campus-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .application-heading {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

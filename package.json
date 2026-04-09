@@ -1,5 +1,18 @@
 {
-  "dependencies": {
-    "sass": "^1.99.0"
+  "name": "react-workspace",
+  "private": true,
+  "packageManager": "npm@10.9.2",
+  "engines": {
+    "node": ">=20 <25",
+    "npm": ">=10 <12"
+  },
+  "workspaces": [
+    "my-app"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace my-app",
+    "build": "npm run build --workspace my-app",
+    "lint": "npm run lint --workspace my-app",
+    "preview": "npm run preview --workspace my-app"
   }
 }

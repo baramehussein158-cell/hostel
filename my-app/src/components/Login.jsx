@@ -1,57 +1,98 @@
 import React, { useState } from 'react';
-import { FaGraduationCap, FaShieldAlt, FaRocket } from 'react-icons/fa';
+import { FaChartLine, FaGraduationCap, FaShieldAlt } from 'react-icons/fa';
+import { ADMIN_ACCOUNT } from '../data/portalData';
 import { useTheme } from '../contexts/ThemeContext';
 import './Login.scss';
 
-const Login = ({ onLogin, onRegister, registeredUser }) => {
+const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount }) => {
   const { theme } = useTheme();
   const [mode, setMode] = useState('login');
   const [loginData, setLoginData] = useState({ email: '', password: '', regNumber: '', campus: 'UR' });
-  const [registerData, setRegisterData] = useState({ name: '', email: '', regNumber: '', password: '', confirm: '', campus: 'UR' });
-  const [error, setError] = useState('');
+  const [adminData, setAdminData] = useState({ email: '', password: '' });
+  const [registerData, setRegisterData] = useState({
+    name: '',
+    email: '',
+    regNumber: '',
+    password: '',
+    confirm: '',
+    campus: 'UR',
+  });
+  const [feedback, setFeedback] = useState(null);
 
-  const handleLoginSubmit = (e) => {
-    e.preventDefault();
-    setError('');
+  const resetFeedback = () => setFeedback(null);
+
+  const handleLoginSubmit = (event) => {
+    event.preventDefault();
+    resetFeedback();
 
     if (!loginData.email || !loginData.password || !loginData.regNumber || !loginData.campus) {
-      setError('Email, password, registration number, and campus selection are required to login.');
+      setFeedback({
+        type: 'error',
+        text: 'Email, password, registration number, and campus are required.',
+      });
       return;
     }
 
-    const result = onLogin(loginData);
+    const result = onStudentLogin(loginData);
     if (!result.success) {
-      setError(result.message);
+      setFeedback({ type: 'error', text: result.message });
     }
   };
 
-  const handleRegisterSubmit = (e) => {
-    e.preventDefault();
-    setError('');
+  const handleAdminSubmit = (event) => {
+    event.preventDefault();
+    resetFeedback();
 
-    if (!registerData.name || !registerData.email || !registerData.regNumber || !registerData.password || !registerData.confirm) {
-      setError('All registration fields are required.');
+    if (!adminData.email || !adminData.password) {
+      setFeedback({ type: 'error', text: 'Admin email and password are required.' });
+      return;
+    }
+
+    const result = onAdminLogin(adminData);
+    if (!result.success) {
+      setFeedback({ type: 'error', text: result.message });
+    }
+  };
+
+  const handleRegisterSubmit = (event) => {
+    event.preventDefault();
+    resetFeedback();
+
+    if (
+      !registerData.name ||
+      !registerData.email ||
+      !registerData.regNumber ||
+      !registerData.password ||
+      !registerData.confirm
+    ) {
+      setFeedback({ type: 'error', text: 'All registration fields are required.' });
       return;
     }
 
     const regNumberPattern = /^[A-Za-z0-9]{4,12}$/;
     if (!regNumberPattern.test(registerData.regNumber)) {
-      setError('Registration number must be 4–12 alphanumeric characters.');
+      setFeedback({
+        type: 'error',
+        text: 'Registration number must be 4-12 alphanumeric characters.',
+      });
       return;
     }
 
     const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
     if (!strongPassword.test(registerData.password)) {
-      setError('Password must be at least 8 characters and include uppercase, lowercase, numeric, and symbol characters.');
+      setFeedback({
+        type: 'error',
+        text: 'Password must be at least 8 characters with uppercase, lowercase, number, and symbol.',
+      });
       return;
     }
 
     if (registerData.password !== registerData.confirm) {
-      setError('Passwords do not match.');
+      setFeedback({ type: 'error', text: 'Passwords do not match.' });
       return;
     }
 
-    onRegister({
+    const result = onRegister({
       name: registerData.name,
       email: registerData.email,
       regNumber: registerData.regNumber,
@@ -59,69 +100,126 @@ const Login = ({ onLogin, onRegister, registeredUser }) => {
       campus: registerData.campus,
     });
 
-    // Switch back to login mode after registration
+    if (!result.success) {
+      setFeedback({ type: 'error', text: result.message });
+      return;
+    }
+
     setMode('login');
-    setError('');
+    setRegisterData({
+      name: '',
+      email: '',
+      regNumber: '',
+      password: '',
+      confirm: '',
+      campus: 'UR',
+    });
+    setLoginData((currentLogin) => ({
+      ...currentLogin,
+      email: registerData.email,
+      regNumber: registerData.regNumber,
+      campus: registerData.campus,
+    }));
+    setFeedback({ type: 'success', text: result.message });
   };
 
   return (
     <div className={`login-container ${theme}`}>
       <div className="portal-grid">
         <section className="portal-hero">
-          <div className="hero-pill">Student Portal</div>
-          <h1>Apply for your hostel room with confidence.</h1>
-          <p>CampusStay helps you manage your application, view your status, and keep your profile ready for room allocation.</p>
+          <div className="hero-pill">Student and Admin Portal</div>
+          <h1>Apply, review, and monitor campus housing from one portal.</h1>
+          <p>
+            Students can register and apply for rooms, while administrators can monitor reports, manage room
+            capacity, and review applicants.
+          </p>
 
           <div className="hero-features">
             <div>
               <FaGraduationCap />
-              <span>Student-first experience</span>
+              <span>{registeredUsersCount} student account(s) registered</span>
             </div>
             <div>
               <FaShieldAlt />
-              <span>Secure personal profile</span>
+              <span>Secure student and admin login flows</span>
             </div>
             <div>
-              <FaRocket />
-              <span>Fast application workflow</span>
+              <FaChartLine />
+              <span>Live room and applicant monitoring logic</span>
             </div>
           </div>
         </section>
 
         <div className="login-card">
-          <div className="login-nav">
-            <button className={mode === 'login' ? 'active' : ''} type="button" onClick={() => { setMode('login'); setError(''); }}>
-              Login
+          <div className="login-nav three-column">
+            <button
+              className={mode === 'login' ? 'active' : ''}
+              type="button"
+              onClick={() => {
+                setMode('login');
+                resetFeedback();
+              }}
+            >
+              Student Login
             </button>
-            <button className={mode === 'register' ? 'active' : ''} type="button" onClick={() => { setMode('register'); setError(''); }}>
+            <button
+              className={mode === 'register' ? 'active' : ''}
+              type="button"
+              onClick={() => {
+                setMode('register');
+                resetFeedback();
+              }}
+            >
               Register
+            </button>
+            <button
+              className={mode === 'admin' ? 'active' : ''}
+              type="button"
+              onClick={() => {
+                setMode('admin');
+                resetFeedback();
+              }}
+            >
+              Admin
             </button>
           </div>
 
           <div className="login-intro">
-            <h2>{mode === 'login' ? 'Student Login' : 'Create Your Profile'}</h2>
-            <p>{mode === 'login' ? 'Sign in to access your hostel application dashboard.' : 'Register now to reserve and manage your hostel room application.'}</p>
+            <h2>
+              {mode === 'login'
+                ? 'Student Login'
+                : mode === 'register'
+                  ? 'Create Student Profile'
+                  : 'Admin Monitor Login'}
+            </h2>
+            <p>
+              {mode === 'login'
+                ? 'Sign in to apply for a room or track your latest application.'
+                : mode === 'register'
+                  ? 'Register a student account before submitting a hostel room request.'
+                  : 'Use the admin portal to review applicants and manage room inventory.'}
+            </p>
           </div>
 
-          {mode === 'login' ? (
+          {mode === 'login' && (
             <form onSubmit={handleLoginSubmit}>
               <div className="form-group">
-                <label htmlFor="email">Email</label>
+                <label htmlFor="student-email">Email</label>
                 <input
                   type="email"
-                  id="email"
+                  id="student-email"
                   value={loginData.email}
-                  onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+                  onChange={(event) => setLoginData({ ...loginData, email: event.target.value })}
                   placeholder="student@university.edu"
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="regNumber">Registration Number</label>
+                <label htmlFor="student-regNumber">Registration Number</label>
                 <input
                   type="text"
-                  id="regNumber"
+                  id="student-regNumber"
                   value={loginData.regNumber}
-                  onChange={(e) => setLoginData({ ...loginData, regNumber: e.target.value })}
+                  onChange={(event) => setLoginData({ ...loginData, regNumber: event.target.value })}
                   placeholder="Enter your reg number"
                 />
               </div>
@@ -134,7 +232,7 @@ const Login = ({ onLogin, onRegister, registeredUser }) => {
                       name="campusLogin"
                       value="UR"
                       checked={loginData.campus === 'UR'}
-                      onChange={(e) => setLoginData({ ...loginData, campus: e.target.value })}
+                      onChange={(event) => setLoginData({ ...loginData, campus: event.target.value })}
                     />
                     UR
                   </label>
@@ -144,54 +242,58 @@ const Login = ({ onLogin, onRegister, registeredUser }) => {
                       name="campusLogin"
                       value="RP"
                       checked={loginData.campus === 'RP'}
-                      onChange={(e) => setLoginData({ ...loginData, campus: e.target.value })}
+                      onChange={(event) => setLoginData({ ...loginData, campus: event.target.value })}
                     />
                     RP
                   </label>
                 </div>
               </div>
               <div className="form-group">
-                <label htmlFor="password">Password</label>
+                <label htmlFor="student-password">Password</label>
                 <input
                   type="password"
-                  id="password"
+                  id="student-password"
                   value={loginData.password}
-                  onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                  onChange={(event) => setLoginData({ ...loginData, password: event.target.value })}
                   placeholder="Enter your password"
                 />
               </div>
-              {error && <p className="error">{error}</p>}
-              <button type="submit" className="login-btn">Login</button>
+              {feedback && <p className={`message ${feedback.type}`}>{feedback.text}</p>}
+              <button type="submit" className="login-btn">
+                Login
+              </button>
             </form>
-          ) : (
+          )}
+
+          {mode === 'register' && (
             <form onSubmit={handleRegisterSubmit}>
               <div className="form-group">
-                <label htmlFor="name">Full Name</label>
+                <label htmlFor="register-name">Full Name</label>
                 <input
                   type="text"
-                  id="name"
+                  id="register-name"
                   value={registerData.name}
-                  onChange={(e) => setRegisterData({ ...registerData, name: e.target.value })}
+                  onChange={(event) => setRegisterData({ ...registerData, name: event.target.value })}
                   placeholder="Enter your full name"
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="email">Email</label>
+                <label htmlFor="register-email">Email</label>
                 <input
                   type="email"
-                  id="email"
+                  id="register-email"
                   value={registerData.email}
-                  onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
+                  onChange={(event) => setRegisterData({ ...registerData, email: event.target.value })}
                   placeholder="student@university.edu"
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="regNumber">Registration Number</label>
+                <label htmlFor="register-regNumber">Registration Number</label>
                 <input
                   type="text"
-                  id="regNumber"
+                  id="register-regNumber"
                   value={registerData.regNumber}
-                  onChange={(e) => setRegisterData({ ...registerData, regNumber: e.target.value })}
+                  onChange={(event) => setRegisterData({ ...registerData, regNumber: event.target.value })}
                   placeholder="Enter a reg number"
                 />
               </div>
@@ -204,7 +306,7 @@ const Login = ({ onLogin, onRegister, registeredUser }) => {
                       name="campusRegister"
                       value="UR"
                       checked={registerData.campus === 'UR'}
-                      onChange={(e) => setRegisterData({ ...registerData, campus: e.target.value })}
+                      onChange={(event) => setRegisterData({ ...registerData, campus: event.target.value })}
                     />
                     UR
                   </label>
@@ -214,7 +316,7 @@ const Login = ({ onLogin, onRegister, registeredUser }) => {
                       name="campusRegister"
                       value="RP"
                       checked={registerData.campus === 'RP'}
-                      onChange={(e) => setRegisterData({ ...registerData, campus: e.target.value })}
+                      onChange={(event) => setRegisterData({ ...registerData, campus: event.target.value })}
                     />
                     RP
                   </label>
@@ -222,39 +324,94 @@ const Login = ({ onLogin, onRegister, registeredUser }) => {
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="password">Password</label>
+                  <label htmlFor="register-password">Password</label>
                   <input
                     type="password"
-                    id="password"
+                    id="register-password"
                     value={registerData.password}
-                    onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
+                    onChange={(event) => setRegisterData({ ...registerData, password: event.target.value })}
                     placeholder="Create a password"
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="confirm">Confirm Password</label>
+                  <label htmlFor="register-confirm">Confirm Password</label>
                   <input
                     type="password"
-                    id="confirm"
+                    id="register-confirm"
                     value={registerData.confirm}
-                    onChange={(e) => setRegisterData({ ...registerData, confirm: e.target.value })}
+                    onChange={(event) => setRegisterData({ ...registerData, confirm: event.target.value })}
                     placeholder="Confirm password"
                   />
                 </div>
               </div>
-              {error && <p className="error">{error}</p>}
-              <button type="submit" className="login-btn">Register Account</button>
+              {feedback && <p className={`message ${feedback.type}`}>{feedback.text}</p>}
+              <button type="submit" className="login-btn">
+                Register Account
+              </button>
+            </form>
+          )}
+
+          {mode === 'admin' && (
+            <form onSubmit={handleAdminSubmit}>
+              <div className="form-group">
+                <label htmlFor="admin-email">Admin Email</label>
+                <input
+                  type="email"
+                  id="admin-email"
+                  value={adminData.email}
+                  onChange={(event) => setAdminData({ ...adminData, email: event.target.value })}
+                  placeholder="admin@campusstay.rw"
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="admin-password">Password</label>
+                <input
+                  type="password"
+                  id="admin-password"
+                  value={adminData.password}
+                  onChange={(event) => setAdminData({ ...adminData, password: event.target.value })}
+                  placeholder="Enter admin password"
+                />
+              </div>
+              <div className="credentials-hint">
+                <strong>Demo admin credentials</strong>
+                <span>{ADMIN_ACCOUNT.email}</span>
+                <span>{ADMIN_ACCOUNT.password}</span>
+              </div>
+              {feedback && <p className={`message ${feedback.type}`}>{feedback.text}</p>}
+              <button type="submit" className="login-btn">
+                Open Admin Portal
+              </button>
             </form>
           )}
 
           <div className="signup-link">
-            {mode === 'login' ? (
+            {mode === 'login' && (
               <p>
-                New student? <button type="button" onClick={() => { setMode('register'); setError(''); }}>Create account</button>
+                New student?{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('register');
+                    resetFeedback();
+                  }}
+                >
+                  Create account
+                </button>
               </p>
-            ) : (
+            )}
+            {mode === 'register' && (
               <p>
-                Already registered? <button type="button" onClick={() => { setMode('login'); setError(''); }}>Sign in</button>
+                Already registered?{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('login');
+                    resetFeedback();
+                  }}
+                >
+                  Sign in
+                </button>
               </p>
             )}
           </div>

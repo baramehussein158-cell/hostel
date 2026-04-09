@@ -93,6 +93,10 @@
   margin-bottom: 1.5rem;
 }
 
+.login-nav.three-column {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .login-nav button {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -194,6 +198,44 @@
   font-size: 0.95rem;
 }
 
+.message {
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+}
+
+.message.error {
+  color: #fee2e2;
+  background: rgba(248, 113, 113, 0.14);
+  border: 1px solid rgba(248, 113, 113, 0.22);
+}
+
+.message.success {
+  color: #dcfce7;
+  background: rgba(34, 197, 94, 0.14);
+  border: 1px solid rgba(34, 197, 94, 0.22);
+}
+
+.credentials-hint {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.credentials-hint strong {
+  font-size: 0.92rem;
+}
+
+.credentials-hint span {
+  opacity: 0.85;
+  word-break: break-word;
+}
+
 .login-btn {
   width: 100%;
   padding: 1rem;
@@ -243,6 +285,10 @@
 
   .portal-hero h1 {
     font-size: 2.2rem;
+  }
+
+  .login-nav.three-column {
+    grid-template-columns: 1fr;
   }
 }
 
