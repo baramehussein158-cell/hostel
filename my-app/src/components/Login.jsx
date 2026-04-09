@@ -4,7 +4,7 @@ import { ADMIN_ACCOUNT } from '../data/portalData';
 import { useTheme } from '../contexts/ThemeContext';
 import './Login.scss';
 
-const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount }) => {
+const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount, isSyncing }) => {
   const { theme } = useTheme();
   const [mode, setMode] = useState('login');
   const [loginData, setLoginData] = useState({ email: '', password: '', regNumber: '', campus: 'UR' });
@@ -18,10 +18,11 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount 
     campus: 'UR',
   });
   const [feedback, setFeedback] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const resetFeedback = () => setFeedback(null);
 
-  const handleLoginSubmit = (event) => {
+  const handleLoginSubmit = async (event) => {
     event.preventDefault();
     resetFeedback();
 
@@ -33,13 +34,15 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount 
       return;
     }
 
-    const result = onStudentLogin(loginData);
+    setIsSubmitting(true);
+    const result = await onStudentLogin(loginData);
+    setIsSubmitting(false);
     if (!result.success) {
       setFeedback({ type: 'error', text: result.message });
     }
   };
 
-  const handleAdminSubmit = (event) => {
+  const handleAdminSubmit = async (event) => {
     event.preventDefault();
     resetFeedback();
 
@@ -48,13 +51,15 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount 
       return;
     }
 
-    const result = onAdminLogin(adminData);
+    setIsSubmitting(true);
+    const result = await onAdminLogin(adminData);
+    setIsSubmitting(false);
     if (!result.success) {
       setFeedback({ type: 'error', text: result.message });
     }
   };
 
-  const handleRegisterSubmit = (event) => {
+  const handleRegisterSubmit = async (event) => {
     event.preventDefault();
     resetFeedback();
 
@@ -92,13 +97,15 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount 
       return;
     }
 
-    const result = onRegister({
+    setIsSubmitting(true);
+    const result = await onRegister({
       name: registerData.name,
       email: registerData.email,
       regNumber: registerData.regNumber,
       password: registerData.password,
       campus: registerData.campus,
     });
+    setIsSubmitting(false);
 
     if (!result.success) {
       setFeedback({ type: 'error', text: result.message });
@@ -256,11 +263,13 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount 
                   value={loginData.password}
                   onChange={(event) => setLoginData({ ...loginData, password: event.target.value })}
                   placeholder="Enter your password"
+                  disabled={isSubmitting || isSyncing}
                 />
               </div>
               {feedback && <p className={`message ${feedback.type}`}>{feedback.text}</p>}
-              <button type="submit" className="login-btn">
-                Login
+              {isSyncing && <p className="message sync">Connecting to Firebase data...</p>}
+              <button type="submit" className="login-btn" disabled={isSubmitting || isSyncing}>
+                {isSubmitting ? 'Please wait...' : 'Login'}
               </button>
             </form>
           )}
@@ -275,6 +284,7 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount 
                   value={registerData.name}
                   onChange={(event) => setRegisterData({ ...registerData, name: event.target.value })}
                   placeholder="Enter your full name"
+                  disabled={isSubmitting || isSyncing}
                 />
               </div>
               <div className="form-group">
@@ -285,6 +295,7 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount 
                   value={registerData.email}
                   onChange={(event) => setRegisterData({ ...registerData, email: event.target.value })}
                   placeholder="student@university.edu"
+                  disabled={isSubmitting || isSyncing}
                 />
               </div>
               <div className="form-group">
@@ -295,6 +306,7 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount 
                   value={registerData.regNumber}
                   onChange={(event) => setRegisterData({ ...registerData, regNumber: event.target.value })}
                   placeholder="Enter a reg number"
+                  disabled={isSubmitting || isSyncing}
                 />
               </div>
               <div className="form-group campus-choice">
@@ -307,6 +319,7 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount 
                       value="UR"
                       checked={registerData.campus === 'UR'}
                       onChange={(event) => setRegisterData({ ...registerData, campus: event.target.value })}
+                      disabled={isSubmitting || isSyncing}
                     />
                     UR
                   </label>
@@ -317,6 +330,7 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount 
                       value="RP"
                       checked={registerData.campus === 'RP'}
                       onChange={(event) => setRegisterData({ ...registerData, campus: event.target.value })}
+                      disabled={isSubmitting || isSyncing}
                     />
                     RP
                   </label>
@@ -331,6 +345,7 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount 
                     value={registerData.password}
                     onChange={(event) => setRegisterData({ ...registerData, password: event.target.value })}
                     placeholder="Create a password"
+                    disabled={isSubmitting || isSyncing}
                   />
                 </div>
                 <div className="form-group">
@@ -341,12 +356,14 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount 
                     value={registerData.confirm}
                     onChange={(event) => setRegisterData({ ...registerData, confirm: event.target.value })}
                     placeholder="Confirm password"
+                    disabled={isSubmitting || isSyncing}
                   />
                 </div>
               </div>
               {feedback && <p className={`message ${feedback.type}`}>{feedback.text}</p>}
-              <button type="submit" className="login-btn">
-                Register Account
+              {isSyncing && <p className="message sync">Connecting to Firebase data...</p>}
+              <button type="submit" className="login-btn" disabled={isSubmitting || isSyncing}>
+                {isSubmitting ? 'Please wait...' : 'Register Account'}
               </button>
             </form>
           )}
@@ -361,6 +378,7 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount 
                   value={adminData.email}
                   onChange={(event) => setAdminData({ ...adminData, email: event.target.value })}
                   placeholder="admin@campusstay.rw"
+                  disabled={isSubmitting}
                 />
               </div>
               <div className="form-group">
@@ -371,6 +389,7 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount 
                   value={adminData.password}
                   onChange={(event) => setAdminData({ ...adminData, password: event.target.value })}
                   placeholder="Enter admin password"
+                  disabled={isSubmitting}
                 />
               </div>
               <div className="credentials-hint">
@@ -379,8 +398,8 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount 
                 <span>{ADMIN_ACCOUNT.password}</span>
               </div>
               {feedback && <p className={`message ${feedback.type}`}>{feedback.text}</p>}
-              <button type="submit" className="login-btn">
-                Open Admin Portal
+              <button type="submit" className="login-btn" disabled={isSubmitting}>
+                {isSubmitting ? 'Please wait...' : 'Open Admin Portal'}
               </button>
             </form>
           )}

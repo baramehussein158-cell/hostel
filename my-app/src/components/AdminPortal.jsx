@@ -26,6 +26,7 @@ const AdminPortal = ({
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [campusFilter, setCampusFilter] = useState('ALL');
   const [flash, setFlash] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     setRoomDrafts(
@@ -105,19 +106,23 @@ const AdminPortal = ({
         application.roomType === room.typeKey
     ).length;
 
-  const handleRoomSave = (roomId) => {
-    const result = onUpdateRoom(roomId, {
+  const handleRoomSave = async (roomId) => {
+    setIsSaving(true);
+    const result = await onUpdateRoom(roomId, {
       total: Number(roomDrafts[roomId]?.total ?? 0),
       status: roomDrafts[roomId]?.status ?? 'open',
     });
+    setIsSaving(false);
     showFlash(result);
   };
 
-  const handleApplicantAction = (applicationId, status) => {
-    const result = onUpdateApplication(applicationId, {
+  const handleApplicantAction = async (applicationId, status) => {
+    setIsSaving(true);
+    const result = await onUpdateApplication(applicationId, {
       status,
       assignedRoom: assignmentDrafts[applicationId]?.trim() ?? '',
     });
+    setIsSaving(false);
     showFlash(result);
   };
 
@@ -252,6 +257,7 @@ const AdminPortal = ({
                           type="number"
                           min="0"
                           value={roomDrafts[room.id]?.total ?? room.total}
+                          disabled={isSaving}
                           onChange={(event) =>
                             setRoomDrafts((currentDrafts) => ({
                               ...currentDrafts,
@@ -268,6 +274,7 @@ const AdminPortal = ({
                         <span>Status</span>
                         <select
                           value={roomDrafts[room.id]?.status ?? room.status}
+                          disabled={isSaving}
                           onChange={(event) =>
                             setRoomDrafts((currentDrafts) => ({
                               ...currentDrafts,
@@ -283,8 +290,8 @@ const AdminPortal = ({
                         </select>
                       </label>
 
-                      <button type="button" className="action-button" onClick={() => handleRoomSave(room.id)}>
-                        Save
+                      <button type="button" className="action-button" disabled={isSaving} onClick={() => handleRoomSave(room.id)}>
+                        {isSaving ? 'Saving...' : 'Save'}
                       </button>
                     </div>
                   </div>
@@ -346,6 +353,7 @@ const AdminPortal = ({
                         type="text"
                         placeholder="Room number"
                         value={assignmentDrafts[application.id] ?? ''}
+                        disabled={isSaving}
                         onChange={(event) =>
                           setAssignmentDrafts((currentDrafts) => ({
                             ...currentDrafts,
@@ -355,13 +363,13 @@ const AdminPortal = ({
                       />
 
                       <div className="application-actions">
-                        <button type="button" className="approve" onClick={() => handleApplicantAction(application.id, 'approved')}>
+                        <button type="button" className="approve" disabled={isSaving} onClick={() => handleApplicantAction(application.id, 'approved')}>
                           Approve
                         </button>
-                        <button type="button" className="waitlist" onClick={() => handleApplicantAction(application.id, 'waitlisted')}>
+                        <button type="button" className="waitlist" disabled={isSaving} onClick={() => handleApplicantAction(application.id, 'waitlisted')}>
                           Waitlist
                         </button>
-                        <button type="button" className="reject" onClick={() => handleApplicantAction(application.id, 'rejected')}>
+                        <button type="button" className="reject" disabled={isSaving} onClick={() => handleApplicantAction(application.id, 'rejected')}>
                           Reject
                         </button>
                       </div>

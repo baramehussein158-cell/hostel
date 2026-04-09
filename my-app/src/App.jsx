@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FaGraduationCap, FaUserShield } from 'react-icons/fa';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
@@ -6,12 +6,23 @@ import AdminPortal from './components/AdminPortal';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import {
   ADMIN_ACCOUNT,
-  DEFAULT_ROOM_INVENTORY,
   STORAGE_KEYS,
   createId,
   readStoredValue,
   sortApplicationsByDate,
 } from './data/portalData';
+import {
+  createApplication,
+  createUser,
+  ensureRoomInventorySeeded,
+  subscribeToApplications,
+  subscribeToRooms,
+  subscribeToUsers,
+  updateApplication,
+  updateRoom,
+  updateUserProfileImage,
+  uploadProfileImage,
+} from './services/portalRepository';
 import './App.scss';
 
 const APPLICATION_DEADLINE = new Date('2026-05-15T23:59:59');
@@ -42,26 +53,12 @@ const getCampusRoomStats = (applications, rooms, campus) => {
 
 function AppContent() {
   const { theme } = useTheme();
-  const [users, setUsers] = useState(() => readStoredValue(STORAGE_KEYS.users, []));
-  const [applications, setApplications] = useState(() =>
-    sortApplicationsByDate(readStoredValue(STORAGE_KEYS.applications, []))
-  );
-  const [roomInventory, setRoomInventory] = useState(() =>
-    readStoredValue(STORAGE_KEYS.rooms, DEFAULT_ROOM_INVENTORY)
-  );
+  const [users, setUsers] = useState([]);
+  const [applications, setApplications] = useState([]);
+  const [roomInventory, setRoomInventory] = useState([]);
   const [session, setSession] = useState(() => readStoredValue(STORAGE_KEYS.session, null));
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(users));
-  }, [users]);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.applications, JSON.stringify(applications));
-  }, [applications]);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.rooms, JSON.stringify(roomInventory));
-  }, [roomInventory]);
+  const [isSyncing, setIsSyncing] = useState(true);
+  const [syncError, setSyncError] = useState('');
 
   useEffect(() => {
     if (session) {
@@ -72,7 +69,104 @@ function AppContent() {
     localStorage.removeItem(STORAGE_KEYS.session);
   }, [session]);
 
-  const activeStudent = session?.role === 'student' ? session.user : null;
+  useEffect(() => {
+    let isMounted = true;
+    const loaded = {
+      applications: false,
+      rooms: false,
+      users: false,
+    };
+
+    const markLoaded = (key) => {
+      loaded[key] = true;
+      if (isMounted && Object.values(loaded).every(Boolean)) {
+        setIsSyncing(false);
+      }
+    };
+
+    setIsSyncing(true);
+    setSyncError('');
+
+    ensureRoomInventorySeeded().catch((error) => {
+      console.error('Failed to seed rooms:', error);
+      if (isMounted) {
+        setSyncError('Firebase room setup failed. Check your Firestore permissions and config.');
+      }
+    });
+
+    const unsubscribeUsers = subscribeToUsers(
+      (nextUsers) => {
+        if (!isMounted) {
+          return;
+        }
+        setUsers(nextUsers);
+        markLoaded('users');
+      },
+      (error) => {
+        console.error('Users subscription failed:', error);
+        if (isMounted) {
+          setSyncError('Could not load student accounts from Firebase.');
+          markLoaded('users');
+        }
+      }
+    );
+
+    const unsubscribeApplications = subscribeToApplications(
+      (nextApplications) => {
+        if (!isMounted) {
+          return;
+        }
+        setApplications(nextApplications);
+        markLoaded('applications');
+      },
+      (error) => {
+        console.error('Applications subscription failed:', error);
+        if (isMounted) {
+          setSyncError('Could not load applications from Firebase.');
+          markLoaded('applications');
+        }
+      }
+    );
+
+    const unsubscribeRooms = subscribeToRooms(
+      (nextRooms) => {
+        if (!isMounted) {
+          return;
+        }
+        setRoomInventory(nextRooms);
+        markLoaded('rooms');
+      },
+      (error) => {
+        console.error('Rooms subscription failed:', error);
+        if (isMounted) {
+          setSyncError('Could not load room inventory from Firebase.');
+          markLoaded('rooms');
+        }
+      }
+    );
+
+    return () => {
+      isMounted = false;
+      unsubscribeUsers();
+      unsubscribeApplications();
+      unsubscribeRooms();
+    };
+  }, []);
+
+  const activeStudent = useMemo(() => {
+    if (session?.role !== 'student') {
+      return null;
+    }
+
+    return users.find((user) => user.id === session.userId) ?? null;
+  }, [session, users]);
+
+  useEffect(() => {
+    if (session?.role === 'student' && !isSyncing && !activeStudent) {
+      setSession(null);
+    }
+  }, [activeStudent, isSyncing, session]);
+
   const latestStudentApplication = activeStudent
     ? getLatestApplicationForStudent(applications, activeStudent.regNumber)
     : null;
@@ -82,12 +176,7 @@ function AppContent() {
       )
     : [];
 
-  const {
-    campusRooms,
-    totalRooms,
-    occupiedRooms,
-    remainingRooms,
-  } = activeStudent
+  const { campusRooms, totalRooms, occupiedRooms, remainingRooms } = activeStudent
     ? getCampusRoomStats(applications, roomInventory, activeStudent.campus)
     : { campusRooms: [], totalRooms: 0, occupiedRooms: 0, remainingRooms: 0 };
 
@@ -97,7 +186,11 @@ function AppContent() {
     remainingRooms <= 0 ||
     (campusRooms.length > 0 && campusRooms.every((room) => room.status === 'closed'));
 
-  const handleStudentLogin = (credentials) => {
+  const handleStudentLogin = async (credentials) => {
+    if (isSyncing) {
+      return { success: false, message: 'Firebase data is still loading. Please wait a moment and try again.' };
+    }
+
     const matchedUser = users.find(
       (user) =>
         credentials.email.toLowerCase() === user.email.toLowerCase() &&
@@ -112,19 +205,13 @@ function AppContent() {
 
     setSession({
       role: 'student',
-      user: {
-        id: matchedUser.id,
-        name: matchedUser.name,
-        email: matchedUser.email,
-        regNumber: matchedUser.regNumber,
-        campus: matchedUser.campus,
-      },
+      userId: matchedUser.id,
     });
 
     return { success: true };
   };
 
-  const handleAdminLogin = (credentials) => {
+  const handleAdminLogin = async (credentials) => {
     const validAdmin =
       credentials.email.toLowerCase() === ADMIN_ACCOUNT.email.toLowerCase() &&
       credentials.password === ADMIN_ACCOUNT.password;
@@ -135,16 +222,13 @@ function AppContent() {
 
     setSession({
       role: 'admin',
-      user: {
-        name: ADMIN_ACCOUNT.name,
-        email: ADMIN_ACCOUNT.email,
-      },
+      email: ADMIN_ACCOUNT.email,
     });
 
     return { success: true };
   };
 
-  const handleRegister = (user) => {
+  const handleRegister = async (user) => {
     const duplicateEmail = users.some(
       (existingUser) => existingUser.email.toLowerCase() === user.email.toLowerCase()
     );
@@ -162,17 +246,19 @@ function AppContent() {
       };
     }
 
-    const newUser = {
-      id: createId('user'),
-      ...user,
-      createdAt: new Date().toISOString(),
-    };
-
-    setUsers((currentUsers) => [newUser, ...currentUsers]);
-    return { success: true, message: 'Account created successfully. You can now log in.' };
+    try {
+      await createUser({
+        ...user,
+        localKey: createId('user'),
+      });
+      return { success: true, message: 'Account created successfully in Firebase. You can now log in.' };
+    } catch (error) {
+      console.error('Failed to register user:', error);
+      return { success: false, message: 'Failed to create the Firebase account. Check your Firestore rules.' };
+    }
   };
 
-  const handleRoomApplication = (data) => {
+  const handleRoomApplication = async (data) => {
     if (!activeStudent) {
       return { success: false, message: 'Please log in as a student before applying.' };
     }
@@ -211,27 +297,29 @@ function AppContent() {
       };
     }
 
-    const newApplication = {
-      id: createId('application'),
-      studentId: activeStudent.id ?? null,
-      name: activeStudent.name,
-      email: activeStudent.email,
-      regNumber: activeStudent.regNumber,
-      campus: activeStudent.campus,
-      phone: data.phone,
-      roomType: data.roomType,
-      accessibility: data.accessibility,
-      comments: data.comments,
-      status: 'pending',
-      assignedRoom: '',
-      submittedAt: new Date().toISOString(),
-    };
-
-    setApplications((currentApplications) => sortApplicationsByDate([newApplication, ...currentApplications]));
-    return { success: true, message: 'Application submitted successfully.' };
+    try {
+      await createApplication({
+        studentId: activeStudent.id,
+        name: activeStudent.name,
+        email: activeStudent.email,
+        regNumber: activeStudent.regNumber,
+        campus: activeStudent.campus,
+        phone: data.phone,
+        roomType: data.roomType,
+        accessibility: data.accessibility,
+        comments: data.comments,
+        status: 'pending',
+        assignedRoom: '',
+        localKey: createId('application'),
+      });
+      return { success: true, message: 'Application submitted successfully.' };
+    } catch (error) {
+      console.error('Failed to create application:', error);
+      return { success: false, message: 'Failed to submit application to Firebase.' };
+    }
   };
 
-  const handleUpdateRoom = (roomId, updates) => {
+  const handleUpdateRoom = async (roomId, updates) => {
     const existingRoom = roomInventory.find((room) => room.id === roomId);
     if (!existingRoom) {
       return { success: false, message: 'Room category not found.' };
@@ -250,22 +338,19 @@ function AppContent() {
       };
     }
 
-    setRoomInventory((currentRooms) =>
-      currentRooms.map((room) =>
-        room.id === roomId
-          ? {
-              ...room,
-              total: nextTotal,
-              status: updates.status,
-            }
-          : room
-      )
-    );
-
-    return { success: true, message: `${existingRoom.label} updated successfully.` };
+    try {
+      await updateRoom(roomId, {
+        total: nextTotal,
+        status: updates.status,
+      });
+      return { success: true, message: `${existingRoom.label} updated successfully.` };
+    } catch (error) {
+      console.error('Failed to update room:', error);
+      return { success: false, message: 'Failed to save room changes to Firebase.' };
+    }
   };
 
-  const handleUpdateApplication = (applicationId, updates) => {
+  const handleUpdateApplication = async (applicationId, updates) => {
     const application = applications.find((entry) => entry.id === applicationId);
     if (!application) {
       return { success: false, message: 'Application not found.' };
@@ -298,22 +383,35 @@ function AppContent() {
       }
     }
 
-    setApplications((currentApplications) =>
-      sortApplicationsByDate(
-        currentApplications.map((entry) =>
-          entry.id === applicationId
-            ? {
-                ...entry,
-                status: nextStatus,
-                assignedRoom: updates.assignedRoom ?? entry.assignedRoom,
-                reviewedAt: nextStatus === 'pending' ? undefined : new Date().toISOString(),
-              }
-            : entry
-        )
-      )
-    );
+    try {
+      await updateApplication(applicationId, {
+        status: nextStatus,
+        assignedRoom: updates.assignedRoom ?? application.assignedRoom ?? '',
+        reviewedAt: nextStatus === 'pending' ? '' : new Date().toISOString(),
+      });
+      return { success: true, message: `Application moved to ${nextStatus}.` };
+    } catch (error) {
+      console.error('Failed to update application:', error);
+      return { success: false, message: 'Failed to update application in Firebase.' };
+    }
+  };
 
-    return { success: true, message: `Application moved to ${nextStatus}.` };
+  const handleProfileImageUpload = async (profileImageDataUrl) => {
+    if (!activeStudent) {
+      return { success: false, message: 'Student session not found.' };
+    }
+
+    try {
+      const profileImageUrl = await uploadProfileImage(activeStudent.id, profileImageDataUrl);
+      await updateUserProfileImage(activeStudent.id, profileImageUrl);
+      return { success: true, url: profileImageUrl };
+    } catch (error) {
+      console.error('Failed to upload profile image:', error);
+      return {
+        success: false,
+        message: 'Failed to upload the profile image to Firebase Storage. Check your storage rules.',
+      };
+    }
   };
 
   const handleLogout = () => {
@@ -365,6 +463,8 @@ function AppContent() {
         </div>
       </header>
 
+      {syncError && <div className="sync-banner">{syncError}</div>}
+
       {session?.role === 'admin' ? (
         <AdminPortal
           onLogout={handleLogout}
@@ -388,6 +488,7 @@ function AppContent() {
           latestApplication={latestStudentApplication}
           studentApplications={studentApplications}
           onRoomApplication={handleRoomApplication}
+          onProfileImageUpload={handleProfileImageUpload}
         />
       ) : (
         <Login
@@ -395,6 +496,7 @@ function AppContent() {
           onAdminLogin={handleAdminLogin}
           onRegister={handleRegister}
           registeredUsersCount={users.length}
+          isSyncing={isSyncing}
         />
       )}
 

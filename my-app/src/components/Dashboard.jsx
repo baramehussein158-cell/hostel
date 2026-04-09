@@ -13,8 +13,6 @@ import { useTheme } from '../contexts/ThemeContext';
 import { APPLICATION_STATUS_LABELS } from '../data/portalData';
 import './Dashboard.scss';
 
-const getProfileImageStorageKey = (student) => `campusStay.profileImage.${student.regNumber}`;
-
 const STUDENT_STATUS_COPY = {
   pending: {
     title: 'Submitted',
@@ -51,20 +49,15 @@ const Dashboard = ({
   latestApplication,
   studentApplications,
   onRoomApplication,
+  onProfileImageUpload,
 }) => {
   const campusName = campus === 'RP' ? 'Rwanda Polytechnic' : 'University of Rwanda';
   const { theme, toggleTheme } = useTheme();
   const [showForm, setShowForm] = useState(false);
   const [viewMode, setViewMode] = useState('status');
   const [notification, setNotification] = useState('');
-  const [profileImage, setProfileImage] = useState(() => {
-    try {
-      return localStorage.getItem(getProfileImageStorageKey(student));
-    } catch (error) {
-      console.error('Failed to read stored profile image:', error);
-      return null;
-    }
-  });
+  const [profileImage, setProfileImage] = useState(student.profileImageUrl || null);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const formRef = useRef(null);
   const statusRef = useRef(null);
   const occupancyRate = totalRooms > 0 ? Math.round((occupiedRooms / totalRooms) * 100) : 0;
@@ -93,16 +86,11 @@ const Dashboard = ({
   }, [notification]);
 
   useEffect(() => {
-    try {
-      const savedProfileImage = localStorage.getItem(getProfileImageStorageKey(student));
-      setProfileImage(savedProfileImage);
-    } catch (error) {
-      console.error('Failed to restore stored profile image:', error);
-    }
-  }, [student]);
+    setProfileImage(student.profileImageUrl || null);
+  }, [student.id, student.profileImageUrl]);
 
-  const handleApplicationSubmit = (formData) => {
-    const result = onRoomApplication(formData);
+  const handleApplicationSubmit = async (formData) => {
+    const result = await onRoomApplication(formData);
     if (!result.success) {
       setNotification(result.message);
       return result;
@@ -121,14 +109,20 @@ const Dashboard = ({
     }
 
     const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        localStorage.setItem(getProfileImageStorageKey(student), reader.result);
-      } catch (error) {
-        console.error('Failed to store profile image:', error);
+    reader.onload = async () => {
+      const previewImage = reader.result;
+      setProfileImage(previewImage);
+      setIsUploadingPhoto(true);
+      const result = await onProfileImageUpload(previewImage);
+      setIsUploadingPhoto(false);
+
+      if (!result.success) {
+        setNotification(result.message);
+        setProfileImage(student.profileImageUrl || null);
+        return;
       }
 
-      setProfileImage(reader.result);
+      setProfileImage(result.url);
     };
     reader.readAsDataURL(file);
   };
@@ -167,13 +161,14 @@ const Dashboard = ({
               <span>{student.email}</span>
               <span>{student.regNumber}</span>
               <label htmlFor="profile-upload" className="profile-upload-btn">
-                Change Photo
+                {isUploadingPhoto ? 'Uploading...' : 'Change Photo'}
               </label>
               <input
                 type="file"
                 id="profile-upload"
                 accept="image/*"
                 onChange={handleProfileUpload}
+                disabled={isUploadingPhoto}
                 style={{ display: 'none' }}
               />
             </div>
@@ -403,6 +398,8 @@ const ApplicationForm = ({ student, onBack, onSubmit }) => {
     setFormMessage('');
   };
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -411,7 +408,9 @@ const ApplicationForm = ({ student, onBack, onSubmit }) => {
       return;
     }
 
-    const result = onSubmit(formData);
+    setIsSubmitting(true);
+    const result = await onSubmit(formData);
+    setIsSubmitting(false);
     if (!result.success) {
       setFormMessage(result.message);
       return;
@@ -515,8 +514,8 @@ const ApplicationForm = ({ student, onBack, onSubmit }) => {
 
         {formMessage && <p className="error">{formMessage}</p>}
 
-        <button type="submit" className="submit-btn">
-          Submit Application
+        <button type="submit" className="submit-btn" disabled={isSubmitting}>
+          {isSubmitting ? 'Submitting...' : 'Submit Application'}
         </button>
       </form>
     </div>

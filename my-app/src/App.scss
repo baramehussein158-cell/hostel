@@ -52,6 +52,16 @@ textarea {
   width: 100%;
 }
 
+.sync-banner {
+  max-width: 1200px;
+  margin: 1rem auto 0;
+  padding: 1rem 1.25rem;
+  border-radius: 18px;
+  background: rgba(248, 113, 113, 0.14);
+  border: 1px solid rgba(248, 113, 113, 0.24);
+  color: #fee2e2;
+}
+
 .header-content {
   display: flex;
   flex-direction: column;
