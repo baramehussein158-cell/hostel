@@ -7,6 +7,7 @@ import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import {
   ADMIN_ACCOUNT,
   STORAGE_KEYS,
+  buildProfileImageSrc,
   createId,
   readStoredValue,
   sortApplicationsByDate,
@@ -420,13 +421,13 @@ function AppContent() {
     }
 
     try {
-      const profileImageUrl = await withTimeout(
+      const profileImage = await withTimeout(
         uploadProfileImage(activeStudent.id, profileImageFile),
         'The image upload took too long. Please try again with a smaller image.'
       );
 
       await withTimeout(
-        updateUserProfileImage(activeStudent.id, profileImageUrl),
+        updateUserProfileImage(activeStudent.id, profileImage),
         'The image uploaded, but saving it to your profile took too long. Please try again.'
       );
 
@@ -435,13 +436,20 @@ function AppContent() {
           user.id === activeStudent.id
             ? {
                 ...user,
-                profileImageUrl,
+                profileImageUrl: profileImage.url,
+                profileImagePath: profileImage.path,
+                profileImageUpdatedAt: profileImage.updatedAt,
               }
             : user
         )
       );
 
-      return { success: true, url: profileImageUrl };
+      return {
+        success: true,
+        url: buildProfileImageSrc(profileImage.url, profileImage.updatedAt),
+        profileImageUrl: profileImage.url,
+        profileImageUpdatedAt: profileImage.updatedAt,
+      };
     } catch (error) {
       console.error('Failed to upload profile image:', error);
       return {

@@ -9,7 +9,7 @@ import {
   FaUsers,
 } from 'react-icons/fa';
 import { useTheme } from '../contexts/ThemeContext';
-import { APPLICATION_STATUS_LABELS } from '../data/portalData';
+import { APPLICATION_STATUS_LABELS, buildProfileImageSrc } from '../data/portalData';
 import './AdminPortal.scss';
 
 const AdminPortal = ({
@@ -63,6 +63,13 @@ const AdminPortal = ({
   const occupancyRate = totalRooms > 0 ? Math.round((approvedApplications.length / totalRooms) * 100) : 0;
   const openRoomGroups = roomInventory.filter((room) => room.status === 'open').length;
   const pendingApplications = applications.filter((application) => application.status === 'pending').length;
+  const usersById = new Map(registeredUsers.map((user) => [user.id, user]));
+  const usersByRegNumber = new Map(
+    registeredUsers.map((user) => [user.regNumber?.toLowerCase(), user]).filter(([regNumber]) => Boolean(regNumber))
+  );
+  const usersByEmail = new Map(
+    registeredUsers.map((user) => [user.email?.toLowerCase(), user]).filter(([email]) => Boolean(email))
+  );
 
   const campusSummaries = ['UR', 'RP'].map((campus) => {
     const rooms = roomInventory.filter((room) => room.campus === campus);
@@ -125,6 +132,12 @@ const AdminPortal = ({
     setIsSaving(false);
     showFlash(result);
   };
+
+  const getStudentForApplication = (application) =>
+    usersById.get(application.studentId) ||
+    usersByRegNumber.get(application.regNumber?.toLowerCase()) ||
+    usersByEmail.get(application.email?.toLowerCase()) ||
+    null;
 
   return (
     <div className={`admin-portal ${theme}`}>
@@ -327,55 +340,74 @@ const AdminPortal = ({
               <div className="empty-state">No applications match the current filters yet.</div>
             ) : (
               <div className="application-list">
-                {filteredApplications.map((application) => (
-                  <div key={application.id} className="application-row">
-                    <div className="application-main">
-                      <div className="application-heading">
-                        <strong>{application.name}</strong>
-                        <span className={`status-pill ${application.status}`}>
-                          {APPLICATION_STATUS_LABELS[application.status]}
-                        </span>
+                {filteredApplications.map((application) => {
+                  const matchedStudent = getStudentForApplication(application);
+                  const studentProfileImage = buildProfileImageSrc(
+                    matchedStudent?.profileImageUrl,
+                    matchedStudent?.profileImageUpdatedAt
+                  );
+
+                  return (
+                    <div key={application.id} className="application-row">
+                      <div className="application-main">
+                        <div className="application-heading">
+                          <div className="applicant-profile">
+                            <div className="applicant-avatar">
+                              {studentProfileImage ? (
+                                <img src={studentProfileImage} alt={`${application.name} profile`} />
+                              ) : (
+                                application.name?.charAt(0).toUpperCase()
+                              )}
+                            </div>
+                            <div>
+                              <strong>{application.name}</strong>
+                              <span>{application.email}</span>
+                            </div>
+                          </div>
+                          <span className={`status-pill ${application.status}`}>
+                            {APPLICATION_STATUS_LABELS[application.status]}
+                          </span>
+                        </div>
+
+                        <div className="application-meta">
+                          <span>{application.regNumber}</span>
+                          <span>{application.campus}</span>
+                          <span>{application.roomType}</span>
+                          <span>{new Date(application.submittedAt).toLocaleDateString()}</span>
+                        </div>
+
+                        <p>{application.phone}</p>
                       </div>
 
-                      <div className="application-meta">
-                        <span>{application.regNumber}</span>
-                        <span>{application.campus}</span>
-                        <span>{application.roomType}</span>
-                        <span>{new Date(application.submittedAt).toLocaleDateString()}</span>
-                      </div>
+                      <div className="application-controls">
+                        <input
+                          type="text"
+                          placeholder="Room number"
+                          value={assignmentDrafts[application.id] ?? ''}
+                          disabled={isSaving}
+                          onChange={(event) =>
+                            setAssignmentDrafts((currentDrafts) => ({
+                              ...currentDrafts,
+                              [application.id]: event.target.value,
+                            }))
+                          }
+                        />
 
-                      <p>{application.email}</p>
-                      <p>{application.phone}</p>
+                        <div className="application-actions">
+                          <button type="button" className="approve" disabled={isSaving} onClick={() => handleApplicantAction(application.id, 'approved')}>
+                            Approve
+                          </button>
+                          <button type="button" className="waitlist" disabled={isSaving} onClick={() => handleApplicantAction(application.id, 'waitlisted')}>
+                            Waitlist
+                          </button>
+                          <button type="button" className="reject" disabled={isSaving} onClick={() => handleApplicantAction(application.id, 'rejected')}>
+                            Reject
+                          </button>
+                        </div>
+                      </div>
                     </div>
-
-                    <div className="application-controls">
-                      <input
-                        type="text"
-                        placeholder="Room number"
-                        value={assignmentDrafts[application.id] ?? ''}
-                        disabled={isSaving}
-                        onChange={(event) =>
-                          setAssignmentDrafts((currentDrafts) => ({
-                            ...currentDrafts,
-                            [application.id]: event.target.value,
-                          }))
-                        }
-                      />
-
-                      <div className="application-actions">
-                        <button type="button" className="approve" disabled={isSaving} onClick={() => handleApplicantAction(application.id, 'approved')}>
-                          Approve
-                        </button>
-                        <button type="button" className="waitlist" disabled={isSaving} onClick={() => handleApplicantAction(application.id, 'waitlisted')}>
-                          Waitlist
-                        </button>
-                        <button type="button" className="reject" disabled={isSaving} onClick={() => handleApplicantAction(application.id, 'rejected')}>
-                          Reject
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </article>

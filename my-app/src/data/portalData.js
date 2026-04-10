@@ -29,6 +29,19 @@ export const APPLICATION_STATUS_LABELS = {
 
 export const createId = (prefix) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
+export const buildProfileImageSrc = (profileImageUrl, profileImageUpdatedAt) => {
+  if (!profileImageUrl) {
+    return '';
+  }
+
+  if (!profileImageUpdatedAt) {
+    return profileImageUrl;
+  }
+
+  const separator = profileImageUrl.includes('?') ? '&' : '?';
+  return `${profileImageUrl}${separator}v=${encodeURIComponent(profileImageUpdatedAt)}`;
+};
+
 export const readStoredValue = (key, fallback) => {
   if (typeof window === 'undefined') {
     return fallback;

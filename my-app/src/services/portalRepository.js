@@ -18,6 +18,20 @@ const collections = {
   users: 'users',
 };
 
+const getFileExtension = (profileImageFile) => {
+  const fileName = profileImageFile?.name ?? '';
+  const fileNameParts = fileName.split('.');
+  const fileExtensionFromName = fileNameParts.length > 1 ? fileNameParts.pop().toLowerCase() : '';
+
+  if (fileExtensionFromName) {
+    return fileExtensionFromName;
+  }
+
+  const mimeType = profileImageFile?.type ?? '';
+  const mimeExtension = mimeType.split('/')[1]?.toLowerCase();
+  return mimeExtension || 'jpg';
+};
+
 const mapSnapshotDocs = (snapshot) =>
   snapshot.docs.map((snapshotDoc) => ({
     id: snapshotDoc.id,
@@ -80,6 +94,8 @@ export const createUser = async (user) => {
     ...user,
     createdAt: new Date().toISOString(),
     profileImageUrl: '',
+    profileImagePath: '',
+    profileImageUpdatedAt: '',
   };
   const documentRef = await addDoc(collection(db, collections.users), userPayload);
   return { id: documentRef.id, ...userPayload };
@@ -102,16 +118,29 @@ export const updateApplication = async (applicationId, updates) => {
   await updateDoc(doc(db, collections.applications, applicationId), updates);
 };
 
-export const updateUserProfileImage = async (userId, profileImageUrl) => {
-  await updateDoc(doc(db, collections.users, userId), { profileImageUrl });
+export const updateUserProfileImage = async (userId, profileImage) => {
+  await updateDoc(doc(db, collections.users, userId), {
+    profileImageUrl: profileImage.url,
+    profileImagePath: profileImage.path,
+    profileImageUpdatedAt: profileImage.updatedAt,
+  });
 };
 
 export const uploadProfileImage = async (userId, profileImageFile) => {
-  const imageRef = ref(storage, `profile-images/${userId}/avatar`);
+  const updatedAt = new Date().toISOString();
+  const fileExtension = getFileExtension(profileImageFile);
+  const imageRef = ref(storage, `profile-images/${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${fileExtension}`);
+
   await uploadBytes(imageRef, profileImageFile, {
     contentType: profileImageFile.type || 'image/jpeg',
   });
-  return getDownloadURL(imageRef);
+
+  const url = await getDownloadURL(imageRef);
+  return {
+    url,
+    path: imageRef.fullPath,
+    updatedAt,
+  };
 };
 
 export const seedDefaultRooms = async () => {

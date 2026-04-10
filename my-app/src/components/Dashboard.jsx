@@ -10,7 +10,7 @@ import {
 } from 'react-icons/fa';
 import emailjs from '@emailjs/browser';
 import { useTheme } from '../contexts/ThemeContext';
-import { APPLICATION_STATUS_LABELS } from '../data/portalData';
+import { APPLICATION_STATUS_LABELS, buildProfileImageSrc } from '../data/portalData';
 import './Dashboard.scss';
 
 const PROFILE_PREVIEW_STORAGE_KEY = (studentId) => `campusstay-profile-preview:${studentId}`;
@@ -63,6 +63,9 @@ const readFileAsDataUrl = (file) =>
     reader.readAsDataURL(file);
   });
 
+const getSavedProfileImage = (student) =>
+  buildProfileImageSrc(student.profileImageUrl, student.profileImageUpdatedAt) || null;
+
 const STUDENT_STATUS_COPY = {
   pending: {
     title: 'Submitted',
@@ -107,7 +110,7 @@ const Dashboard = ({
   const [viewMode, setViewMode] = useState('status');
   const [notification, setNotification] = useState('');
   const [profileImage, setProfileImage] = useState(
-    student.profileImageUrl || getStoredProfilePreview(student.id) || null
+    getSavedProfileImage(student) || getStoredProfilePreview(student.id) || null
   );
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const formRef = useRef(null);
@@ -138,14 +141,16 @@ const Dashboard = ({
   }, [notification]);
 
   useEffect(() => {
-    if (student.profileImageUrl) {
+    const savedProfileImage = getSavedProfileImage(student);
+
+    if (savedProfileImage) {
       setStoredProfilePreview(student.id, null);
-      setProfileImage(student.profileImageUrl);
+      setProfileImage(savedProfileImage);
       return;
     }
 
     setProfileImage(getStoredProfilePreview(student.id) || null);
-  }, [student.id, student.profileImageUrl]);
+  }, [student.id, student.profileImageUrl, student.profileImageUpdatedAt]);
 
   const handleApplicationSubmit = async (formData) => {
     const result = await onRoomApplication(formData);
@@ -188,7 +193,7 @@ const Dashboard = ({
       }
 
       setStoredProfilePreview(student.id, null);
-      setProfileImage(result.url);
+      setProfileImage(result.url || getSavedProfileImage(student));
       setNotification('Profile photo updated successfully.');
     } catch (error) {
       console.error('Profile upload failed:', error);
