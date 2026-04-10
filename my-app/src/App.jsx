@@ -31,24 +31,6 @@ import {
 import './App.scss';
 
 const APPLICATION_DEADLINE = new Date('2026-05-15T23:59:59');
-const PROFILE_IMAGE_UPLOAD_TIMEOUT_MS = 90000;
-
-const withTimeout = (promise, timeoutMessage, timeoutMs = PROFILE_IMAGE_UPLOAD_TIMEOUT_MS) =>
-  new Promise((resolve, reject) => {
-    const timeoutId = window.setTimeout(() => {
-      reject(new Error(timeoutMessage));
-    }, timeoutMs);
-
-    promise
-      .then((value) => {
-        window.clearTimeout(timeoutId);
-        resolve(value);
-      })
-      .catch((error) => {
-        window.clearTimeout(timeoutId);
-        reject(error);
-      });
-  });
 
 const getLatestApplicationForStudent = (applications, regNumber) =>
   sortApplicationsByDate(applications.filter((application) => application.regNumber === regNumber))[0] ?? null;
@@ -470,16 +452,12 @@ function AppContent() {
       const relatedUserIds = users
         .filter((user) => getUserAccountKey(user) === accountKey)
         .map((user) => user.id);
-      const profileImage = await withTimeout(
-        uploadProfileImage(activeStudent.id, profileImageFile),
-        'The profile image upload took too long. Please try again.'
-      );
+      const profileImage = await uploadProfileImage(activeStudent.id, profileImageFile);
 
-      await withTimeout(
+      await (
         relatedUserIds.length > 1
           ? updateUserProfileImageForUsers(relatedUserIds, profileImage)
-          : updateUserProfileImage(activeStudent.id, profileImage),
-        'The image uploaded, but saving it to your profile took too long. Please try again.'
+          : updateUserProfileImage(activeStudent.id, profileImage)
       );
 
       setUsers((currentUsers) =>
