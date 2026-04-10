@@ -11,57 +11,8 @@ import {
 import emailjs from '@emailjs/browser';
 import { useTheme } from '../contexts/ThemeContext';
 import { APPLICATION_STATUS_LABELS, buildProfileImageSrc } from '../data/portalData';
+import { createProfilePreviewUrl, prepareProfileImageForUpload } from '../utils/profileImage';
 import './Dashboard.scss';
-
-const PROFILE_PREVIEW_STORAGE_KEY = (studentId) => `campusstay-profile-preview:${studentId}`;
-
-const getStoredProfilePreview = (studentId) => {
-  if (!studentId) {
-    return null;
-  }
-
-  try {
-    return localStorage.getItem(PROFILE_PREVIEW_STORAGE_KEY(studentId)) || null;
-  } catch (error) {
-    console.error('Failed to read cached profile preview:', error);
-    return null;
-  }
-};
-
-const setStoredProfilePreview = (studentId, previewImage) => {
-  if (!studentId) {
-    return;
-  }
-
-  try {
-    if (previewImage) {
-      localStorage.setItem(PROFILE_PREVIEW_STORAGE_KEY(studentId), previewImage);
-      return;
-    }
-
-    localStorage.removeItem(PROFILE_PREVIEW_STORAGE_KEY(studentId));
-  } catch (error) {
-    console.error('Failed to store cached profile preview:', error);
-  }
-};
-
-const readFileAsDataUrl = (file) =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      if (typeof reader.result !== 'string') {
-        reject(new Error('Failed to prepare the selected image.'));
-        return;
-      }
-
-      resolve(reader.result);
-    };
-
-    reader.onerror = () => reject(new Error('Failed to read the selected image.'));
-    reader.onabort = () => reject(new Error('Image selection was cancelled before upload.'));
-    reader.readAsDataURL(file);
-  });
 
 const getSavedProfileImage = (student) =>
   buildProfileImageSrc(student.profileImageUrl, student.profileImageUpdatedAt) || null;
@@ -109,12 +60,11 @@ const Dashboard = ({
   const [showForm, setShowForm] = useState(false);
   const [viewMode, setViewMode] = useState('status');
   const [notification, setNotification] = useState('');
-  const [profileImage, setProfileImage] = useState(
-    getSavedProfileImage(student) || getStoredProfilePreview(student.id) || null
-  );
+  const [profileImage, setProfileImage] = useState(getSavedProfileImage(student) || null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const formRef = useRef(null);
   const statusRef = useRef(null);
+  const previewUrlRef = useRef(null);
   const occupancyRate = totalRooms > 0 ? Math.round((occupiedRooms / totalRooms) * 100) : 0;
   const applicationStatus = latestApplication?.status ?? 'ready';
   const hasApplication = Boolean(latestApplication);
@@ -142,15 +92,22 @@ const Dashboard = ({
 
   useEffect(() => {
     const savedProfileImage = getSavedProfileImage(student);
+    setProfileImage(savedProfileImage);
 
-    if (savedProfileImage) {
-      setStoredProfilePreview(student.id, null);
-      setProfileImage(savedProfileImage);
-      return;
+    if (savedProfileImage && previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current);
+      previewUrlRef.current = null;
     }
-
-    setProfileImage(getStoredProfilePreview(student.id) || null);
   }, [student.id, student.profileImageUrl, student.profileImageUpdatedAt]);
+
+  useEffect(
+    () => () => {
+      if (previewUrlRef.current) {
+        URL.revokeObjectURL(previewUrlRef.current);
+      }
+    },
+    []
+  );
 
   const handleApplicationSubmit = async (formData) => {
     const result = await onRoomApplication(formData);
@@ -181,21 +138,37 @@ const Dashboard = ({
     setIsUploadingPhoto(true);
 
     try {
-      const previewImage = await readFileAsDataUrl(file);
-      setProfileImage(previewImage);
-      setStoredProfilePreview(student.id, previewImage);
+      const optimizedImageFile = await prepareProfileImageForUpload(file);
+      const previewImage = createProfilePreviewUrl(optimizedImageFile);
 
-      const result = await onProfileImageUpload(file);
+      if (previewUrlRef.current) {
+        URL.revokeObjectURL(previewUrlRef.current);
+      }
+
+      previewUrlRef.current = previewImage;
+      setProfileImage(previewImage);
+      const result = await onProfileImageUpload(optimizedImageFile);
 
       if (!result.success) {
+        if (previewUrlRef.current) {
+          URL.revokeObjectURL(previewUrlRef.current);
+          previewUrlRef.current = null;
+        }
+
+        setProfileImage(getSavedProfileImage(student));
         setNotification(result.message);
         return;
       }
 
-      setStoredProfilePreview(student.id, null);
       setProfileImage(result.url || getSavedProfileImage(student));
       setNotification('Profile photo updated successfully.');
     } catch (error) {
+      if (previewUrlRef.current) {
+        URL.revokeObjectURL(previewUrlRef.current);
+        previewUrlRef.current = null;
+      }
+
+      setProfileImage(getSavedProfileImage(student));
       console.error('Profile upload failed:', error);
       setNotification(error.message || 'Failed to upload the selected image.');
     } finally {

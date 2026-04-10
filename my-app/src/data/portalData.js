@@ -29,6 +29,23 @@ export const APPLICATION_STATUS_LABELS = {
 
 export const createId = (prefix) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
+export const getUserAccountKey = (user) => {
+  if (!user) {
+    return '';
+  }
+
+  const email = user.email?.trim().toLowerCase() ?? '';
+  const regNumber = user.regNumber?.trim().toLowerCase() ?? '';
+  const campus = user.campus?.trim().toUpperCase() ?? '';
+  return `${campus}::${regNumber}::${email}`;
+};
+
+export const getUserRecencyScore = (user) =>
+  Math.max(
+    new Date(user?.profileImageUpdatedAt ?? 0).getTime() || 0,
+    new Date(user?.createdAt ?? 0).getTime() || 0
+  );
+
 export const buildProfileImageSrc = (profileImageUrl, profileImageUpdatedAt) => {
   if (!profileImageUrl) {
     return '';

@@ -9,6 +9,8 @@ import {
   STORAGE_KEYS,
   buildProfileImageSrc,
   createId,
+  getUserAccountKey,
+  getUserRecencyScore,
   readStoredValue,
   sortApplicationsByDate,
 } from './data/portalData';
@@ -22,6 +24,7 @@ import {
   updateApplication,
   updateRoom,
   updateUserProfileImage,
+  updateUserProfileImageForUsers,
   uploadProfileImage,
 } from './services/portalRepository';
 import './App.scss';
@@ -48,6 +51,9 @@ const withTimeout = (promise, timeoutMessage, timeoutMs = PROFILE_IMAGE_UPLOAD_T
 
 const getLatestApplicationForStudent = (applications, regNumber) =>
   sortApplicationsByDate(applications.filter((application) => application.regNumber === regNumber))[0] ?? null;
+
+const getPreferredUserRecord = (matchingUsers) =>
+  [...matchingUsers].sort((left, right) => getUserRecencyScore(right) - getUserRecencyScore(left))[0] ?? null;
 
 const getApprovedCountForRoom = (applications, room) =>
   applications.filter(
@@ -177,7 +183,15 @@ function AppContent() {
       return null;
     }
 
-    return users.find((user) => user.id === session.userId) ?? null;
+    const sessionUser = users.find((user) => user.id === session.userId) ?? null;
+    const sessionAccountKey = session.accountKey || getUserAccountKey(sessionUser);
+
+    if (!sessionAccountKey) {
+      return sessionUser;
+    }
+
+    const matchingUsers = users.filter((user) => getUserAccountKey(user) === sessionAccountKey);
+    return getPreferredUserRecord(matchingUsers) ?? sessionUser;
   }, [session, users]);
 
   useEffect(() => {
@@ -185,6 +199,29 @@ function AppContent() {
       setSession(null);
     }
   }, [activeStudent, isSyncing, session]);
+
+  useEffect(() => {
+    if (session?.role !== 'student' || !activeStudent) {
+      return;
+    }
+
+    const nextAccountKey = getUserAccountKey(activeStudent);
+    if (session.userId === activeStudent.id && session.accountKey === nextAccountKey) {
+      return;
+    }
+
+    setSession((currentSession) => {
+      if (currentSession?.role !== 'student') {
+        return currentSession;
+      }
+
+      return {
+        ...currentSession,
+        userId: activeStudent.id,
+        accountKey: nextAccountKey,
+      };
+    });
+  }, [activeStudent, session]);
 
   const latestStudentApplication = activeStudent
     ? getLatestApplicationForStudent(applications, activeStudent.regNumber)
@@ -225,6 +262,7 @@ function AppContent() {
     setSession({
       role: 'student',
       userId: matchedUser.id,
+      accountKey: getUserAccountKey(matchedUser),
     });
 
     return { success: true };
@@ -421,19 +459,25 @@ function AppContent() {
     }
 
     try {
+      const accountKey = getUserAccountKey(activeStudent);
+      const relatedUserIds = users
+        .filter((user) => getUserAccountKey(user) === accountKey)
+        .map((user) => user.id);
       const profileImage = await withTimeout(
         uploadProfileImage(activeStudent.id, profileImageFile),
-        'The image upload took too long. Please try again with a smaller image.'
+        'The image upload took too long. We compressed the image for faster upload, so please try again.'
       );
 
       await withTimeout(
-        updateUserProfileImage(activeStudent.id, profileImage),
+        relatedUserIds.length > 1
+          ? updateUserProfileImageForUsers(relatedUserIds, profileImage)
+          : updateUserProfileImage(activeStudent.id, profileImage),
         'The image uploaded, but saving it to your profile took too long. Please try again.'
       );
 
       setUsers((currentUsers) =>
         currentUsers.map((user) =>
-          user.id === activeStudent.id
+          getUserAccountKey(user) === accountKey
             ? {
                 ...user,
                 profileImageUrl: profileImage.url,

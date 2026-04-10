@@ -126,6 +126,28 @@ export const updateUserProfileImage = async (userId, profileImage) => {
   });
 };
 
+export const updateUserProfileImageForUsers = async (userIds, profileImage) => {
+  const uniqueUserIds = [...new Set(userIds)].filter(Boolean);
+  if (uniqueUserIds.length === 0) {
+    return;
+  }
+
+  if (uniqueUserIds.length === 1) {
+    await updateUserProfileImage(uniqueUserIds[0], profileImage);
+    return;
+  }
+
+  const batch = writeBatch(db);
+  uniqueUserIds.forEach((userId) => {
+    batch.update(doc(db, collections.users, userId), {
+      profileImageUrl: profileImage.url,
+      profileImagePath: profileImage.path,
+      profileImageUpdatedAt: profileImage.updatedAt,
+    });
+  });
+  await batch.commit();
+};
+
 export const uploadProfileImage = async (userId, profileImageFile) => {
   const updatedAt = new Date().toISOString();
   const fileExtension = getFileExtension(profileImageFile);
