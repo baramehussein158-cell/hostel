@@ -1,7 +1,7 @@
-const MAX_PROFILE_IMAGE_DIMENSION = 1600;
+const MAX_PROFILE_IMAGE_DIMENSION = 960;
 const MAX_PROFILE_IMAGE_UPLOAD_BYTES = 10 * 1024 * 1024;
-const DIRECT_PROFILE_IMAGE_UPLOAD_BYTES = 5 * 1024 * 1024;
-const MAX_PROFILE_IMAGE_BYTES = 900 * 1024;
+const DIRECT_PROFILE_IMAGE_UPLOAD_BYTES = 250 * 1024;
+const MAX_PROFILE_IMAGE_BYTES = 250 * 1024;
 const PROFILE_IMAGE_OUTPUT_TYPE = 'image/jpeg';
 const PROFILE_IMAGE_OUTPUT_EXTENSION = 'jpg';
 
@@ -71,9 +71,12 @@ export const prepareProfileImageForUpload = async (file) => {
 
   const targetWidth = Math.max(1, Math.round(image.naturalWidth * resizeRatio));
   const targetHeight = Math.max(1, Math.round(image.naturalHeight * resizeRatio));
-  const shouldCompress = resizeRatio < 1 || file.size > MAX_PROFILE_IMAGE_BYTES;
+  const isAlreadySmallJpeg =
+    resizeRatio === 1 &&
+    file.size <= DIRECT_PROFILE_IMAGE_UPLOAD_BYTES &&
+    ['image/jpeg', 'image/jpg'].includes(file.type.toLowerCase());
 
-  if (!shouldCompress) {
+  if (isAlreadySmallJpeg) {
     return file;
   }
 
@@ -86,13 +89,15 @@ export const prepareProfileImageForUpload = async (file) => {
     throw new Error('Failed to prepare the selected image.');
   }
 
+  context.imageSmoothingEnabled = true;
+  context.imageSmoothingQuality = 'high';
   context.drawImage(image, 0, 0, targetWidth, targetHeight);
 
-  let quality = 0.88;
+  let quality = 0.8;
   let blob = await canvasToBlob(canvas, PROFILE_IMAGE_OUTPUT_TYPE, quality);
 
-  while (blob.size > MAX_PROFILE_IMAGE_BYTES && quality > 0.5) {
-    quality -= 0.08;
+  while (blob.size > MAX_PROFILE_IMAGE_BYTES && quality > 0.4) {
+    quality -= 0.07;
     blob = await canvasToBlob(canvas, PROFILE_IMAGE_OUTPUT_TYPE, quality);
   }
 
