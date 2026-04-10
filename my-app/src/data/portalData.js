@@ -27,6 +27,18 @@ export const APPLICATION_STATUS_LABELS = {
   rejected: 'Rejected',
 };
 
+export const STUDY_CAMPUSES = {
+  UR: ['UR Campus Huye', 'UR Campus KICT', 'UR Campus KIE'],
+  RP: [
+    'RP Karongi College',
+    'RP Kicukiro College',
+    'RP Tumba College',
+    'RP Musanze College',
+    'RP Ngoma College',
+    'RP Huye College',
+  ],
+};
+
 export const createId = (prefix) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 export const getUserAccountKey = (user) => {

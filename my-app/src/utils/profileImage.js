@@ -1,4 +1,5 @@
 const MAX_PROFILE_IMAGE_DIMENSION = 1600;
+const MAX_PROFILE_IMAGE_UPLOAD_BYTES = 10 * 1024 * 1024;
 const MAX_PROFILE_IMAGE_BYTES = 900 * 1024;
 const PROFILE_IMAGE_OUTPUT_TYPE = 'image/jpeg';
 const PROFILE_IMAGE_OUTPUT_EXTENSION = 'jpg';
@@ -43,6 +44,10 @@ const loadImageFromFile = (file) =>
 export const prepareProfileImageForUpload = async (file) => {
   if (!file?.type?.startsWith('image/')) {
     throw new Error('Please choose a valid image file.');
+  }
+
+  if (file.size > MAX_PROFILE_IMAGE_UPLOAD_BYTES) {
+    throw new Error('Please choose an image smaller than 10MB.');
   }
 
   const image = await loadImageFromFile(file);

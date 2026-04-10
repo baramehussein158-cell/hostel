@@ -372,6 +372,7 @@ const AdminPortal = ({
                         <div className="application-meta">
                           <span>{application.regNumber}</span>
                           <span>{application.campus}</span>
+                          <span>{application.studyCampus || 'Study campus not set'}</span>
                           <span>{application.roomType}</span>
                           <span>{new Date(application.submittedAt).toLocaleDateString()}</span>
                         </div>

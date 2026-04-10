@@ -10,7 +10,7 @@ import {
 } from 'react-icons/fa';
 import emailjs from '@emailjs/browser';
 import { useTheme } from '../contexts/ThemeContext';
-import { APPLICATION_STATUS_LABELS, buildProfileImageSrc } from '../data/portalData';
+import { APPLICATION_STATUS_LABELS, buildProfileImageSrc, STUDY_CAMPUSES } from '../data/portalData';
 import { createProfilePreviewUrl, prepareProfileImageForUpload } from '../utils/profileImage';
 import './Dashboard.scss';
 
@@ -352,7 +352,7 @@ const Dashboard = ({
                   </div>
                   <div>
                     <span>Study campus</span>
-                    <strong>{latestApplication.campus}</strong>
+                    <strong>{latestApplication.studyCampus || latestApplication.campus}</strong>
                   </div>
                   <div>
                     <span>Room choice</span>
@@ -426,11 +426,13 @@ const Dashboard = ({
 };
 
 const ApplicationForm = ({ student, onBack, onSubmit }) => {
+  const campusOptions = STUDY_CAMPUSES[student.campus] ?? [];
   const [formData, setFormData] = useState({
     name: student.name,
     email: student.email,
     phone: '',
     campus: student.campus,
+    studyCampus: '',
     roomType: 'single',
     accessibility: '',
     comments: '',
@@ -458,6 +460,11 @@ const ApplicationForm = ({ student, onBack, onSubmit }) => {
       return;
     }
 
+    if (!formData.studyCampus) {
+      setFormMessage('Please choose your study campus.');
+      return;
+    }
+
     setIsSubmitting(true);
     const result = await onSubmit(formData);
     setIsSubmitting(false);
@@ -481,6 +488,7 @@ const ApplicationForm = ({ student, onBack, onSubmit }) => {
         {
           to_email: formData.email,
           to_name: formData.name,
+          study_campus: formData.studyCampus,
           room_type: formData.roomType,
           phone: formData.phone,
           application_date: new Date().toLocaleDateString(),
@@ -534,8 +542,20 @@ const ApplicationForm = ({ student, onBack, onSubmit }) => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="campus">Campus</label>
+          <label htmlFor="campus">University Group</label>
           <input type="text" id="campus" name="campus" value={formData.campus} readOnly />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="studyCampus">Study Campus</label>
+          <select id="studyCampus" name="studyCampus" value={formData.studyCampus} onChange={handleChange} required>
+            <option value="">Select your study campus</option>
+            {campusOptions.map((campusOption) => (
+              <option key={campusOption} value={campusOption}>
+                {campusOption}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="form-group">

@@ -12,6 +12,7 @@ import {
   getUserAccountKey,
   getUserRecencyScore,
   readStoredValue,
+  STUDY_CAMPUSES,
   sortApplicationsByDate,
 } from './data/portalData';
 import {
@@ -320,6 +321,11 @@ function AppContent() {
       return { success: false, message: 'Please log in as a student before applying.' };
     }
 
+    const validStudyCampuses = STUDY_CAMPUSES[activeStudent.campus] ?? [];
+    if (!validStudyCampuses.includes(data.studyCampus)) {
+      return { success: false, message: 'Please choose your study campus before submitting.' };
+    }
+
     const latestApplication = getLatestApplicationForStudent(applications, activeStudent.regNumber);
     if (latestApplication && latestApplication.status !== 'rejected') {
       return {
@@ -361,6 +367,7 @@ function AppContent() {
         email: activeStudent.email,
         regNumber: activeStudent.regNumber,
         campus: activeStudent.campus,
+        studyCampus: data.studyCampus,
         phone: data.phone,
         roomType: data.roomType,
         accessibility: data.accessibility,
