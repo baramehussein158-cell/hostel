@@ -26,6 +26,24 @@ import {
 import './App.scss';
 
 const APPLICATION_DEADLINE = new Date('2026-05-15T23:59:59');
+const PROFILE_IMAGE_UPLOAD_TIMEOUT_MS = 30000;
+
+const withTimeout = (promise, timeoutMessage, timeoutMs = PROFILE_IMAGE_UPLOAD_TIMEOUT_MS) =>
+  new Promise((resolve, reject) => {
+    const timeoutId = window.setTimeout(() => {
+      reject(new Error(timeoutMessage));
+    }, timeoutMs);
+
+    promise
+      .then((value) => {
+        window.clearTimeout(timeoutId);
+        resolve(value);
+      })
+      .catch((error) => {
+        window.clearTimeout(timeoutId);
+        reject(error);
+      });
+  });
 
 const getLatestApplicationForStudent = (applications, regNumber) =>
   sortApplicationsByDate(applications.filter((application) => application.regNumber === regNumber))[0] ?? null;
@@ -396,20 +414,39 @@ function AppContent() {
     }
   };
 
-  const handleProfileImageUpload = async (profileImageDataUrl) => {
+  const handleProfileImageUpload = async (profileImageFile) => {
     if (!activeStudent) {
       return { success: false, message: 'Student session not found.' };
     }
 
     try {
-      const profileImageUrl = await uploadProfileImage(activeStudent.id, profileImageDataUrl);
-      await updateUserProfileImage(activeStudent.id, profileImageUrl);
+      const profileImageUrl = await withTimeout(
+        uploadProfileImage(activeStudent.id, profileImageFile),
+        'The image upload took too long. Please try again with a smaller image.'
+      );
+
+      await withTimeout(
+        updateUserProfileImage(activeStudent.id, profileImageUrl),
+        'The image uploaded, but saving it to your profile took too long. Please try again.'
+      );
+
+      setUsers((currentUsers) =>
+        currentUsers.map((user) =>
+          user.id === activeStudent.id
+            ? {
+                ...user,
+                profileImageUrl,
+              }
+            : user
+        )
+      );
+
       return { success: true, url: profileImageUrl };
     } catch (error) {
       console.error('Failed to upload profile image:', error);
       return {
         success: false,
-        message: 'Failed to upload the profile image to Database Storage. Check your storage rules.',
+        message: error.message || 'Failed to upload the profile image to Database Storage. Check your storage rules.',
       };
     }
   };

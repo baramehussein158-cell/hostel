@@ -13,6 +13,56 @@ import { useTheme } from '../contexts/ThemeContext';
 import { APPLICATION_STATUS_LABELS } from '../data/portalData';
 import './Dashboard.scss';
 
+const PROFILE_PREVIEW_STORAGE_KEY = (studentId) => `campusstay-profile-preview:${studentId}`;
+
+const getStoredProfilePreview = (studentId) => {
+  if (!studentId) {
+    return null;
+  }
+
+  try {
+    return localStorage.getItem(PROFILE_PREVIEW_STORAGE_KEY(studentId)) || null;
+  } catch (error) {
+    console.error('Failed to read cached profile preview:', error);
+    return null;
+  }
+};
+
+const setStoredProfilePreview = (studentId, previewImage) => {
+  if (!studentId) {
+    return;
+  }
+
+  try {
+    if (previewImage) {
+      localStorage.setItem(PROFILE_PREVIEW_STORAGE_KEY(studentId), previewImage);
+      return;
+    }
+
+    localStorage.removeItem(PROFILE_PREVIEW_STORAGE_KEY(studentId));
+  } catch (error) {
+    console.error('Failed to store cached profile preview:', error);
+  }
+};
+
+const readFileAsDataUrl = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      if (typeof reader.result !== 'string') {
+        reject(new Error('Failed to prepare the selected image.'));
+        return;
+      }
+
+      resolve(reader.result);
+    };
+
+    reader.onerror = () => reject(new Error('Failed to read the selected image.'));
+    reader.onabort = () => reject(new Error('Image selection was cancelled before upload.'));
+    reader.readAsDataURL(file);
+  });
+
 const STUDENT_STATUS_COPY = {
   pending: {
     title: 'Submitted',
@@ -56,7 +106,9 @@ const Dashboard = ({
   const [showForm, setShowForm] = useState(false);
   const [viewMode, setViewMode] = useState('status');
   const [notification, setNotification] = useState('');
-  const [profileImage, setProfileImage] = useState(student.profileImageUrl || null);
+  const [profileImage, setProfileImage] = useState(
+    student.profileImageUrl || getStoredProfilePreview(student.id) || null
+  );
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const formRef = useRef(null);
   const statusRef = useRef(null);
@@ -86,7 +138,13 @@ const Dashboard = ({
   }, [notification]);
 
   useEffect(() => {
-    setProfileImage(student.profileImageUrl || null);
+    if (student.profileImageUrl) {
+      setStoredProfilePreview(student.id, null);
+      setProfileImage(student.profileImageUrl);
+      return;
+    }
+
+    setProfileImage(getStoredProfilePreview(student.id) || null);
   }, [student.id, student.profileImageUrl]);
 
   const handleApplicationSubmit = async (formData) => {
@@ -102,29 +160,43 @@ const Dashboard = ({
     return result;
   };
 
-  const handleProfileUpload = (event) => {
-    const file = event.target.files[0];
+  const handleProfileUpload = async (event) => {
+    const file = event.target.files?.[0];
     if (!file) {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const previewImage = reader.result;
+    if (!file.type.startsWith('image/')) {
+      setNotification('Please choose a valid image file.');
+      event.target.value = '';
+      return;
+    }
+
+    setNotification('');
+    setIsUploadingPhoto(true);
+
+    try {
+      const previewImage = await readFileAsDataUrl(file);
       setProfileImage(previewImage);
-      setIsUploadingPhoto(true);
-      const result = await onProfileImageUpload(previewImage);
-      setIsUploadingPhoto(false);
+      setStoredProfilePreview(student.id, previewImage);
+
+      const result = await onProfileImageUpload(file);
 
       if (!result.success) {
         setNotification(result.message);
-        setProfileImage(student.profileImageUrl || null);
         return;
       }
 
+      setStoredProfilePreview(student.id, null);
       setProfileImage(result.url);
-    };
-    reader.readAsDataURL(file);
+      setNotification('Profile photo updated successfully.');
+    } catch (error) {
+      console.error('Profile upload failed:', error);
+      setNotification(error.message || 'Failed to upload the selected image.');
+    } finally {
+      setIsUploadingPhoto(false);
+      event.target.value = '';
+    }
   };
 
   return (

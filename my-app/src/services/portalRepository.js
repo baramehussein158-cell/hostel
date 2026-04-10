@@ -8,7 +8,7 @@ import {
   updateDoc,
   writeBatch,
 } from 'firebase/firestore';
-import { getDownloadURL, ref, uploadString } from 'firebase/storage';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { db, storage } from '../../../lib/firebaseConfig';
 import { DEFAULT_ROOM_INVENTORY, sortApplicationsByDate } from '../data/portalData';
 
@@ -106,9 +106,11 @@ export const updateUserProfileImage = async (userId, profileImageUrl) => {
   await updateDoc(doc(db, collections.users, userId), { profileImageUrl });
 };
 
-export const uploadProfileImage = async (userId, profileImageDataUrl) => {
+export const uploadProfileImage = async (userId, profileImageFile) => {
   const imageRef = ref(storage, `profile-images/${userId}/avatar`);
-  await uploadString(imageRef, profileImageDataUrl, 'data_url');
+  await uploadBytes(imageRef, profileImageFile, {
+    contentType: profileImageFile.type || 'image/jpeg',
+  });
   return getDownloadURL(imageRef);
 };
 
