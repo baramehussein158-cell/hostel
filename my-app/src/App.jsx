@@ -31,7 +31,7 @@ import {
 import './App.scss';
 
 const APPLICATION_DEADLINE = new Date('2026-05-15T23:59:59');
-const PROFILE_IMAGE_UPLOAD_TIMEOUT_MS = 30000;
+const PROFILE_IMAGE_UPLOAD_TIMEOUT_MS = 90000;
 
 const withTimeout = (promise, timeoutMessage, timeoutMs = PROFILE_IMAGE_UPLOAD_TIMEOUT_MS) =>
   new Promise((resolve, reject) => {
@@ -472,7 +472,7 @@ function AppContent() {
         .map((user) => user.id);
       const profileImage = await withTimeout(
         uploadProfileImage(activeStudent.id, profileImageFile),
-        'The image upload took too long. We compressed the image for faster upload, so please try again.'
+        'The profile image upload took too long. Please try again.'
       );
 
       await withTimeout(
