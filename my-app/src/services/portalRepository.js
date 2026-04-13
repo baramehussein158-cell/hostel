@@ -1,6 +1,7 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDocs,
   onSnapshot,
@@ -118,6 +119,24 @@ export const updateApplication = async (applicationId, updates) => {
   await updateDoc(doc(db, collections.applications, applicationId), updates);
 };
 
+export const updateApplicationsByIds = async (applicationIds, updates) => {
+  const uniqueApplicationIds = [...new Set(applicationIds)].filter(Boolean);
+  if (uniqueApplicationIds.length === 0) {
+    return;
+  }
+
+  if (uniqueApplicationIds.length === 1) {
+    await updateApplication(uniqueApplicationIds[0], updates);
+    return;
+  }
+
+  const batch = writeBatch(db);
+  uniqueApplicationIds.forEach((applicationId) => {
+    batch.update(doc(db, collections.applications, applicationId), updates);
+  });
+  await batch.commit();
+};
+
 export const updateUserProfileImage = async (userId, profileImage) => {
   await updateDoc(doc(db, collections.users, userId), {
     profileImageUrl: profileImage.url,
@@ -144,6 +163,93 @@ export const updateUserProfileImageForUsers = async (userIds, profileImage) => {
       profileImagePath: profileImage.path,
       profileImageUpdatedAt: profileImage.updatedAt,
     });
+  });
+  await batch.commit();
+};
+
+export const updateUserProfile = async (userId, updates) => {
+  await updateDoc(doc(db, collections.users, userId), updates);
+};
+
+export const updateUserProfileForUsers = async (userIds, updates) => {
+  const uniqueUserIds = [...new Set(userIds)].filter(Boolean);
+  if (uniqueUserIds.length === 0) {
+    return;
+  }
+
+  if (uniqueUserIds.length === 1) {
+    await updateUserProfile(uniqueUserIds[0], updates);
+    return;
+  }
+
+  const batch = writeBatch(db);
+  uniqueUserIds.forEach((userId) => {
+    batch.update(doc(db, collections.users, userId), updates);
+  });
+  await batch.commit();
+};
+
+export const updateUserPassword = async (userId, password) => {
+  await updateDoc(doc(db, collections.users, userId), {
+    password,
+    passwordUpdatedAt: new Date().toISOString(),
+  });
+};
+
+export const updateUserPasswordForUsers = async (userIds, password) => {
+  const uniqueUserIds = [...new Set(userIds)].filter(Boolean);
+  if (uniqueUserIds.length === 0) {
+    return;
+  }
+
+  if (uniqueUserIds.length === 1) {
+    await updateUserPassword(uniqueUserIds[0], password);
+    return;
+  }
+
+  const batch = writeBatch(db);
+  const passwordUpdatedAt = new Date().toISOString();
+  uniqueUserIds.forEach((userId) => {
+    batch.update(doc(db, collections.users, userId), {
+      password,
+      passwordUpdatedAt,
+    });
+  });
+  await batch.commit();
+};
+
+export const deleteUsersByIds = async (userIds) => {
+  const uniqueUserIds = [...new Set(userIds)].filter(Boolean);
+  if (uniqueUserIds.length === 0) {
+    return;
+  }
+
+  if (uniqueUserIds.length === 1) {
+    await deleteDoc(doc(db, collections.users, uniqueUserIds[0]));
+    return;
+  }
+
+  const batch = writeBatch(db);
+  uniqueUserIds.forEach((userId) => {
+    batch.delete(doc(db, collections.users, userId));
+  });
+  await batch.commit();
+};
+
+export const deleteApplicationsByIds = async (applicationIds) => {
+  const uniqueApplicationIds = [...new Set(applicationIds)].filter(Boolean);
+  if (uniqueApplicationIds.length === 0) {
+    return;
+  }
+
+  if (uniqueApplicationIds.length === 1) {
+    await deleteDoc(doc(db, collections.applications, uniqueApplicationIds[0]));
+    return;
+  }
+
+  const batch = writeBatch(db);
+  uniqueApplicationIds.forEach((applicationId) => {
+    batch.delete(doc(db, collections.applications, applicationId));
   });
   await batch.commit();
 };

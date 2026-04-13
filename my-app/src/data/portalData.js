@@ -27,6 +27,42 @@ export const APPLICATION_STATUS_LABELS = {
   rejected: 'Rejected',
 };
 
+export const PAYMENT_STATUS_LABELS = {
+  pending: 'Awaiting Verification',
+  verified: 'Verified',
+  rejected: 'Rejected',
+};
+
+export const ROOM_TYPE_LABELS = {
+  single: 'Single Room',
+  shared: 'Shared Room',
+  suite: 'Suite',
+};
+
+export const HOSTEL_RENT_BY_ROOM_TYPE = {
+  single: 180000,
+  shared: 120000,
+  suite: 260000,
+};
+
+export const PAYMENT_METHODS = [
+  { value: 'mobile_money', label: 'Mobile Money' },
+  { value: 'bank_transfer', label: 'Bank Transfer' },
+  { value: 'debit_card', label: 'Debit or Credit Card' },
+];
+
+export const GENDER_OPTIONS = [
+  { value: 'female', label: 'Female' },
+  { value: 'male', label: 'Male' },
+  { value: 'non_binary', label: 'Non-binary' },
+  { value: 'prefer_not_to_say', label: 'Prefer not to say' },
+];
+
+export const ADMIN_UPDATE_ACCESS_LABELS = {
+  true: 'Allowed',
+  false: 'Not allowed',
+};
+
 export const STUDY_CAMPUSES = {
   UR: ['UR Campus Huye', 'UR Campus KICT', 'UR Campus KIE'],
   RP: [
@@ -87,3 +123,10 @@ export const readStoredValue = (key, fallback) => {
 
 export const sortApplicationsByDate = (applications) =>
   [...applications].sort((left, right) => new Date(right.submittedAt) - new Date(left.submittedAt));
+
+export const formatCurrency = (amount) =>
+  new Intl.NumberFormat('en-RW', {
+    style: 'currency',
+    currency: 'RWF',
+    maximumFractionDigits: 0,
+  }).format(Number(amount) || 0);

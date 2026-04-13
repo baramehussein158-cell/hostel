@@ -5,38 +5,66 @@ import {
   FaCheckCircle,
   FaClipboardList,
   FaClock,
+  FaCreditCard,
   FaMoon,
   FaSun,
 } from 'react-icons/fa';
 import emailjs from '@emailjs/browser';
 import { useTheme } from '../contexts/ThemeContext';
-import { APPLICATION_STATUS_LABELS, buildProfileImageSrc, STUDY_CAMPUSES } from '../data/portalData';
+import {
+  APPLICATION_STATUS_LABELS,
+  HOSTEL_RENT_BY_ROOM_TYPE,
+  PAYMENT_METHODS,
+  PAYMENT_STATUS_LABELS,
+  GENDER_OPTIONS,
+  ROOM_TYPE_LABELS,
+  STUDY_CAMPUSES,
+  buildProfileImageSrc,
+  formatCurrency,
+} from '../data/portalData';
 import { createProfilePreviewUrl, prepareProfileImageForUpload } from '../utils/profileImage';
 import './Dashboard.scss';
 
 const getSavedProfileImage = (student) =>
   buildProfileImageSrc(student.profileImageUrl, student.profileImageUpdatedAt) || null;
 
+const getGenderLabel = (gender) => GENDER_OPTIONS.find((option) => option.value === gender)?.label || gender || 'Not set';
+
 const STUDENT_STATUS_COPY = {
   pending: {
     title: 'Submitted',
-    summary: 'Your room request is waiting for admin review.',
+    summary: 'Your room request is waiting for payment confirmation and admin review.',
     eta: '3-5 days',
   },
   approved: {
     title: 'Approved',
-    summary: 'Your room has been approved and is ready for allocation details.',
+    summary: 'Your payment was confirmed and your room is approved for allocation.',
     eta: 'Allocated',
   },
   waitlisted: {
     title: 'Waitlisted',
-    summary: 'You are on the waiting list while room capacity is reviewed.',
+    summary: 'Your payment can remain valid while you wait for available room capacity.',
     eta: 'Queue active',
   },
   rejected: {
     title: 'Needs update',
-    summary: 'Your last application was rejected. You can submit a fresh request.',
+    summary: 'Your last application was rejected. Review the feedback and submit a fresh request.',
     eta: 'Re-apply now',
+  },
+};
+
+const PAYMENT_STATUS_COPY = {
+  pending: {
+    title: 'Payment under review',
+    summary: 'The admin has not yet confirmed your hostel rent payment.',
+  },
+  verified: {
+    title: 'Payment verified',
+    summary: 'Your hostel rent payment is confirmed and your application can move to approval.',
+  },
+  rejected: {
+    title: 'Payment needs attention',
+    summary: 'Your payment details were not accepted yet. Contact the hostel admin for support.',
   },
 };
 
@@ -67,6 +95,7 @@ const Dashboard = ({
   const previewUrlRef = useRef(null);
   const occupancyRate = totalRooms > 0 ? Math.round((occupiedRooms / totalRooms) * 100) : 0;
   const applicationStatus = latestApplication?.status ?? 'ready';
+  const paymentStatus = latestApplication?.paymentStatus ?? 'pending';
   const hasApplication = Boolean(latestApplication);
   const canApply = !roomClosed && (!latestApplication || latestApplication.status === 'rejected');
   const statusCopy = STUDENT_STATUS_COPY[applicationStatus] ?? {
@@ -74,6 +103,12 @@ const Dashboard = ({
     summary: 'Complete your room application to begin the review process.',
     eta: 'Next step',
   };
+  const paymentCopy = PAYMENT_STATUS_COPY[paymentStatus] ?? {
+    title: 'Payment not started',
+    summary: 'Payment information will appear here after you submit an application.',
+  };
+  const profileGenderLabel = getGenderLabel(student.gender);
+  const profileAccessLabel = student.allowAdminUpdates ? 'Allowed' : 'Not allowed';
 
   useEffect(() => {
     if (showForm && formRef.current) {
@@ -91,7 +126,7 @@ const Dashboard = ({
   }, [notification]);
 
   useEffect(() => {
-    const savedProfileImage = getSavedProfileImage(student);
+    const savedProfileImage = buildProfileImageSrc(student.profileImageUrl, student.profileImageUpdatedAt) || null;
     setProfileImage(savedProfileImage);
 
     if (savedProfileImage && previewUrlRef.current) {
@@ -118,7 +153,7 @@ const Dashboard = ({
 
     setShowForm(false);
     setViewMode('status');
-    setNotification('Your hostel room application was submitted successfully. Admin review is now pending.');
+    setNotification('Your hostel application and payment details were submitted. Admin verification is now pending.');
     return result;
   };
 
@@ -185,8 +220,7 @@ const Dashboard = ({
             <p className="eyebrow">CampusStay Student Portal</p>
             <h1>Welcome back, {student.name}</h1>
             <p className="subheading">
-              Manage your room application, track review decisions, and keep your student profile ready from one
-              portal.
+              Manage your room application, submit payment details, and track admin decisions from one portal.
             </p>
             <div className="campus-intro">
               <span className="campus-label">{campusName}</span>
@@ -200,16 +234,23 @@ const Dashboard = ({
                 <button type="button" className="campus-chip">
                   <FaCalendarAlt /> Deadline Monitor
                 </button>
+                <button type="button" className="campus-chip">
+                  <FaCreditCard /> Payment Verification
+                </button>
               </div>
             </div>
           </div>
 
           <div className="profile-block">
-            <div className="avatar">{profileImage ? <img src={profileImage} alt="Profile" /> : student.name?.charAt(0).toUpperCase()}</div>
+            <div className="avatar">
+              {profileImage ? <img src={profileImage} alt="Profile" /> : student.name?.charAt(0).toUpperCase()}
+            </div>
             <div className="profile-info">
               <strong>{student.name}</strong>
               <span>{student.email}</span>
               <span>{student.regNumber}</span>
+              <span>Gender: {profileGenderLabel}</span>
+              <span>Admin update access: {profileAccessLabel}</span>
               <label htmlFor="profile-upload" className="profile-upload-btn">
                 {isUploadingPhoto ? 'Uploading...' : 'Change Photo'}
               </label>
@@ -248,8 +289,8 @@ const Dashboard = ({
             <div className="hero-pill">Application Overview</div>
             <h2>Stay on top of your housing request without leaving the portal.</h2>
             <p>
-              Track your latest application status, watch room availability for your campus, and reapply quickly
-              if admin asks for changes.
+              Track your latest application status, submit hostel rent payment details, and reapply quickly if
+              admin asks for changes.
             </p>
 
             <div className="hero-actions">
@@ -317,6 +358,11 @@ const Dashboard = ({
               <span>Latest status</span>
               <strong>{hasApplication ? APPLICATION_STATUS_LABELS[latestApplication.status] : 'Ready'}</strong>
             </div>
+            <div className="metric-card">
+              <FaCreditCard className="metric-icon" />
+              <span>Payment</span>
+              <strong>{hasApplication ? PAYMENT_STATUS_LABELS[paymentStatus] : 'Not started'}</strong>
+            </div>
           </div>
         </section>
 
@@ -338,8 +384,8 @@ const Dashboard = ({
                 <p>{statusCopy.summary}</p>
               </div>
               <div>
-                <strong>{remainingRooms}</strong>
-                <p>Rooms still available on your campus</p>
+                <strong>{hasApplication ? PAYMENT_STATUS_LABELS[paymentStatus] : 'Not submitted'}</strong>
+                <p>{hasApplication ? paymentCopy.summary : 'Payment verification starts after you apply.'}</p>
               </div>
             </div>
 
@@ -351,12 +397,16 @@ const Dashboard = ({
                     <strong>{latestApplication.name}</strong>
                   </div>
                   <div>
+                    <span>Gender</span>
+                    <strong>{getGenderLabel(latestApplication.gender)}</strong>
+                  </div>
+                  <div>
                     <span>Study campus</span>
                     <strong>{latestApplication.studyCampus || latestApplication.campus}</strong>
                   </div>
                   <div>
                     <span>Room choice</span>
-                    <strong>{latestApplication.roomType}</strong>
+                    <strong>{ROOM_TYPE_LABELS[latestApplication.roomType] || latestApplication.roomType}</strong>
                   </div>
                   <div>
                     <span>Phone</span>
@@ -369,6 +419,46 @@ const Dashboard = ({
                   <div>
                     <span>Assigned room</span>
                     <strong>{latestApplication.assignedRoom || 'Waiting for admin assignment'}</strong>
+                  </div>
+                  <div>
+                    <span>Payment method</span>
+                    <strong>
+                      {PAYMENT_METHODS.find((method) => method.value === latestApplication.paymentMethod)?.label ||
+                        latestApplication.paymentMethod ||
+                        'Not captured'}
+                    </strong>
+                  </div>
+                  <div>
+                    <span>Payment reference</span>
+                    <strong>{latestApplication.paymentReference || 'Not captured'}</strong>
+                  </div>
+                  <div>
+                    <span>Hostel rent paid</span>
+                    <strong>{formatCurrency(latestApplication.amountPaid)}</strong>
+                  </div>
+                  <div>
+                    <span>Payment review</span>
+                    <strong>{PAYMENT_STATUS_LABELS[paymentStatus]}</strong>
+                  </div>
+                  <div>
+                    <span>Admin update access</span>
+                    <strong>{latestApplication.allowAdminUpdates ? 'Allowed' : 'Not allowed'}</strong>
+                  </div>
+                </div>
+
+                <div className="payment-progress-card">
+                  <div className="payment-progress-copy">
+                    <p className="eyebrow">Payment verification</p>
+                    <h4>{paymentCopy.title}</h4>
+                    <p>{paymentCopy.summary}</p>
+                  </div>
+                  <div className="payment-progress-meta">
+                    <span className={`payment-status-badge ${paymentStatus}`}>
+                      {PAYMENT_STATUS_LABELS[paymentStatus]}
+                    </span>
+                    {latestApplication.paymentVerifiedAt && (
+                      <small>Reviewed on {new Date(latestApplication.paymentVerifiedAt).toLocaleDateString()}</small>
+                    )}
                   </div>
                 </div>
 
@@ -392,7 +482,7 @@ const Dashboard = ({
               </>
             ) : (
               <div className="summary-block empty">
-                <p>Submit your first hostel application to see admin review updates here.</p>
+                <p>Submit your first hostel application to see admin review and payment updates here.</p>
               </div>
             )}
           </div>
@@ -403,10 +493,13 @@ const Dashboard = ({
             </div>
             <ul>
               <li>
-                <FaClock /> Fill out the application in one sitting.
+                <FaClock /> Submit the hostel form with your payment details in one sitting.
               </li>
               <li>
-                <FaCheckCircle /> Wait for admin review and room decision.
+                <FaCreditCard /> Wait for the admin to verify your hostel rent payment.
+              </li>
+              <li>
+                <FaCheckCircle /> After payment verification, the admin can approve and assign your room.
               </li>
               <li>
                 <FaBed /> Check your assigned room once approved.
@@ -432,25 +525,41 @@ const ApplicationForm = ({ student, onBack, onSubmit }) => {
     email: student.email,
     phone: '',
     campus: student.campus,
+    gender: student.gender ?? '',
+    allowAdminUpdates: Boolean(student.allowAdminUpdates),
     studyCampus: '',
     roomType: 'single',
+    paymentMethod: PAYMENT_METHODS[0]?.value ?? 'mobile_money',
+    paymentReference: '',
+    amountPaid: String(HOSTEL_RENT_BY_ROOM_TYPE.single ?? ''),
     accessibility: '',
     comments: '',
   });
   const [emailError, setEmailError] = useState('');
   const [formMessage, setFormMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const expectedRentAmount = HOSTEL_RENT_BY_ROOM_TYPE[formData.roomType] ?? 0;
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleChange = (event) => {
-    setFormData({ ...formData, [event.target.name]: event.target.value });
-    if (event.target.name === 'email') {
+    const { name, value, type, checked } = event.target;
+
+    setFormData((currentFormData) => ({
+      ...currentFormData,
+      [name]: type === 'checkbox' ? checked : value,
+      amountPaid:
+        name === 'roomType'
+          ? String(HOSTEL_RENT_BY_ROOM_TYPE[value] ?? currentFormData.amountPaid)
+          : currentFormData.amountPaid,
+    }));
+
+    if (name === 'email') {
       setEmailError('');
     }
+
     setFormMessage('');
   };
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -462,6 +571,21 @@ const ApplicationForm = ({ student, onBack, onSubmit }) => {
 
     if (!formData.studyCampus) {
       setFormMessage('Please choose your study campus.');
+      return;
+    }
+
+    if (!formData.gender) {
+      setFormMessage('Please select your gender for this hostel application.');
+      return;
+    }
+
+    if (!formData.paymentMethod || !formData.paymentReference.trim()) {
+      setFormMessage('Payment method and transaction reference are required.');
+      return;
+    }
+
+    if (Number(formData.amountPaid) < expectedRentAmount) {
+      setFormMessage('The full hostel rent must be paid before submitting this application.');
       return;
     }
 
@@ -489,8 +613,12 @@ const ApplicationForm = ({ student, onBack, onSubmit }) => {
           to_email: formData.email,
           to_name: formData.name,
           study_campus: formData.studyCampus,
-          room_type: formData.roomType,
+          gender: GENDER_OPTIONS.find((option) => option.value === formData.gender)?.label || formData.gender,
+          admin_update_access: formData.allowAdminUpdates ? 'Allowed' : 'Not allowed',
+          room_type: ROOM_TYPE_LABELS[formData.roomType] || formData.roomType,
           phone: formData.phone,
+          payment_method: PAYMENT_METHODS.find((method) => method.value === formData.paymentMethod)?.label,
+          amount_paid: formatCurrency(formData.amountPaid),
           application_date: new Date().toLocaleDateString(),
         },
         publicKey
@@ -546,6 +674,33 @@ const ApplicationForm = ({ student, onBack, onSubmit }) => {
           <input type="text" id="campus" name="campus" value={formData.campus} readOnly />
         </div>
 
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="gender">Gender</label>
+            <select id="gender" name="gender" value={formData.gender} onChange={handleChange} required>
+              <option value="">Select your gender</option>
+              {GENDER_OPTIONS.map((genderOption) => (
+                <option key={genderOption.value} value={genderOption.value}>
+                  {genderOption.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group consent-block">
+            <label htmlFor="allowAdminUpdates">Admin update access</label>
+            <label className="checkbox-card" htmlFor="allowAdminUpdates">
+              <input
+                type="checkbox"
+                id="allowAdminUpdates"
+                name="allowAdminUpdates"
+                checked={formData.allowAdminUpdates}
+                onChange={handleChange}
+              />
+              <span>Allow admin to update my account details if something goes wrong.</span>
+            </label>
+          </div>
+        </div>
+
         <div className="form-group">
           <label htmlFor="studyCampus">Study Campus</label>
           <select id="studyCampus" name="studyCampus" value={formData.studyCampus} onChange={handleChange} required>
@@ -556,6 +711,58 @@ const ApplicationForm = ({ student, onBack, onSubmit }) => {
               </option>
             ))}
           </select>
+        </div>
+
+        <div className="payment-form-block">
+          <div className="section-subtitle">
+            <FaCreditCard />
+            <div>
+              <strong>Hostel payment details</strong>
+              <p>Provide the payment method and reference so the admin can verify your rent before approval.</p>
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="paymentMethod">Payment Method</label>
+              <select
+                id="paymentMethod"
+                name="paymentMethod"
+                value={formData.paymentMethod}
+                onChange={handleChange}
+                required
+              >
+                {PAYMENT_METHODS.map((method) => (
+                  <option key={method.value} value={method.value}>
+                    {method.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="paymentReference">Transaction Reference</label>
+              <input
+                type="text"
+                id="paymentReference"
+                name="paymentReference"
+                value={formData.paymentReference}
+                onChange={handleChange}
+                placeholder="Enter payment reference"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="amountPaid">Hostel Rent Amount</label>
+              <input type="number" id="amountPaid" name="amountPaid" value={formData.amountPaid} readOnly />
+            </div>
+            <div className="form-group">
+              <label>Required amount</label>
+              <div className="read-only-highlight">{formatCurrency(expectedRentAmount)}</div>
+            </div>
+          </div>
         </div>
 
         <div className="form-group">

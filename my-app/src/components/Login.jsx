@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { FaChartLine, FaGraduationCap, FaShieldAlt } from 'react-icons/fa';
-import { ADMIN_ACCOUNT } from '../data/portalData';
+import { GENDER_OPTIONS } from '../data/portalData';
 import { useTheme } from '../contexts/ThemeContext';
 import './Login.scss';
 
 const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount, isSyncing }) => {
   const { theme } = useTheme();
   const [mode, setMode] = useState('login');
-  const [loginData, setLoginData] = useState({ email: '', password: '', regNumber: '', campus: 'UR' });
+  const [loginData, setLoginData] = useState({ email: '', password: '', regNumber: '', campus: 'UR', gender: '' });
   const [adminData, setAdminData] = useState({ email: '', password: '' });
   const [registerData, setRegisterData] = useState({
     name: '',
@@ -16,6 +16,8 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount,
     password: '',
     confirm: '',
     campus: 'UR',
+    gender: '',
+    allowAdminUpdates: false,
   });
   const [feedback, setFeedback] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -67,6 +69,7 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount,
       !registerData.name ||
       !registerData.email ||
       !registerData.regNumber ||
+      !registerData.gender ||
       !registerData.password ||
       !registerData.confirm
     ) {
@@ -104,6 +107,8 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount,
       regNumber: registerData.regNumber,
       password: registerData.password,
       campus: registerData.campus,
+      gender: registerData.gender,
+      allowAdminUpdates: registerData.allowAdminUpdates,
     });
     setIsSubmitting(false);
 
@@ -120,12 +125,15 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount,
       password: '',
       confirm: '',
       campus: 'UR',
+      gender: '',
+      allowAdminUpdates: false,
     });
     setLoginData((currentLogin) => ({
       ...currentLogin,
       email: registerData.email,
       regNumber: registerData.regNumber,
       campus: registerData.campus,
+      gender: registerData.gender,
     }));
     setFeedback({ type: 'success', text: result.message });
   };
@@ -256,6 +264,22 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount,
                 </div>
               </div>
               <div className="form-group">
+                <label htmlFor="student-gender-login">Gender (optional)</label>
+                <select
+                  id="student-gender-login"
+                  value={loginData.gender}
+                  onChange={(event) => setLoginData({ ...loginData, gender: event.target.value })}
+                  disabled={isSubmitting || isSyncing}
+                >
+                  <option value="">Skip gender check</option>
+                  {GENDER_OPTIONS.map((genderOption) => (
+                    <option key={genderOption.value} value={genderOption.value}>
+                      {genderOption.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
                 <label htmlFor="student-password">Password</label>
                 <input
                   type="password"
@@ -336,6 +360,35 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount,
                   </label>
                 </div>
               </div>
+              <div className="form-group">
+                <label htmlFor="register-gender">Gender</label>
+                <select
+                  id="register-gender"
+                  value={registerData.gender}
+                  onChange={(event) => setRegisterData({ ...registerData, gender: event.target.value })}
+                  disabled={isSubmitting || isSyncing}
+                  required
+                >
+                  <option value="">Select your gender</option>
+                  {GENDER_OPTIONS.map((genderOption) => (
+                    <option key={genderOption.value} value={genderOption.value}>
+                      {genderOption.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <label className="consent-card" htmlFor="register-allow-admin-updates">
+                <input
+                  type="checkbox"
+                  id="register-allow-admin-updates"
+                  checked={registerData.allowAdminUpdates}
+                  onChange={(event) =>
+                    setRegisterData({ ...registerData, allowAdminUpdates: event.target.checked })
+                  }
+                  disabled={isSubmitting || isSyncing}
+                />
+                <span>I allow the hostel admin to update my account details if something is wrong.</span>
+              </label>
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="register-password">Password</label>

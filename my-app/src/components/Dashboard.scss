@@ -280,6 +280,12 @@
   margin-bottom: 2rem;
 }
 
+.metric-cards {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .hero-panel,
 .metric-card,
 .overview-card,
@@ -524,6 +530,68 @@
   font-size: 1rem;
 }
 
+.payment-progress-card {
+  margin-bottom: 1.5rem;
+  padding: 1.2rem 1.35rem;
+  border-radius: 18px;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.payment-progress-copy h4,
+.payment-progress-copy p {
+  margin: 0;
+}
+
+.payment-progress-copy h4 {
+  margin-bottom: 0.45rem;
+  font-size: 1.1rem;
+}
+
+.payment-progress-copy p {
+  opacity: 0.82;
+  line-height: 1.65;
+}
+
+.payment-progress-meta {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: end;
+  text-align: right;
+}
+
+.payment-progress-meta small {
+  opacity: 0.78;
+}
+
+.payment-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.payment-status-badge.pending {
+  background: rgba(251, 191, 36, 0.18);
+  color: #fde68a;
+}
+
+.payment-status-badge.verified {
+  background: rgba(34, 197, 94, 0.16);
+  color: #d1fae5;
+}
+
+.payment-status-badge.rejected {
+  background: rgba(248, 113, 113, 0.18);
+  color: #fee2e2;
+}
+
 .room-usage-block {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -670,6 +738,28 @@
   gap: 0.5rem;
 }
 
+.consent-block {
+  align-self: stretch;
+}
+
+.checkbox-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  line-height: 1.6;
+}
+
+.checkbox-card input {
+  margin-top: 0.2rem;
+  width: auto;
+  flex-shrink: 0;
+}
+
 .form-group label {
   font-weight: 600;
 }
@@ -687,6 +777,55 @@
 
 .form-group textarea {
   min-height: 100px;
+}
+
+.payment-form-block {
+  padding: 1.35rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  display: grid;
+  gap: 1rem;
+}
+
+.section-subtitle {
+  display: flex;
+  gap: 0.9rem;
+  align-items: flex-start;
+}
+
+.section-subtitle svg {
+  font-size: 1.2rem;
+  margin-top: 0.2rem;
+  color: #60a5fa;
+}
+
+.section-subtitle strong,
+.section-subtitle p {
+  margin: 0;
+}
+
+.section-subtitle p {
+  margin-top: 0.3rem;
+  opacity: 0.82;
+  line-height: 1.65;
+}
+
+.read-only-highlight {
+  min-height: 56px;
+  padding: 1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+}
+
+.error {
+  margin: 0;
+  color: #fca5a5;
+  font-size: 0.92rem;
 }
 
 .submit-btn {
@@ -713,6 +852,7 @@
 @media (max-width: 1024px) {
   .top-grid,
   .main-grid,
+  .metric-cards,
   .summary-block,
   .room-usage-block {
     grid-template-columns: 1fr;
@@ -746,6 +886,15 @@
     border-radius: 18px;
   }
 
+  .payment-progress-card {
+    flex-direction: column;
+  }
+
+  .payment-progress-meta {
+    justify-items: start;
+    text-align: left;
+  }
+
   .hero-panel {
     padding: 1.5rem;
   }
@@ -771,6 +920,10 @@
 
   .status-summary,
   .main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
     grid-template-columns: 1fr;
   }
 }

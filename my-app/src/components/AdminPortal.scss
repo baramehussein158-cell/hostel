@@ -57,6 +57,7 @@
 .admin-portal.light .pipeline-list div,
 .admin-portal.light .room-row,
 .admin-portal.light .application-row,
+.admin-portal.light .student-row,
 .admin-portal.light .empty-state {
   background: rgba(255, 255, 255, 0.66);
   border-color: rgba(148, 163, 184, 0.24);
@@ -65,7 +66,14 @@
 .admin-portal.light .room-controls input,
 .admin-portal.light .room-controls select,
 .admin-portal.light .applicant-filters select,
-.admin-portal.light .application-controls input {
+.admin-portal.light .application-controls input,
+.admin-portal.light .application-controls textarea,
+.admin-portal.light .student-search input,
+.admin-portal.light .student-tools select,
+.admin-portal.light .password-reset-group input,
+.admin-portal.light .student-editor-grid input,
+.admin-portal.light .student-editor-grid select,
+.admin-portal.light .student-picker select {
   background: rgba(255, 255, 255, 0.82);
   border-color: rgba(148, 163, 184, 0.3);
   color: #172033;
@@ -88,6 +96,31 @@
 
 .admin-portal.light .status-pill.waitlisted {
   color: #1d4ed8;
+}
+
+.admin-portal.light .payment-pill.pending,
+.admin-portal.light .payment-reject {
+  color: #854d0e;
+}
+
+.admin-portal.light .payment-pill.verified,
+.admin-portal.light .verify {
+  color: #166534;
+}
+
+.admin-portal.light .payment-pill.rejected {
+  color: #991b1b;
+}
+
+.admin-portal.light .payment-inbox-row,
+.admin-portal.light .permission-badge-card {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(148, 163, 184, 0.24);
+}
+
+.admin-portal.light .delete-button {
+  background: rgba(239, 68, 68, 0.14);
+  color: #991b1b;
 }
 
 .admin-portal.light .empty-state {
@@ -120,7 +153,7 @@
 }
 
 .admin-stat-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   margin-bottom: 1.5rem;
 }
 
@@ -213,13 +246,133 @@
 }
 
 .room-list,
-.application-list {
+.application-list,
+.student-directory-list {
   display: grid;
   gap: 1rem;
 }
 
+.payment-inbox-card {
+  margin-bottom: 1.5rem;
+}
+
+.payment-inbox-list {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.payment-inbox-row {
+  display: grid;
+  gap: 0.45rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.payment-inbox-row > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.payment-inbox-row span,
+.payment-inbox-row p {
+  margin: 0;
+  opacity: 0.82;
+}
+
+.student-editor-card {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.student-picker {
+  display: grid;
+  gap: 0.45rem;
+  min-width: 240px;
+}
+
+.student-picker label {
+  font-weight: 600;
+}
+
+.student-picker select {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+}
+
+.student-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.student-editor-grid label {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.student-editor-grid span {
+  font-weight: 600;
+}
+
+.student-editor-grid input,
+.student-editor-grid select {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+}
+
+.permission-badge-card {
+  display: grid;
+  align-content: start;
+  gap: 0.45rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.permission-badge-card span {
+  opacity: 0.75;
+  font-size: 0.92rem;
+}
+
+.student-lock-note {
+  margin-top: 0.25rem;
+}
+
+.student-editor-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.delete-button {
+  border: none;
+  cursor: pointer;
+  border-radius: 14px;
+  padding: 0.85rem 1.05rem;
+  font-weight: 700;
+  background: rgba(248, 113, 113, 0.18);
+  color: #fee2e2;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
 .room-row,
-.application-row {
+.application-row,
+.student-row {
   padding: 1rem;
 }
 
@@ -242,7 +395,9 @@
 .room-controls,
 .applicant-filters,
 .application-controls,
-.application-actions {
+.application-actions,
+.student-tools,
+.student-controls {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
@@ -257,7 +412,11 @@
 .room-controls input,
 .room-controls select,
 .applicant-filters select,
-.application-controls input {
+.application-controls input,
+.application-controls textarea,
+.student-search input,
+.student-tools select,
+.password-reset-group input {
   width: 100%;
   padding: 0.85rem 1rem;
   border-radius: 14px;
@@ -326,6 +485,13 @@
   align-items: center;
 }
 
+.status-pill-stack {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .application-meta {
   display: flex;
   gap: 0.75rem;
@@ -369,8 +535,116 @@
   color: #fef3c7;
 }
 
+.payment-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.payment-pill.pending,
+.payment-reject {
+  background: rgba(250, 204, 21, 0.18);
+  color: #fef3c7;
+}
+
+.payment-pill.verified,
+.verify {
+  background: rgba(34, 197, 94, 0.16);
+  color: #ecfdf5;
+}
+
+.payment-pill.rejected {
+  background: rgba(248, 113, 113, 0.18);
+  color: #fee2e2;
+}
+
 .application-actions button {
   color: inherit;
+}
+
+.payment-summary-grid,
+.student-meta {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  font-size: 0.94rem;
+  opacity: 0.82;
+}
+
+.notes-field {
+  min-height: 94px;
+  resize: vertical;
+}
+
+.payment-actions {
+  padding-top: 0.1rem;
+}
+
+.student-directory-section {
+  margin-top: 1.5rem;
+}
+
+.student-tools {
+  align-items: center;
+}
+
+.student-search {
+  min-width: 260px;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border-radius: 14px;
+  padding: 0 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.student-search svg {
+  opacity: 0.7;
+}
+
+.student-search input {
+  border: none;
+  background: transparent;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.student-search input:focus {
+  outline: none;
+}
+
+.student-row {
+  display: grid;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+}
+
+.student-main {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.student-controls {
+  align-items: end;
+}
+
+.password-reset-group {
+  display: grid;
+  gap: 0.45rem;
+  flex: 1 1 280px;
+}
+
+.password-reset-group span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 600;
 }
 
 .empty-state {
@@ -387,7 +661,8 @@
 }
 
 .application-actions button:disabled,
-.action-button:disabled {
+.action-button:disabled,
+.delete-button:disabled {
   opacity: 0.65;
   cursor: not-allowed;
   transform: none;
@@ -416,5 +691,17 @@
   .application-heading {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .status-pill-stack {
+    justify-content: flex-start;
+  }
+
+  .student-search {
+    min-width: 100%;
+  }
+
+  .student-editor-grid {
+    grid-template-columns: 1fr;
   }
 }
