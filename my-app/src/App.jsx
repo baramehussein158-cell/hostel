@@ -296,21 +296,7 @@ function AppContent() {
     });
   }, [activeStudent, session]);
 
-  const latestStudentApplication = getLatestApplicationForStudent(applications, activeStudent);
-  const studentApplications = getStudentApplications(applications, activeStudent);
-  const latestPasswordResetRequest = findLatestPasswordResetRequestForStudent(activeStudent);
-
-  const { campusRooms, totalRooms, occupiedRooms, remainingRooms } = activeStudent
-    ? getCampusRoomStats(applications, roomInventory, activeStudent.campus)
-    : { campusRooms: [], totalRooms: 0, occupiedRooms: 0, remainingRooms: 0 };
-
-  const pastDeadline = new Date() > APPLICATION_DEADLINE;
-  const roomClosed =
-    pastDeadline ||
-    remainingRooms <= 0 ||
-    (campusRooms.length > 0 && campusRooms.every((room) => room.status === 'closed'));
-
-  const findStudentByIdentity = (identity) => {
+  function findStudentByIdentity(identity) {
     const normalizedEmail = identity.email?.trim().toLowerCase() ?? '';
     const normalizedRegNumber = identity.regNumber?.trim().toLowerCase() ?? '';
     const normalizedCampus = identity.campus?.trim().toUpperCase() ?? '';
@@ -325,9 +311,9 @@ function AppContent() {
           user.gender?.toLowerCase() === normalizedGender
       ) ?? null
     );
-  };
+  }
 
-  const findLatestPasswordResetRequestForStudent = (student) => {
+  function findLatestPasswordResetRequestForStudent(student) {
     if (!student) {
       return null;
     }
@@ -353,7 +339,21 @@ function AppContent() {
         })
         .sort((left, right) => new Date(right.requestedAt ?? 0) - new Date(left.requestedAt ?? 0))[0] ?? null
     );
-  };
+  }
+
+  const latestStudentApplication = getLatestApplicationForStudent(applications, activeStudent);
+  const studentApplications = getStudentApplications(applications, activeStudent);
+  const latestPasswordResetRequest = findLatestPasswordResetRequestForStudent(activeStudent);
+
+  const { campusRooms, totalRooms, occupiedRooms, remainingRooms } = activeStudent
+    ? getCampusRoomStats(applications, roomInventory, activeStudent.campus)
+    : { campusRooms: [], totalRooms: 0, occupiedRooms: 0, remainingRooms: 0 };
+
+  const pastDeadline = new Date() > APPLICATION_DEADLINE;
+  const roomClosed =
+    pastDeadline ||
+    remainingRooms <= 0 ||
+    (campusRooms.length > 0 && campusRooms.every((room) => room.status === 'closed'));
 
   const handleStudentLogin = async (credentials) => {
     if (isSyncing) {
