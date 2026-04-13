@@ -16,6 +16,7 @@ import { DEFAULT_ROOM_INVENTORY, sortApplicationsByDate } from '../data/portalDa
 const collections = {
   applications: 'applications',
   rooms: 'rooms',
+  passwordResetRequests: 'passwordResetRequests',
   users: 'users',
 };
 
@@ -77,6 +78,18 @@ export const subscribeToApplications = (onData, onError) =>
     onError
   );
 
+export const subscribeToPasswordResetRequests = (onData, onError) =>
+  onSnapshot(
+    collection(db, collections.passwordResetRequests),
+    (snapshot) => {
+      const requests = mapSnapshotDocs(snapshot).sort(
+        (left, right) => new Date(right.requestedAt ?? 0) - new Date(left.requestedAt ?? 0)
+      );
+      onData(requests);
+    },
+    onError
+  );
+
 export const subscribeToRooms = (onData, onError) =>
   onSnapshot(
     collection(db, collections.rooms),
@@ -111,12 +124,25 @@ export const createApplication = async (application) => {
   return { id: documentRef.id, ...applicationPayload };
 };
 
+export const createPasswordResetRequest = async (request) => {
+  const requestPayload = {
+    ...request,
+    requestedAt: new Date().toISOString(),
+  };
+  const documentRef = await addDoc(collection(db, collections.passwordResetRequests), requestPayload);
+  return { id: documentRef.id, ...requestPayload };
+};
+
 export const updateRoom = async (roomId, updates) => {
   await updateDoc(doc(db, collections.rooms, roomId), updates);
 };
 
 export const updateApplication = async (applicationId, updates) => {
   await updateDoc(doc(db, collections.applications, applicationId), updates);
+};
+
+export const updatePasswordResetRequest = async (requestId, updates) => {
+  await updateDoc(doc(db, collections.passwordResetRequests, requestId), updates);
 };
 
 export const updateApplicationsByIds = async (applicationIds, updates) => {

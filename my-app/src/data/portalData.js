@@ -33,6 +33,13 @@ export const PAYMENT_STATUS_LABELS = {
   rejected: 'Rejected',
 };
 
+export const PASSWORD_RESET_REQUEST_STATUS_LABELS = {
+  pending: 'Pending',
+  approved: 'Code Issued',
+  used: 'Completed',
+  rejected: 'Rejected',
+};
+
 export const ROOM_TYPE_LABELS = {
   single: 'Single Room',
   shared: 'Shared Room',

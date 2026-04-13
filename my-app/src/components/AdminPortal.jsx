@@ -16,6 +16,7 @@ import {
   APPLICATION_STATUS_LABELS,
   ADMIN_UPDATE_ACCESS_LABELS,
   GENDER_OPTIONS,
+  PASSWORD_RESET_REQUEST_STATUS_LABELS,
   PAYMENT_METHODS,
   PAYMENT_STATUS_LABELS,
   ROOM_TYPE_LABELS,
@@ -31,11 +32,13 @@ const AdminPortal = ({
   applications,
   roomInventory,
   registeredUsers,
+  passwordResetRequests,
   onUpdateRoom,
   onUpdateApplication,
   onResetStudentPassword,
   onUpdateStudent,
   onDeleteStudent,
+  onReviewPasswordResetRequest,
 }) => {
   const { theme, toggleTheme } = useTheme();
   const [roomDrafts, setRoomDrafts] = useState({});
@@ -110,6 +113,9 @@ const AdminPortal = ({
   const totalRooms = roomInventory.reduce((sum, room) => sum + room.total, 0);
   const approvedApplications = applications.filter((application) => application.status === 'approved');
   const verifiedPayments = applications.filter((application) => application.paymentStatus === 'verified');
+  const pendingPasswordResetRequests = passwordResetRequests.filter(
+    (request) => request.status === 'pending'
+  ).length;
   const pendingApplications = applications.filter((application) => application.status === 'pending').length;
   const pendingPaymentReviews = applications.filter(
     (application) => (application.paymentStatus ?? 'pending') === 'pending'
@@ -388,6 +394,11 @@ const AdminPortal = ({
             <strong>{approvedApplications.length}</strong>
           </article>
           <article className="admin-card stat-card">
+            <FaKey className="stat-icon" />
+            <span>Password requests</span>
+            <strong>{pendingPasswordResetRequests}</strong>
+          </article>
+          <article className="admin-card stat-card">
             <FaBed className="stat-icon" />
             <span>Open room groups</span>
             <strong>{openRoomGroups}</strong>
@@ -428,6 +439,76 @@ const AdminPortal = ({
                     <p>
                       Submitted on {new Date(application.paymentSubmittedAt || application.submittedAt).toLocaleDateString()}
                     </p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
+        <section className="admin-card password-reset-card">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Password reset requests</p>
+              <h2>One-time code approvals</h2>
+            </div>
+            <FaKey className="section-icon" />
+          </div>
+
+          {passwordResetRequests.length === 0 ? (
+            <div className="empty-state">No password reset requests have been submitted yet.</div>
+          ) : (
+            <div className="password-reset-list">
+              {passwordResetRequests.map((request) => {
+                const statusLabel = PASSWORD_RESET_REQUEST_STATUS_LABELS[request.status] || 'Pending';
+
+                return (
+                  <div key={request.id} className="password-reset-row">
+                    <div className="password-reset-main">
+                      <div className="password-reset-heading">
+                        <strong>{request.name}</strong>
+                        <span className={`status-pill ${request.status}`}>{statusLabel}</span>
+                      </div>
+
+                      <div className="password-reset-meta">
+                        <span>{request.email}</span>
+                        <span>{request.regNumber}</span>
+                        <span>{request.campus}</span>
+                        <span>Gender: {GENDER_OPTIONS.find((item) => item.value === request.gender)?.label || request.gender || 'Not set'}</span>
+                      </div>
+
+                      {request.reason && <p className="password-reset-reason">Reason: {request.reason}</p>}
+
+                      <div className="password-reset-code">
+                        <span>One-time code</span>
+                        <strong>{request.resetCode || 'Not issued yet'}</strong>
+                      </div>
+
+                      <div className="password-reset-dates">
+                        <span>Requested: {new Date(request.requestedAt).toLocaleDateString()}</span>
+                        <span>Issued: {request.resetCodeIssuedAt ? new Date(request.resetCodeIssuedAt).toLocaleDateString() : 'Not yet'}</span>
+                        <span>Expires: {request.resetCodeExpiresAt ? new Date(request.resetCodeExpiresAt).toLocaleDateString() : 'Not yet'}</span>
+                      </div>
+                    </div>
+
+                    <div className="password-reset-actions">
+                      <button
+                        type="button"
+                        className="action-button"
+                        disabled={isSaving || request.status === 'used'}
+                        onClick={() => onReviewPasswordResetRequest(request.id, 'approve')}
+                      >
+                        {request.status === 'approved' ? 'Reissue Code' : 'Approve & Generate Code'}
+                      </button>
+                      <button
+                        type="button"
+                        className="delete-button"
+                        disabled={isSaving || request.status === 'used'}
+                        onClick={() => onReviewPasswordResetRequest(request.id, 'reject')}
+                      >
+                        Reject
+                      </button>
+                    </div>
                   </div>
                 );
               })}

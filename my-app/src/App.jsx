@@ -18,16 +18,19 @@ import {
 } from './data/portalData';
 import {
   createApplication,
+  createPasswordResetRequest,
   createUser,
   deleteApplicationsByIds,
   deleteUsersByIds,
   ensureRoomInventorySeeded,
   subscribeToApplications,
+  subscribeToPasswordResetRequests,
   subscribeToRooms,
   subscribeToUsers,
   updateApplicationsByIds,
   updateApplication,
   updateRoom,
+  updatePasswordResetRequest,
   updateUserProfileForUsers,
   updateUserProfileImage,
   updateUserProfileImageForUsers,
@@ -117,10 +120,20 @@ const getCampusRoomStats = (applications, rooms, campus) => {
   };
 };
 
+const getStudentAccountKeyFromIdentity = ({ campus, regNumber, email }) =>
+  getUserAccountKey({
+    campus,
+    regNumber,
+    email,
+  });
+
+const generateResetCode = () => `${Math.floor(100000 + Math.random() * 900000)}`;
+
 function AppContent() {
   const { theme } = useTheme();
   const [users, setUsers] = useState([]);
   const [applications, setApplications] = useState([]);
+  const [passwordResetRequests, setPasswordResetRequests] = useState([]);
   const [roomInventory, setRoomInventory] = useState([]);
   const [session, setSession] = useState(() => readStoredValue(STORAGE_KEYS.session, null));
   const [isSyncing, setIsSyncing] = useState(true);
@@ -139,6 +152,7 @@ function AppContent() {
     let isMounted = true;
     const loaded = {
       applications: false,
+      passwordResetRequests: false,
       rooms: false,
       users: false,
     };
@@ -194,6 +208,23 @@ function AppContent() {
       }
     );
 
+    const unsubscribePasswordResetRequests = subscribeToPasswordResetRequests(
+      (nextRequests) => {
+        if (!isMounted) {
+          return;
+        }
+        setPasswordResetRequests(nextRequests);
+        markLoaded('passwordResetRequests');
+      },
+      (error) => {
+        console.error('Password reset requests subscription failed:', error);
+        if (isMounted) {
+          setSyncError('Could not load password reset requests from database.');
+          markLoaded('passwordResetRequests');
+        }
+      }
+    );
+
     const unsubscribeRooms = subscribeToRooms(
       (nextRooms) => {
         if (!isMounted) {
@@ -215,6 +246,7 @@ function AppContent() {
       isMounted = false;
       unsubscribeUsers();
       unsubscribeApplications();
+      unsubscribePasswordResetRequests();
       unsubscribeRooms();
     };
   }, []);
@@ -266,6 +298,7 @@ function AppContent() {
 
   const latestStudentApplication = getLatestApplicationForStudent(applications, activeStudent);
   const studentApplications = getStudentApplications(applications, activeStudent);
+  const latestPasswordResetRequest = findLatestPasswordResetRequestForStudent(activeStudent);
 
   const { campusRooms, totalRooms, occupiedRooms, remainingRooms } = activeStudent
     ? getCampusRoomStats(applications, roomInventory, activeStudent.campus)
@@ -276,6 +309,51 @@ function AppContent() {
     pastDeadline ||
     remainingRooms <= 0 ||
     (campusRooms.length > 0 && campusRooms.every((room) => room.status === 'closed'));
+
+  const findStudentByIdentity = (identity) => {
+    const normalizedEmail = identity.email?.trim().toLowerCase() ?? '';
+    const normalizedRegNumber = identity.regNumber?.trim().toLowerCase() ?? '';
+    const normalizedCampus = identity.campus?.trim().toUpperCase() ?? '';
+    const normalizedGender = identity.gender?.trim().toLowerCase() ?? '';
+
+    return (
+      users.find(
+        (user) =>
+          user.email?.toLowerCase() === normalizedEmail &&
+          user.regNumber?.toLowerCase() === normalizedRegNumber &&
+          user.campus?.toUpperCase() === normalizedCampus &&
+          user.gender?.toLowerCase() === normalizedGender
+      ) ?? null
+    );
+  };
+
+  const findLatestPasswordResetRequestForStudent = (student) => {
+    if (!student) {
+      return null;
+    }
+
+    const studentAccountKey = getUserAccountKey(student);
+    return (
+      [...passwordResetRequests]
+        .filter((request) => {
+          const requestAccountKey =
+            request.studentAccountKey ||
+            getStudentAccountKeyFromIdentity({
+              campus: request.campus,
+              regNumber: request.regNumber,
+              email: request.email,
+            });
+
+          return (
+            request.studentId === student.id ||
+            (studentAccountKey && requestAccountKey === studentAccountKey) ||
+            request.regNumber?.toLowerCase() === student.regNumber?.toLowerCase() ||
+            request.email?.toLowerCase() === student.email?.toLowerCase()
+          );
+        })
+        .sort((left, right) => new Date(right.requestedAt ?? 0) - new Date(left.requestedAt ?? 0))[0] ?? null
+    );
+  };
 
   const handleStudentLogin = async (credentials) => {
     if (isSyncing) {
@@ -462,6 +540,187 @@ function AppContent() {
     } catch (error) {
       console.error('Failed to create application:', error);
       return { success: false, message: 'Failed to submit application to Database.' };
+    }
+  };
+
+  const handlePasswordResetRequest = async (data) => {
+    const matchedStudent = findStudentByIdentity(data);
+
+    if (!matchedStudent) {
+      return {
+        success: false,
+        message: 'We could not match those details to a student account. Check the email, reg number, campus, and gender.',
+      };
+    }
+
+    const existingOpenRequest = passwordResetRequests.find((request) => {
+      const requestAccountKey =
+        request.studentAccountKey ||
+        getStudentAccountKeyFromIdentity({
+          campus: request.campus,
+          regNumber: request.regNumber,
+          email: request.email,
+        });
+
+      return (
+        request.status !== 'used' &&
+        request.status !== 'rejected' &&
+        (request.studentId === matchedStudent.id ||
+          requestAccountKey === getUserAccountKey(matchedStudent) ||
+          request.regNumber?.toLowerCase() === matchedStudent.regNumber?.toLowerCase() ||
+          request.email?.toLowerCase() === matchedStudent.email?.toLowerCase())
+      );
+    });
+
+    if (existingOpenRequest) {
+      return {
+        success: false,
+        message: 'A password reset request already exists for this account. Wait for the admin to review it.',
+      };
+    }
+
+    try {
+      await createPasswordResetRequest({
+        studentId: matchedStudent.id,
+        studentAccountKey: getUserAccountKey(matchedStudent),
+        name: matchedStudent.name,
+        email: matchedStudent.email,
+        regNumber: matchedStudent.regNumber,
+        campus: matchedStudent.campus,
+        gender: matchedStudent.gender,
+        reason: data.reason?.trim() || '',
+        status: 'pending',
+        resetCode: '',
+        resetCodeIssuedAt: '',
+        resetCodeExpiresAt: '',
+        resetCodeUsedAt: '',
+        adminReviewedBy: '',
+      });
+
+      return {
+        success: true,
+        message: 'Password reset request sent to the admin. Wait for a one-time code to be issued.',
+      };
+    } catch (error) {
+      console.error('Failed to create password reset request:', error);
+      return { success: false, message: 'Failed to send the password reset request to Database.' };
+    }
+  };
+
+  const handlePasswordResetReview = async (requestId, action) => {
+    const request = passwordResetRequests.find((entry) => entry.id === requestId);
+    if (!request) {
+      return { success: false, message: 'Password reset request not found.' };
+    }
+
+    if (action === 'reject') {
+      try {
+        await updatePasswordResetRequest(requestId, {
+          status: 'rejected',
+          reviewedAt: new Date().toISOString(),
+          adminReviewedBy: ADMIN_ACCOUNT.email,
+          resetCode: '',
+          resetCodeIssuedAt: '',
+          resetCodeExpiresAt: '',
+        });
+        return { success: true, message: `Password reset request for ${request.name} was rejected.` };
+      } catch (error) {
+        console.error('Failed to reject password reset request:', error);
+        return { success: false, message: 'Failed to update the reset request in Database.' };
+      }
+    }
+
+    const generatedCode = generateResetCode();
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
+
+    try {
+      await updatePasswordResetRequest(requestId, {
+        status: 'approved',
+        reviewedAt: now.toISOString(),
+        adminReviewedBy: ADMIN_ACCOUNT.email,
+        resetCode: generatedCode,
+        resetCodeIssuedAt: now.toISOString(),
+        resetCodeExpiresAt: expiresAt,
+        resetCodeUsedAt: '',
+      });
+
+      return {
+        success: true,
+        message: `One-time reset code generated for ${request.name}: ${generatedCode}`,
+        resetCode: generatedCode,
+      };
+    } catch (error) {
+      console.error('Failed to approve password reset request:', error);
+      return { success: false, message: 'Failed to issue the reset code in Database.' };
+    }
+  };
+
+  const handlePasswordResetConfirm = async (data) => {
+    const matchedStudent = findStudentByIdentity(data);
+    if (!matchedStudent) {
+      return {
+        success: false,
+        message: 'We could not match those details to a student account. Check the email, reg number, campus, and gender.',
+      };
+    }
+
+    if (!PASSWORD_POLICY.test(data.newPassword)) {
+      return {
+        success: false,
+        message: 'New password must include uppercase, lowercase, a number, a symbol, and at least 8 characters.',
+      };
+    }
+
+    const request = passwordResetRequests.find((entry) => {
+      const requestAccountKey =
+        entry.studentAccountKey ||
+        getStudentAccountKeyFromIdentity({
+          campus: entry.campus,
+          regNumber: entry.regNumber,
+          email: entry.email,
+        });
+
+      return (
+        entry.status === 'approved' &&
+        entry.resetCode === data.resetCode?.trim() &&
+        (entry.studentId === matchedStudent.id ||
+          requestAccountKey === getUserAccountKey(matchedStudent) ||
+          entry.regNumber?.toLowerCase() === matchedStudent.regNumber?.toLowerCase() ||
+          entry.email?.toLowerCase() === matchedStudent.email?.toLowerCase())
+      );
+    });
+
+    if (!request) {
+      return {
+        success: false,
+        message: 'That reset code is not valid, has already been used, or has not been approved yet.',
+      };
+    }
+
+    if (request.resetCodeExpiresAt && new Date(request.resetCodeExpiresAt) < new Date()) {
+      return { success: false, message: 'That reset code has expired. Please ask the admin to generate a new one.' };
+    }
+
+    const accountKey = getUserAccountKey(matchedStudent);
+    const relatedUserIds = users
+      .filter((user) => getUserAccountKey(user) === accountKey)
+      .map((user) => user.id);
+
+    try {
+      await updateUserPasswordForUsers(relatedUserIds, data.newPassword);
+      await updatePasswordResetRequest(request.id, {
+        status: 'used',
+        resetCodeUsedAt: new Date().toISOString(),
+      });
+
+      return {
+        success: true,
+        message: 'Your password has been updated successfully. The reset code can only be used once.',
+      };
+    } catch (error) {
+      console.error('Failed to apply password reset:', error);
+      return { success: false, message: 'Failed to update the password in Database.' };
     }
   };
 
@@ -849,11 +1108,13 @@ function AppContent() {
           applications={applications}
           roomInventory={roomInventory}
           registeredUsers={users}
+          passwordResetRequests={passwordResetRequests}
           onUpdateRoom={handleUpdateRoom}
           onUpdateApplication={handleUpdateApplication}
           onResetStudentPassword={handleResetStudentPassword}
           onUpdateStudent={handleUpdateStudent}
           onDeleteStudent={handleDeleteStudent}
+          onReviewPasswordResetRequest={handlePasswordResetReview}
         />
       ) : session?.role === 'student' && activeStudent ? (
         <Dashboard
@@ -868,6 +1129,7 @@ function AppContent() {
           deadline={APPLICATION_DEADLINE}
           latestApplication={latestStudentApplication}
           studentApplications={studentApplications}
+          latestPasswordResetRequest={latestPasswordResetRequest}
           onRoomApplication={handleRoomApplication}
           onProfileImageUpload={handleProfileImageUpload}
         />
@@ -876,6 +1138,8 @@ function AppContent() {
           onStudentLogin={handleStudentLogin}
           onAdminLogin={handleAdminLogin}
           onRegister={handleRegister}
+          onPasswordResetRequest={handlePasswordResetRequest}
+          onPasswordResetConfirm={handlePasswordResetConfirm}
           registeredUsersCount={users.length}
           isSyncing={isSyncing}
         />

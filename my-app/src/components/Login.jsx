@@ -4,7 +4,15 @@ import { GENDER_OPTIONS } from '../data/portalData';
 import { useTheme } from '../contexts/ThemeContext';
 import './Login.scss';
 
-const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount, isSyncing }) => {
+const Login = ({
+  onStudentLogin,
+  onAdminLogin,
+  onRegister,
+  onPasswordResetRequest,
+  onPasswordResetConfirm,
+  registeredUsersCount,
+  isSyncing,
+}) => {
   const { theme } = useTheme();
   const [mode, setMode] = useState('login');
   const [loginData, setLoginData] = useState({ email: '', password: '', regNumber: '', campus: 'UR', gender: '' });
@@ -18,6 +26,22 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount,
     campus: 'UR',
     gender: '',
     allowAdminUpdates: false,
+  });
+  const [resetRequestData, setResetRequestData] = useState({
+    email: '',
+    regNumber: '',
+    campus: 'UR',
+    gender: '',
+    reason: '',
+  });
+  const [resetCodeData, setResetCodeData] = useState({
+    email: '',
+    regNumber: '',
+    campus: 'UR',
+    gender: '',
+    resetCode: '',
+    newPassword: '',
+    confirm: '',
   });
   const [feedback, setFeedback] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -138,6 +162,92 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount,
     setFeedback({ type: 'success', text: result.message });
   };
 
+  const handlePasswordResetRequestSubmit = async (event) => {
+    event.preventDefault();
+    resetFeedback();
+
+    if (
+      !resetRequestData.email ||
+      !resetRequestData.regNumber ||
+      !resetRequestData.campus ||
+      !resetRequestData.gender
+    ) {
+      setFeedback({ type: 'error', text: 'Email, registration number, campus, and gender are required.' });
+      return;
+    }
+
+    setIsSubmitting(true);
+    const result = await onPasswordResetRequest(resetRequestData);
+    setIsSubmitting(false);
+
+    if (!result.success) {
+      setFeedback({ type: 'error', text: result.message });
+      return;
+    }
+
+    setResetRequestData({
+      email: '',
+      regNumber: '',
+      campus: 'UR',
+      gender: '',
+      reason: '',
+    });
+    setFeedback({ type: 'success', text: result.message });
+  };
+
+  const handlePasswordResetConfirmSubmit = async (event) => {
+    event.preventDefault();
+    resetFeedback();
+
+    if (
+      !resetCodeData.email ||
+      !resetCodeData.regNumber ||
+      !resetCodeData.campus ||
+      !resetCodeData.gender ||
+      !resetCodeData.resetCode ||
+      !resetCodeData.newPassword ||
+      !resetCodeData.confirm
+    ) {
+      setFeedback({ type: 'error', text: 'All reset fields are required.' });
+      return;
+    }
+
+    const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+    if (!strongPassword.test(resetCodeData.newPassword)) {
+      setFeedback({
+        type: 'error',
+        text: 'New password must be at least 8 characters with uppercase, lowercase, number, and symbol.',
+      });
+      return;
+    }
+
+    if (resetCodeData.newPassword !== resetCodeData.confirm) {
+      setFeedback({ type: 'error', text: 'New passwords do not match.' });
+      return;
+    }
+
+    setIsSubmitting(true);
+    const result = await onPasswordResetConfirm(resetCodeData);
+    setIsSubmitting(false);
+
+    if (!result.success) {
+      setFeedback({ type: 'error', text: result.message });
+      return;
+    }
+
+    setResetCodeData({
+      email: '',
+      regNumber: '',
+      campus: 'UR',
+      gender: '',
+      resetCode: '',
+      newPassword: '',
+      confirm: '',
+    });
+    setMode('login');
+    setFeedback({ type: 'success', text: result.message });
+  };
+
   return (
     <div className={`login-container ${theme}`}>
       <div className="portal-grid">
@@ -166,7 +276,7 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount,
         </section>
 
         <div className="login-card">
-          <div className="login-nav three-column">
+          <div className="login-nav four-column">
             <button
               className={mode === 'login' ? 'active' : ''}
               type="button"
@@ -197,6 +307,16 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount,
             >
               Admin
             </button>
+            <button
+              className={mode === 'reset' ? 'active' : ''}
+              type="button"
+              onClick={() => {
+                setMode('reset');
+                resetFeedback();
+              }}
+            >
+              Reset Password
+            </button>
           </div>
 
           <div className="login-intro">
@@ -212,7 +332,9 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount,
                 ? 'Sign in to apply for a room or track your latest application.'
                 : mode === 'register'
                   ? 'Register a student account before submitting a hostel room request.'
-                  : 'Use the admin portal to review applicants and manage room inventory.'}
+                  : mode === 'admin'
+                    ? 'Use the admin portal to review applicants and manage room inventory.'
+                    : 'Request a one-time code from the admin or use an approved code to create a new password.'}
             </p>
           </div>
 
@@ -457,6 +579,208 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount,
             </form>
           )}
 
+          {mode === 'reset' && (
+            <div className="reset-mode">
+              <form onSubmit={handlePasswordResetRequestSubmit} className="reset-card">
+                <h3>Request one-time code</h3>
+                <p>Send a password reset request to the admin. Gender is required so the admin can identify you.</p>
+
+                <div className="form-group">
+                  <label htmlFor="reset-request-email">Email</label>
+                  <input
+                    type="email"
+                    id="reset-request-email"
+                    value={resetRequestData.email}
+                    onChange={(event) => setResetRequestData({ ...resetRequestData, email: event.target.value })}
+                    placeholder="student@university.edu"
+                    disabled={isSubmitting || isSyncing}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="reset-request-regNumber">Registration Number</label>
+                  <input
+                    type="text"
+                    id="reset-request-regNumber"
+                    value={resetRequestData.regNumber}
+                    onChange={(event) => setResetRequestData({ ...resetRequestData, regNumber: event.target.value })}
+                    placeholder="Enter your reg number"
+                    disabled={isSubmitting || isSyncing}
+                  />
+                </div>
+                <div className="form-group campus-choice">
+                  <label>Campus</label>
+                  <div className="campus-options">
+                    <label>
+                      <input
+                        type="radio"
+                        name="resetRequestCampus"
+                        value="UR"
+                        checked={resetRequestData.campus === 'UR'}
+                        onChange={(event) => setResetRequestData({ ...resetRequestData, campus: event.target.value })}
+                        disabled={isSubmitting || isSyncing}
+                      />
+                      UR
+                    </label>
+                    <label>
+                      <input
+                        type="radio"
+                        name="resetRequestCampus"
+                        value="RP"
+                        checked={resetRequestData.campus === 'RP'}
+                        onChange={(event) => setResetRequestData({ ...resetRequestData, campus: event.target.value })}
+                        disabled={isSubmitting || isSyncing}
+                      />
+                      RP
+                    </label>
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="reset-request-gender">Gender</label>
+                  <select
+                    id="reset-request-gender"
+                    value={resetRequestData.gender}
+                    onChange={(event) => setResetRequestData({ ...resetRequestData, gender: event.target.value })}
+                    disabled={isSubmitting || isSyncing}
+                    required
+                  >
+                    <option value="">Select your gender</option>
+                    {GENDER_OPTIONS.map((genderOption) => (
+                      <option key={genderOption.value} value={genderOption.value}>
+                        {genderOption.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="reset-request-reason">Reason</label>
+                  <textarea
+                    id="reset-request-reason"
+                    value={resetRequestData.reason}
+                    onChange={(event) => setResetRequestData({ ...resetRequestData, reason: event.target.value })}
+                    placeholder="Optional note for the admin"
+                    rows="3"
+                    disabled={isSubmitting || isSyncing}
+                  />
+                </div>
+
+                <button type="submit" className="login-btn" disabled={isSubmitting || isSyncing}>
+                  {isSubmitting ? 'Sending...' : 'Send Request'}
+                </button>
+              </form>
+
+              <form onSubmit={handlePasswordResetConfirmSubmit} className="reset-card">
+                <h3>Use reset code</h3>
+                <p>After the admin approves your request, enter the code once and set a new strong password.</p>
+
+                <div className="form-group">
+                  <label htmlFor="reset-confirm-email">Email</label>
+                  <input
+                    type="email"
+                    id="reset-confirm-email"
+                    value={resetCodeData.email}
+                    onChange={(event) => setResetCodeData({ ...resetCodeData, email: event.target.value })}
+                    placeholder="student@university.edu"
+                    disabled={isSubmitting || isSyncing}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="reset-confirm-regNumber">Registration Number</label>
+                  <input
+                    type="text"
+                    id="reset-confirm-regNumber"
+                    value={resetCodeData.regNumber}
+                    onChange={(event) => setResetCodeData({ ...resetCodeData, regNumber: event.target.value })}
+                    placeholder="Enter your reg number"
+                    disabled={isSubmitting || isSyncing}
+                  />
+                </div>
+                <div className="form-group campus-choice">
+                  <label>Campus</label>
+                  <div className="campus-options">
+                    <label>
+                      <input
+                        type="radio"
+                        name="resetConfirmCampus"
+                        value="UR"
+                        checked={resetCodeData.campus === 'UR'}
+                        onChange={(event) => setResetCodeData({ ...resetCodeData, campus: event.target.value })}
+                        disabled={isSubmitting || isSyncing}
+                      />
+                      UR
+                    </label>
+                    <label>
+                      <input
+                        type="radio"
+                        name="resetConfirmCampus"
+                        value="RP"
+                        checked={resetCodeData.campus === 'RP'}
+                        onChange={(event) => setResetCodeData({ ...resetCodeData, campus: event.target.value })}
+                        disabled={isSubmitting || isSyncing}
+                      />
+                      RP
+                    </label>
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="reset-confirm-gender">Gender</label>
+                  <select
+                    id="reset-confirm-gender"
+                    value={resetCodeData.gender}
+                    onChange={(event) => setResetCodeData({ ...resetCodeData, gender: event.target.value })}
+                    disabled={isSubmitting || isSyncing}
+                    required
+                  >
+                    <option value="">Select your gender</option>
+                    {GENDER_OPTIONS.map((genderOption) => (
+                      <option key={genderOption.value} value={genderOption.value}>
+                        {genderOption.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="reset-code">One-time Code</label>
+                  <input
+                    type="text"
+                    id="reset-code"
+                    value={resetCodeData.resetCode}
+                    onChange={(event) => setResetCodeData({ ...resetCodeData, resetCode: event.target.value })}
+                    placeholder="Enter code from admin"
+                    disabled={isSubmitting || isSyncing}
+                  />
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="reset-new-password">New Password</label>
+                    <input
+                      type="password"
+                      id="reset-new-password"
+                      value={resetCodeData.newPassword}
+                      onChange={(event) => setResetCodeData({ ...resetCodeData, newPassword: event.target.value })}
+                      placeholder="Create a new password"
+                      disabled={isSubmitting || isSyncing}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="reset-confirm-password">Confirm Password</label>
+                    <input
+                      type="password"
+                      id="reset-confirm-password"
+                      value={resetCodeData.confirm}
+                      onChange={(event) => setResetCodeData({ ...resetCodeData, confirm: event.target.value })}
+                      placeholder="Confirm new password"
+                      disabled={isSubmitting || isSyncing}
+                    />
+                  </div>
+                </div>
+
+                <button type="submit" className="login-btn" disabled={isSubmitting || isSyncing}>
+                  {isSubmitting ? 'Updating...' : 'Set New Password'}
+                </button>
+              </form>
+            </div>
+          )}
+
           <div className="signup-link">
             {mode === 'login' && (
               <p>
@@ -483,6 +807,33 @@ const Login = ({ onStudentLogin, onAdminLogin, onRegister, registeredUsersCount,
                   }}
                 >
                   Sign in
+                </button>
+              </p>
+            )}
+            {mode === 'reset' && (
+              <p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('login');
+                    resetFeedback();
+                  }}
+                >
+                  Back to login
+                </button>
+              </p>
+            )}
+            {mode === 'admin' && (
+              <p>
+                Need help from the reset tab?{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('reset');
+                    resetFeedback();
+                  }}
+                >
+                  Open reset password
                 </button>
               </p>
             )}

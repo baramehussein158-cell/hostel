@@ -14,6 +14,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import {
   APPLICATION_STATUS_LABELS,
   HOSTEL_RENT_BY_ROOM_TYPE,
+  PASSWORD_RESET_REQUEST_STATUS_LABELS,
   PAYMENT_METHODS,
   PAYMENT_STATUS_LABELS,
   GENDER_OPTIONS,
@@ -80,6 +81,7 @@ const Dashboard = ({
   deadline,
   latestApplication,
   studentApplications,
+  latestPasswordResetRequest,
   onRoomApplication,
   onProfileImageUpload,
 }) => {
@@ -107,6 +109,7 @@ const Dashboard = ({
     title: 'Payment not started',
     summary: 'Payment information will appear here after you submit an application.',
   };
+  const passwordResetStatus = latestPasswordResetRequest?.status ?? '';
   const profileGenderLabel = getGenderLabel(student.gender);
   const profileAccessLabel = student.allowAdminUpdates ? 'Allowed' : 'Not allowed';
 
@@ -445,6 +448,27 @@ const Dashboard = ({
                     <strong>{latestApplication.allowAdminUpdates ? 'Allowed' : 'Not allowed'}</strong>
                   </div>
                 </div>
+
+                {latestPasswordResetRequest && (
+                  <div className="password-reset-status-card">
+                    <div>
+                      <p className="eyebrow">Password reset</p>
+                      <h4>{PASSWORD_RESET_REQUEST_STATUS_LABELS[passwordResetStatus] || 'Pending'}</h4>
+                      <p>
+                        {passwordResetStatus === 'approved'
+                          ? 'The admin issued a one-time code. Use it from the login reset section to set a new password.'
+                          : passwordResetStatus === 'used'
+                            ? 'Your password was updated successfully using the one-time code.'
+                            : passwordResetStatus === 'rejected'
+                              ? 'The admin rejected the request. Send a new request if you still need help.'
+                              : 'Your password reset request has been sent to the admin.'}
+                      </p>
+                    </div>
+                    <strong className={`password-reset-pill ${passwordResetStatus}`}>
+                      {PASSWORD_RESET_REQUEST_STATUS_LABELS[passwordResetStatus] || 'Pending'}
+                    </strong>
+                  </div>
+                )}
 
                 <div className="payment-progress-card">
                   <div className="payment-progress-copy">

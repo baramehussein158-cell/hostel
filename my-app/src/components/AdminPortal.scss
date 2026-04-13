@@ -98,6 +98,10 @@
   color: #1d4ed8;
 }
 
+.admin-portal.light .status-pill.used {
+  color: #0369a1;
+}
+
 .admin-portal.light .payment-pill.pending,
 .admin-portal.light .payment-reject {
   color: #854d0e;
@@ -114,6 +118,13 @@
 
 .admin-portal.light .payment-inbox-row,
 .admin-portal.light .permission-badge-card {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(148, 163, 184, 0.24);
+}
+
+.admin-portal.light .password-reset-row,
+.admin-portal.light .password-reset-card,
+.admin-portal.light .payment-inbox-row {
   background: rgba(255, 255, 255, 0.72);
   border-color: rgba(148, 163, 184, 0.24);
 }
@@ -256,6 +267,10 @@
   margin-bottom: 1.5rem;
 }
 
+.password-reset-card {
+  margin-bottom: 1.5rem;
+}
+
 .payment-inbox-list {
   display: grid;
   gap: 0.9rem;
@@ -282,6 +297,63 @@
 .payment-inbox-row p {
   margin: 0;
   opacity: 0.82;
+}
+
+.password-reset-list {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.password-reset-row {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.password-reset-main {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.password-reset-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.password-reset-meta,
+.password-reset-dates {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  opacity: 0.82;
+  font-size: 0.94rem;
+}
+
+.password-reset-reason {
+  margin: 0;
+  opacity: 0.82;
+}
+
+.password-reset-code {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.password-reset-code span {
+  opacity: 0.72;
+  font-size: 0.9rem;
+}
+
+.password-reset-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .student-editor-card {
@@ -535,6 +607,11 @@
   color: #fef3c7;
 }
 
+.status-pill.used {
+  background: rgba(14, 165, 233, 0.16);
+  color: #e0f2fe;
+}
+
 .payment-pill {
   display: inline-flex;
   align-items: center;
@@ -703,5 +780,9 @@
 
   .student-editor-grid {
     grid-template-columns: 1fr;
+  }
+
+  .password-reset-heading {
+    align-items: flex-start;
   }
 }

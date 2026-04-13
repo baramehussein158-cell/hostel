@@ -97,6 +97,10 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.login-nav.four-column {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .login-nav button {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -301,6 +305,30 @@
   font-weight: 700;
 }
 
+.reset-mode {
+  display: grid;
+  gap: 1rem;
+}
+
+.reset-card {
+  display: grid;
+  gap: 0.95rem;
+  padding: 1.15rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.reset-card h3 {
+  margin: 0;
+}
+
+.reset-card p {
+  margin: 0;
+  opacity: 0.82;
+  line-height: 1.65;
+}
+
 @media (max-width: 1024px) {
   .portal-grid {
     grid-template-columns: 1fr;
@@ -323,6 +351,10 @@
 
   .login-nav.three-column {
     grid-template-columns: 1fr;
+  }
+
+  .login-nav.four-column {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
