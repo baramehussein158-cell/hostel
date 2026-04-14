@@ -46,6 +46,7 @@ const AdminPortal = ({
   const [assignmentDrafts, setAssignmentDrafts] = useState({});
   const [paymentNotesDrafts, setPaymentNotesDrafts] = useState({});
   const [passwordDrafts, setPasswordDrafts] = useState({});
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [selectedStudentDraft, setSelectedStudentDraft] = useState({
     name: '',
@@ -110,6 +111,22 @@ const AdminPortal = ({
     const timer = setTimeout(() => setFlash(null), 4000);
     return () => clearTimeout(timer);
   }, [flash]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return undefined;
+    }
+
+    const interval = window.setInterval(() => {
+      setActiveImageIndex((currentIndex) => (currentIndex + 1) % PORTAL_IMAGES.length);
+    }, 4000);
+
+    return () => window.clearInterval(interval);
+  }, []);
 
   const totalRooms = roomInventory.reduce((sum, room) => sum + room.total, 0);
   const approvedApplications = applications.filter((application) => application.status === 'approved');
@@ -422,13 +439,54 @@ const AdminPortal = ({
           <FaChartBar className="section-icon" />
         </div>
 
-        <div className="admin-image-grid">
-          {PORTAL_IMAGES.map((image) => (
-            <figure key={image.name} className="admin-image-card">
-              <img src={image.src} alt={image.alt} />
-              <figcaption>{image.name}</figcaption>
-            </figure>
-          ))}
+        <div className="admin-image-carousel">
+          <div className="admin-image-frame">
+            <div
+              className="admin-image-track"
+              style={{ transform: `translate3d(-${activeImageIndex * 100}%, 0, 0)` }}
+            >
+              {PORTAL_IMAGES.map((image) => (
+                <figure key={image.name} className="admin-image-slide">
+                  <img src={image.src} alt={image.alt} />
+                  <figcaption>{image.name}</figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+
+          <div className="admin-image-controls">
+            <button
+              type="button"
+              className="admin-image-arrow"
+              onClick={() =>
+                setActiveImageIndex((currentIndex) => (currentIndex - 1 + PORTAL_IMAGES.length) % PORTAL_IMAGES.length)
+              }
+              aria-label="Previous image"
+            >
+              Prev
+            </button>
+
+            <div className="admin-image-dots" aria-label="Project image controls">
+              {PORTAL_IMAGES.map((image, index) => (
+                <button
+                  key={image.name}
+                  type="button"
+                  className={index === activeImageIndex ? 'active' : ''}
+                  onClick={() => setActiveImageIndex(index)}
+                  aria-label={`Show ${image.name}`}
+                />
+              ))}
+            </div>
+
+            <button
+              type="button"
+              className="admin-image-arrow"
+              onClick={() => setActiveImageIndex((currentIndex) => (currentIndex + 1) % PORTAL_IMAGES.length)}
+              aria-label="Next image"
+            >
+              Next
+            </button>
+          </div>
         </div>
       </section>
 
