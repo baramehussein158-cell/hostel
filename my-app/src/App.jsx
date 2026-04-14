@@ -219,7 +219,8 @@ function AppContent() {
       (error) => {
         console.error('Password reset requests subscription failed:', error);
         if (isMounted) {
-          setSyncError('Could not load password reset requests from database.');
+          setPasswordResetRequests([]);
+          console.warn('Password reset requests could not be loaded. Password reset tools will stay available once the collection is readable.');
           markLoaded('passwordResetRequests');
         }
       }
@@ -972,13 +973,6 @@ function AppContent() {
     const student = users.find((user) => user.id === userId);
     if (!student) {
       return { success: false, message: 'Student account not found.' };
-    }
-
-    if (!student.allowAdminUpdates) {
-      return {
-        success: false,
-        message: 'This student has not allowed admin updates yet, so the password cannot be changed.',
-      };
     }
 
     if (!PASSWORD_POLICY.test(nextPassword)) {
