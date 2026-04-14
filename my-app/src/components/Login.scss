@@ -74,9 +74,10 @@
 }
 
 .portal-hero {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.9fr);
+  gap: 1.5rem;
+  align-items: center;
   padding: clamp(1.8rem, 4vw, 3.5rem);
   overflow: hidden;
   animation: fadeInUp 0.55s ease both;
@@ -91,6 +92,13 @@
   border-radius: 999px;
   background: radial-gradient(circle, rgba(96, 165, 250, 0.16), transparent 70%);
   pointer-events: none;
+}
+
+.hero-copy {
+  display: grid;
+  gap: 1rem;
+  position: relative;
+  z-index: 1;
 }
 
 .hero-pill {
@@ -145,6 +153,159 @@
 
 .hero-features span {
   line-height: 1.5;
+}
+
+.hero-visual {
+  display: grid;
+  gap: 0.95rem;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-visual-frame {
+  position: relative;
+  overflow: hidden;
+  min-height: 360px;
+  border-radius: 26px;
+  padding: 1.1rem;
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.18), transparent 42%),
+    linear-gradient(180deg, rgba(18, 24, 38, 0.82), rgba(15, 23, 42, 0.96));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.hero-visual-frame::before,
+.hero-visual-frame::after {
+  content: '';
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.hero-visual-frame::before {
+  top: -35px;
+  right: -20px;
+  width: 140px;
+  height: 140px;
+  background: rgba(79, 140, 255, 0.18);
+  filter: blur(12px);
+}
+
+.hero-visual-frame::after {
+  bottom: -55px;
+  left: -20px;
+  width: 160px;
+  height: 160px;
+  background: rgba(96, 165, 250, 0.14);
+  filter: blur(18px);
+}
+
+.hero-visual-track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.hero-visual-slide {
+  flex: 0 0 100%;
+  display: grid;
+  place-items: center;
+  position: relative;
+  min-height: 336px;
+}
+
+.hero-visual-image {
+  width: min(100%, 260px);
+  aspect-ratio: 1;
+  object-fit: contain;
+  filter: drop-shadow(0 22px 30px rgba(0, 0, 0, 0.38));
+}
+
+.hero-visual-image-1 {
+  transform: translateY(-6px) rotate(-4deg) scale(0.96);
+}
+
+.hero-visual-image-2 {
+  transform: translateY(0) rotate(0deg) scale(1);
+}
+
+.hero-visual-image-3 {
+  transform: translateY(6px) rotate(4deg) scale(0.97);
+}
+
+.hero-visual-overlay {
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hero-visual-overlay span {
+  display: inline-flex;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #bfdbfe;
+  font-weight: 700;
+}
+
+.hero-visual-copy {
+  display: grid;
+  gap: 0.6rem;
+  padding: 1rem 1.1rem 0;
+}
+
+.hero-visual-eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #93c5fd;
+}
+
+.hero-visual-copy h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.15;
+}
+
+.hero-visual-copy p {
+  margin: 0;
+  line-height: 1.65;
+  opacity: 0.84;
+}
+
+.hero-visual-dots {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.35rem;
+}
+
+.hero-visual-dots button {
+  width: 0.78rem;
+  height: 0.78rem;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  transition: transform 0.2s ease, background 0.2s ease, width 0.2s ease;
+}
+
+.hero-visual-dots button.active {
+  width: 1.8rem;
+  background: linear-gradient(90deg, #60a5fa, #4f8cff);
+}
+
+.hero-visual-dots button:hover {
+  transform: scale(1.08);
 }
 
 .login-card {
@@ -490,6 +651,10 @@
   }
 
   .portal-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-hero {
     padding-bottom: 2rem;
   }
 
@@ -504,6 +669,10 @@
 
   .campus-options {
     grid-template-columns: 1fr;
+  }
+
+  .hero-visual-frame {
+    min-height: 300px;
   }
 }
 
@@ -541,6 +710,19 @@
   .hero-features div {
     padding: 0.9rem 1rem;
   }
+
+  .hero-visual-frame {
+    min-height: 280px;
+    padding: 0.9rem;
+  }
+
+  .hero-visual-slide {
+    min-height: 258px;
+  }
+
+  .hero-visual-copy {
+    padding: 0.75rem 0.2rem 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -552,7 +734,9 @@
   .login-btn,
   .form-group input,
   .form-group select,
-  .form-group textarea {
+  .form-group textarea,
+  .hero-visual-track,
+  .hero-visual-dots button {
     animation: none;
     transition: none;
   }

@@ -374,6 +374,44 @@ const AdminPortal = ({
         </div>
       </header>
 
+      <section className="admin-campus-strip" aria-label="Campus room summary">
+        {campusSummaries.map((summary) => (
+          <article key={summary.campus} className="admin-campus-card">
+            <div className="admin-campus-card-head">
+              <div>
+                <p className="eyebrow">Campus summary</p>
+                <h2>{summary.campus}</h2>
+              </div>
+              <span className="campus-total-pill">{summary.totalRooms} total</span>
+            </div>
+
+            <div className="admin-campus-metrics">
+              <div>
+                <span>Open capacity</span>
+                <strong>{summary.openRooms}</strong>
+              </div>
+              <div>
+                <span>Available now</span>
+                <strong>{summary.availableRooms}</strong>
+              </div>
+              <div>
+                <span>Approved</span>
+                <strong>{summary.occupiedRooms}</strong>
+              </div>
+              <div>
+                <span>Remaining</span>
+                <strong>{summary.remainingRooms}</strong>
+              </div>
+            </div>
+
+            <p>
+              {summary.waitingApplications} waiting application(s) and {summary.verifiedPayments} verified payment(s)
+              are linked to this campus.
+            </p>
+          </article>
+        ))}
+      </section>
+
       <div className="admin-content">
         {flash && <div className={`admin-flash ${flash.type}`}>{flash.message}</div>}
 

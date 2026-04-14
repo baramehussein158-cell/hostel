@@ -27,6 +27,84 @@
   align-items: flex-start;
 }
 
+.admin-campus-strip {
+  max-width: 1280px;
+  margin: 0 auto 1.5rem;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.admin-campus-card {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1.35rem;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 22px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16);
+}
+
+.admin-campus-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-campus-card h2 {
+  margin: 0.2rem 0 0;
+  font-size: 1.55rem;
+}
+
+.campus-total-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 0.9rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #dbeafe;
+  background: rgba(59, 130, 246, 0.18);
+  border: 1px solid rgba(96, 165, 250, 0.22);
+}
+
+.admin-campus-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.admin-campus-metrics div {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-campus-metrics span {
+  font-size: 0.78rem;
+  opacity: 0.82;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.admin-campus-metrics strong {
+  font-size: 1.05rem;
+}
+
+.admin-campus-card p {
+  margin: 0;
+  line-height: 1.6;
+  opacity: 0.82;
+}
+
 .admin-copy {
   max-width: 720px;
   line-height: 1.75;
@@ -53,6 +131,7 @@
 }
 
 .admin-portal.light .admin-card,
+.admin-portal.light .admin-campus-card,
 .admin-portal.light .campus-summary-card,
 .admin-portal.light .pipeline-list div,
 .admin-portal.light .room-row,
@@ -785,6 +864,11 @@
     padding-right: 1rem;
   }
 
+  .admin-campus-strip {
+    padding: 0 1rem;
+    grid-template-columns: 1fr;
+  }
+
   .admin-stat-grid,
   .campus-summary-grid {
     grid-template-columns: 1fr;
@@ -813,5 +897,14 @@
 
   .password-reset-heading {
     align-items: flex-start;
+  }
+
+  .admin-campus-card-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-campus-metrics {
+    grid-template-columns: 1fr;
   }
 }
