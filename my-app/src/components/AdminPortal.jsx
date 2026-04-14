@@ -445,10 +445,9 @@ const AdminPortal = ({
               className="admin-image-track"
               style={{ transform: `translate3d(-${activeImageIndex * 100}%, 0, 0)` }}
             >
-              {PORTAL_IMAGES.map((image) => (
-                <figure key={image.name} className="admin-image-slide">
+              {PORTAL_IMAGES.map((image, index) => (
+                <figure key={`${image.alt}-${index}`} className="admin-image-slide">
                   <img src={image.src} alt={image.alt} />
-                  <figcaption>{image.name}</figcaption>
                 </figure>
               ))}
             </div>
@@ -469,11 +468,11 @@ const AdminPortal = ({
             <div className="admin-image-dots" aria-label="Project image controls">
               {PORTAL_IMAGES.map((image, index) => (
                 <button
-                  key={image.name}
+                  key={`${image.alt}-${index}`}
                   type="button"
                   className={index === activeImageIndex ? 'active' : ''}
                   onClick={() => setActiveImageIndex(index)}
-                  aria-label={`Show ${image.name}`}
+                  aria-label={`Show image ${index + 1}`}
                 />
               ))}
             </div>

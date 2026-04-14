@@ -137,24 +137,16 @@
   flex: 0 0 100%;
   margin: 0;
   overflow: hidden;
-  display: grid;
-  gap: 0;
+  display: block;
 }
 
 .admin-image-slide img {
   display: block;
   width: 100%;
-  height: min(56vw, 420px);
+  height: min(58vw, 460px);
   object-fit: cover;
-}
-
-.admin-image-slide figcaption {
-  padding: 0.9rem 1rem 1rem;
-  font-size: 0.85rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #dbeafe;
-  background: rgba(15, 23, 42, 0.72);
+  filter: saturate(1.08) contrast(1.06) brightness(1.03);
+  transform: scale(1.01);
 }
 
 .admin-image-controls {
@@ -976,7 +968,7 @@
   }
 
   .admin-image-slide img {
-    height: min(64vw, 360px);
+    height: min(64vw, 380px);
   }
 
   .campus-summary-metrics {
