@@ -15,7 +15,7 @@ const Login = ({
 }) => {
   const { theme } = useTheme();
   const [mode, setMode] = useState('login');
-  const [loginData, setLoginData] = useState({ email: '', password: '', regNumber: '', campus: 'UR', gender: '' });
+  const [loginData, setLoginData] = useState({ email: '', password: '', regNumber: '', campus: '', gender: '' });
   const [adminData, setAdminData] = useState({ email: '', password: '' });
   const [registerData, setRegisterData] = useState({
     name: '',
@@ -23,21 +23,21 @@ const Login = ({
     regNumber: '',
     password: '',
     confirm: '',
-    campus: 'UR',
+    campus: '',
     gender: '',
     allowAdminUpdates: false,
   });
   const [resetRequestData, setResetRequestData] = useState({
     email: '',
     regNumber: '',
-    campus: 'UR',
+    campus: '',
     gender: '',
     reason: '',
   });
   const [resetCodeData, setResetCodeData] = useState({
     email: '',
     regNumber: '',
-    campus: 'UR',
+    campus: '',
     gender: '',
     resetCode: '',
     newPassword: '',
@@ -93,6 +93,7 @@ const Login = ({
       !registerData.name ||
       !registerData.email ||
       !registerData.regNumber ||
+      !registerData.campus ||
       !registerData.gender ||
       !registerData.password ||
       !registerData.confirm
@@ -148,7 +149,7 @@ const Login = ({
       regNumber: '',
       password: '',
       confirm: '',
-      campus: 'UR',
+      campus: '',
       gender: '',
       allowAdminUpdates: false,
     });
@@ -156,8 +157,8 @@ const Login = ({
       ...currentLogin,
       email: registerData.email,
       regNumber: registerData.regNumber,
-      campus: registerData.campus,
-      gender: registerData.gender,
+      campus: '',
+      gender: '',
     }));
     setFeedback({ type: 'success', text: result.message });
   };
@@ -188,7 +189,7 @@ const Login = ({
     setResetRequestData({
       email: '',
       regNumber: '',
-      campus: 'UR',
+      campus: '',
       gender: '',
       reason: '',
     });
@@ -238,7 +239,7 @@ const Login = ({
     setResetCodeData({
       email: '',
       regNumber: '',
-      campus: 'UR',
+      campus: '',
       gender: '',
       resetCode: '',
       newPassword: '',
@@ -368,6 +369,7 @@ const Login = ({
                       type="radio"
                       name="campusLogin"
                       value="UR"
+                      required
                       checked={loginData.campus === 'UR'}
                       onChange={(event) => setLoginData({ ...loginData, campus: event.target.value })}
                     />
@@ -463,6 +465,7 @@ const Login = ({
                       type="radio"
                       name="campusRegister"
                       value="UR"
+                      required
                       checked={registerData.campus === 'UR'}
                       onChange={(event) => setRegisterData({ ...registerData, campus: event.target.value })}
                       disabled={isSubmitting || isSyncing}
@@ -615,6 +618,7 @@ const Login = ({
                         type="radio"
                         name="resetRequestCampus"
                         value="UR"
+                        required
                         checked={resetRequestData.campus === 'UR'}
                         onChange={(event) => setResetRequestData({ ...resetRequestData, campus: event.target.value })}
                         disabled={isSubmitting || isSyncing}
@@ -702,6 +706,7 @@ const Login = ({
                         type="radio"
                         name="resetConfirmCampus"
                         value="UR"
+                        required
                         checked={resetCodeData.campus === 'UR'}
                         onChange={(event) => setResetCodeData({ ...resetCodeData, campus: event.target.value })}
                         disabled={isSubmitting || isSyncing}
