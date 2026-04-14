@@ -1,33 +1,70 @@
 .login-container {
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  padding: 2rem;
-  transition: background 0.3s ease, color 0.3s ease;
+  min-height: 100svh;
+  padding: clamp(1rem, 3vw, 2.5rem);
+  overflow: hidden;
+  transition: background 0.35s ease, color 0.35s ease;
+}
+
+.login-container::before,
+.login-container::after {
+  content: '';
+  position: absolute;
+  inset: auto;
+  border-radius: 999px;
+  filter: blur(18px);
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+.login-container::before {
+  top: -120px;
+  left: -90px;
+  width: 260px;
+  height: 260px;
+  background: rgba(96, 165, 250, 0.16);
+}
+
+.login-container::after {
+  right: -110px;
+  bottom: -110px;
+  width: 300px;
+  height: 300px;
+  background: rgba(79, 70, 229, 0.12);
 }
 
 .login-container.light {
-  background: linear-gradient(180deg, #f8fafc 0%, #dbeafe 100%);
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.7), transparent 30%),
+    linear-gradient(180deg, #f8fafc 0%, #dbeafe 100%);
   color: #1f2937;
 }
 
 .login-container.dark {
-  background: radial-gradient(circle at top, #3b4254 0%, #181b23 85%);
+  background:
+    radial-gradient(circle at top, rgba(59, 130, 246, 0.24), transparent 25%),
+    radial-gradient(circle at bottom right, rgba(30, 41, 59, 0.9), transparent 40%),
+    linear-gradient(180deg, #2b3140 0%, #131722 85%);
   color: #f8fafc;
 }
 
 .portal-grid {
+  position: relative;
+  z-index: 1;
   display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: 2rem;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  gap: clamp(1rem, 2.5vw, 2rem);
   width: 100%;
-  max-width: 1200px;
-  align-items: center;
+  max-width: 1220px;
+  align-items: stretch;
 }
 
 .portal-hero,
 .login-card {
+  position: relative;
   background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(18px);
   border-radius: 28px;
@@ -36,31 +73,52 @@
 }
 
 .portal-hero {
-  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(1.8rem, 4vw, 3.5rem);
+  overflow: hidden;
+  animation: fadeInUp 0.55s ease both;
+}
+
+.portal-hero::after {
+  content: '';
+  position: absolute;
+  inset: auto -80px -120px auto;
+  width: 220px;
+  height: 220px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.16), transparent 70%);
+  pointer-events: none;
 }
 
 .hero-pill {
   display: inline-flex;
-  padding: 0.5rem 1rem;
+  width: fit-content;
+  padding: 0.55rem 1rem;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.12);
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-size: 0.75rem;
-  margin-bottom: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.35rem;
 }
 
 .portal-hero h1 {
   margin: 0 0 1rem;
-  font-size: 2.8rem;
-  line-height: 1.05;
+  max-width: 13ch;
+  font-size: clamp(2.2rem, 4vw, 3.8rem);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
 }
 
 .portal-hero p {
   margin: 0 0 2rem;
   opacity: 0.85;
-  max-width: 520px;
+  max-width: 540px;
   line-height: 1.8;
+  font-size: 1.02rem;
 }
 
 .hero-features {
@@ -71,61 +129,88 @@
 .hero-features div {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
-  padding: 1rem 1.15rem;
+  gap: 0.9rem;
+  padding: 1rem 1.1rem;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .hero-features svg {
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   color: #60a5fa;
+  flex-shrink: 0;
+}
+
+.hero-features span {
+  line-height: 1.5;
 }
 
 .login-card {
-  padding: 2.5rem;
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1.4rem, 3vw, 2.5rem);
+  align-self: center;
+  animation: fadeInUp 0.65s ease both;
+  animation-delay: 0.08s;
 }
 
 .login-nav {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.6rem;
+  margin-bottom: 0.25rem;
 }
 
-.login-nav.three-column {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
+.login-nav.three-column,
 .login-nav.four-column {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 }
 
 .login-nav button {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  min-height: 48px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   color: inherit;
   padding: 0.9rem 1rem;
   border-radius: 14px;
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.25s ease;
+  font-weight: 650;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .login-nav button.active,
 .login-nav button:hover {
   background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.36);
+  transform: translateY(-1px);
+}
+
+.login-nav button:focus-visible,
+.login-btn:focus-visible,
+.signup-link button:focus-visible,
+.campus-options label:focus-within,
+.consent-card:focus-within,
+.form-group input:focus-visible,
+.form-group select:focus-visible,
+.form-group textarea:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(79, 140, 255, 0.18);
 }
 
 .login-intro {
   text-align: left;
-  margin-bottom: 1.75rem;
+  margin-bottom: 0.25rem;
 }
 
 .login-intro h2 {
-  margin: 0 0 0.5rem;
-  font-size: 2rem;
+  margin: 0 0 0.55rem;
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  line-height: 1.08;
 }
 
 .login-intro p {
@@ -134,40 +219,53 @@
   line-height: 1.75;
 }
 
+.login-card form {
+  display: grid;
+  gap: 1rem;
+}
+
 .form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
 }
 
 .form-group {
-  margin-bottom: 1.25rem;
+  margin-bottom: 0;
   text-align: left;
 }
 
 .campus-choice {
-  padding-top: 0.25rem;
+  padding-top: 0.1rem;
 }
 
 .campus-options {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 0.75rem;
 }
 
 .campus-options label {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: 48px;
   padding: 0.85rem 1rem;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.08);
   cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.campus-options label:hover {
+  transform: translateY(-1px);
 }
 
 .campus-options input {
   margin: 0;
+  accent-color: #4f8cff;
 }
 
 .consent-card {
@@ -185,6 +283,7 @@
   margin-top: 0.2rem;
   width: auto;
   flex-shrink: 0;
+  accent-color: #4f8cff;
 }
 
 .consent-card span {
@@ -201,12 +300,33 @@
 .form-group select,
 .form-group textarea {
   width: 100%;
+  min-height: 48px;
   padding: 0.95rem 1rem;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(255, 255, 255, 0.08);
   color: inherit;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.2s ease,
+    background 0.25s ease;
+}
+
+.form-group textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: rgba(148, 163, 184, 0.92);
+}
+
+.form-group input:hover,
+.form-group select:hover,
+.form-group textarea:hover {
+  border-color: rgba(255, 255, 255, 0.28);
 }
 
 .form-group input:focus,
@@ -214,6 +334,7 @@
 .form-group textarea:focus {
   outline: none;
   border-color: #4f8cff;
+  background: rgba(255, 255, 255, 0.11);
   box-shadow: 0 0 0 4px rgba(79, 140, 255, 0.12);
 }
 
@@ -224,10 +345,11 @@
 }
 
 .message {
-  margin-bottom: 1rem;
+  margin-bottom: 0;
   font-size: 0.95rem;
   padding: 0.9rem 1rem;
   border-radius: 14px;
+  line-height: 1.5;
 }
 
 .message.error {
@@ -269,6 +391,7 @@
 
 .login-btn {
   width: 100%;
+  min-height: 50px;
   padding: 1rem;
   background: linear-gradient(135deg, #4f8cff 0%, #2f5bd1 100%);
   color: #fff;
@@ -277,12 +400,16 @@
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
 }
 
 .login-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 18px 30px rgba(47, 91, 209, 0.24);
+  filter: brightness(1.02);
 }
 
 .login-btn:disabled {
@@ -293,8 +420,9 @@
 }
 
 .signup-link {
-  margin-top: 1.25rem;
+  margin-top: 0.2rem;
   font-size: 0.95rem;
+  text-align: center;
 }
 
 .signup-link button {
@@ -303,11 +431,13 @@
   color: #83a6ff;
   cursor: pointer;
   font-weight: 700;
+  padding: 0;
 }
 
 .reset-mode {
   display: grid;
   gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .reset-card {
@@ -329,32 +459,97 @@
   line-height: 1.65;
 }
 
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 1024px) {
   .portal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .login-card {
+    max-width: 760px;
+    justify-self: stretch;
+  }
+}
+
+@media (max-width: 768px) {
+  .portal-hero,
+  .login-card {
+    border-radius: 24px;
+  }
+
+  .portal-hero {
+    padding-bottom: 2rem;
+  }
+
+  .login-nav {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row,
+  .reset-mode {
+    grid-template-columns: 1fr;
+  }
+
+  .campus-options {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 640px) {
-  .login-card,
-  .portal-hero {
-    padding: 1.75rem;
+  .login-container {
+    align-items: flex-start;
+    padding: 0.75rem;
   }
 
-  .form-row {
-    grid-template-columns: 1fr;
+  .portal-hero,
+  .login-card {
+    padding: 1.25rem;
   }
 
   .portal-hero h1 {
-    font-size: 2.2rem;
+    max-width: none;
+    font-size: clamp(2rem, 8vw, 2.5rem);
   }
 
-  .login-nav.three-column {
-    grid-template-columns: 1fr;
+  .portal-hero p {
+    font-size: 0.98rem;
   }
 
-  .login-nav.four-column {
-    grid-template-columns: 1fr 1fr;
+  .hero-features div,
+  .campus-options label,
+  .consent-card,
+  .message,
+  .form-group input,
+  .form-group select,
+  .form-group textarea,
+  .login-btn {
+    border-radius: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-container,
+  .portal-hero,
+  .login-card,
+  .login-nav button,
+  .campus-options label,
+  .login-btn,
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    animation: none;
+    transition: none;
   }
 }
 

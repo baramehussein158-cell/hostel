@@ -11,6 +11,7 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
 }
 
 * {
@@ -24,6 +25,11 @@ html {
 body {
   margin: 0;
   min-width: 320px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  background: inherit;
+  color: inherit;
 }
 
 h1,
@@ -46,4 +52,5 @@ button {
 
 #root {
   min-height: 100vh;
+  min-height: 100dvh;
 }
