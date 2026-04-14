@@ -132,6 +132,144 @@
   color: #1f2937;
 }
 
+.dashboard.light .hero-panel,
+.dashboard.light .metric-card,
+.dashboard.light .overview-card,
+.dashboard.light .info-card,
+.dashboard.light .application-form-panel,
+.dashboard.light .profile-block,
+.dashboard.light .status-summary div,
+.dashboard.light .summary-block div,
+.dashboard.light .payment-progress-card,
+.dashboard.light .password-reset-status-card,
+.dashboard.light .toast-notification {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(148, 163, 184, 0.24);
+  color: #172033;
+}
+
+.dashboard.light .hero-panel p,
+.dashboard.light .hero-note,
+.dashboard.light .subheading,
+.dashboard.light .profile-info span,
+.dashboard.light .metric-card span,
+.dashboard.light .status-summary div,
+.dashboard.light .summary-block div,
+.dashboard.light .payment-progress-copy p,
+.dashboard.light .payment-progress-meta small,
+.dashboard.light .info-card p,
+.dashboard.light .overview-card p,
+.dashboard.light .profile-upload-hint {
+  color: #475569;
+  opacity: 1;
+}
+
+.dashboard.light .hero-pill,
+.dashboard.light .campus-label {
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+}
+
+.dashboard.light .campus-chip {
+  background: rgba(255, 255, 255, 0.92);
+  color: #334155;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.06);
+}
+
+.dashboard.light .campus-chip svg {
+  color: #2563eb;
+}
+
+.dashboard.light .campus-chip:hover,
+.dashboard.light .campus-chip:focus-visible {
+  background: rgba(37, 99, 235, 0.08);
+  border-color: rgba(37, 99, 235, 0.26);
+  color: #1d4ed8;
+}
+
+.dashboard.light .profile-upload-btn,
+.dashboard.light .theme-toggle,
+.dashboard.light .secondary-action {
+  background: rgba(255, 255, 255, 0.9);
+  color: #1f2937;
+  border-color: rgba(148, 163, 184, 0.24);
+}
+
+.dashboard.light .profile-upload-btn:hover,
+.dashboard.light .theme-toggle:hover,
+.dashboard.light .secondary-action:hover {
+  background: rgba(255, 255, 255, 1);
+}
+
+.dashboard.light .room-badge {
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+  border-color: rgba(37, 99, 235, 0.24);
+}
+
+.dashboard.light .primary-action {
+  box-shadow: 0 18px 30px rgba(37, 99, 235, 0.18);
+}
+
+.dashboard.light .toast-notification {
+  background: rgba(220, 252, 231, 0.96);
+  color: #166534;
+  border-color: rgba(34, 197, 94, 0.2);
+}
+
+.dashboard.light .toast-icon {
+  color: #16a34a;
+}
+
+.dashboard.light .status-badge.pending,
+.dashboard.light .status-badge.ready {
+  background: rgba(254, 243, 199, 0.98);
+  color: #a16207;
+}
+
+.dashboard.light .status-badge.approved {
+  background: rgba(220, 252, 231, 0.98);
+  color: #166534;
+}
+
+.dashboard.light .status-badge.waitlisted {
+  background: rgba(219, 234, 254, 0.98);
+  color: #1d4ed8;
+}
+
+.dashboard.light .status-badge.rejected {
+  background: rgba(254, 226, 226, 0.98);
+  color: #b91c1c;
+}
+
+.dashboard.light .payment-status-badge.pending {
+  background: rgba(254, 243, 199, 0.98);
+  color: #a16207;
+}
+
+.dashboard.light .payment-status-badge.verified {
+  background: rgba(220, 252, 231, 0.98);
+  color: #166534;
+}
+
+.dashboard.light .payment-status-badge.rejected {
+  background: rgba(254, 226, 226, 0.98);
+  color: #b91c1c;
+}
+
+.dashboard.light .hero-alert {
+  background: rgba(219, 234, 254, 0.96);
+  border-color: rgba(96, 165, 250, 0.24);
+  color: #1d4ed8;
+}
+
+.dashboard.light .hero-alert.warning {
+  background: rgba(254, 243, 199, 0.98);
+  border-color: rgba(245, 158, 11, 0.28);
+  color: #a16207;
+}
+
 .dashboard.dark {
   background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
   color: #f8fafc;

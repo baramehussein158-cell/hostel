@@ -231,6 +231,52 @@
   border-color: rgba(148, 163, 184, 0.24);
 }
 
+.admin-portal.light .admin-card,
+.admin-portal.light .admin-campus-card,
+.admin-portal.light .admin-image-frame,
+.admin-portal.light .campus-summary-card,
+.admin-portal.light .pipeline-list div,
+.admin-portal.light .room-row,
+.admin-portal.light .application-row,
+.admin-portal.light .student-row,
+.admin-portal.light .empty-state,
+.admin-portal.light .payment-inbox-row,
+.admin-portal.light .permission-badge-card,
+.admin-portal.light .password-reset-row,
+.admin-portal.light .password-reset-card {
+  color: #172033;
+}
+
+.admin-portal.light .admin-copy,
+.admin-portal.light .admin-campus-card p,
+.admin-portal.light .campus-summary-card p,
+.admin-portal.light .payment-inbox-row span,
+.admin-portal.light .payment-inbox-row p,
+.admin-portal.light .password-reset-meta,
+.admin-portal.light .password-reset-dates,
+.admin-portal.light .password-reset-reason,
+.admin-portal.light .student-row,
+.admin-portal.light .application-meta,
+.admin-portal.light .application-main p,
+.admin-portal.light .room-row-main span,
+.admin-portal.light .student-meta,
+.admin-portal.light .empty-state {
+  color: #475569;
+  opacity: 1;
+}
+
+.admin-portal.light .campus-total-pill {
+  background: rgba(37, 99, 235, 0.12);
+  border-color: rgba(37, 99, 235, 0.24);
+  color: #1d4ed8;
+}
+
+.admin-portal.light .admin-campus-metrics div,
+.admin-portal.light .campus-summary-metrics div {
+  background: rgba(248, 250, 252, 0.96);
+  border-color: rgba(148, 163, 184, 0.18);
+}
+
 .admin-portal.light .room-controls input,
 .admin-portal.light .room-controls select,
 .admin-portal.light .applicant-filters select,
@@ -249,39 +295,47 @@
 
 .admin-portal.light .status-pill.pending,
 .admin-portal.light .waitlist {
-  color: #854d0e;
+  background: rgba(254, 243, 199, 0.98);
+  color: #a16207;
 }
 
 .admin-portal.light .status-pill.approved,
 .admin-portal.light .approve {
+  background: rgba(220, 252, 231, 0.98);
   color: #166534;
 }
 
 .admin-portal.light .status-pill.rejected,
 .admin-portal.light .reject {
-  color: #991b1b;
+  background: rgba(254, 226, 226, 0.98);
+  color: #b91c1c;
 }
 
 .admin-portal.light .status-pill.waitlisted {
+  background: rgba(219, 234, 254, 0.98);
   color: #1d4ed8;
 }
 
 .admin-portal.light .status-pill.used {
+  background: rgba(207, 250, 254, 0.98);
   color: #0369a1;
 }
 
 .admin-portal.light .payment-pill.pending,
 .admin-portal.light .payment-reject {
-  color: #854d0e;
+  background: rgba(254, 243, 199, 0.98);
+  color: #a16207;
 }
 
 .admin-portal.light .payment-pill.verified,
 .admin-portal.light .verify {
+  background: rgba(220, 252, 231, 0.98);
   color: #166534;
 }
 
 .admin-portal.light .payment-pill.rejected {
-  color: #991b1b;
+  background: rgba(254, 226, 226, 0.98);
+  color: #b91c1c;
 }
 
 .admin-portal.light .payment-inbox-row,
@@ -304,6 +358,33 @@
 
 .admin-portal.light .empty-state {
   color: #475569;
+}
+
+.admin-portal.light .admin-image-arrow {
+  background: rgba(255, 255, 255, 0.92);
+  color: #172033;
+  border-color: rgba(148, 163, 184, 0.26);
+}
+
+.admin-portal.light .admin-image-arrow:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(37, 99, 235, 0.28);
+}
+
+.admin-portal.light .admin-image-dots button {
+  background: rgba(148, 163, 184, 0.42);
+}
+
+.admin-portal.light .admin-image-dots button.active {
+  background: linear-gradient(90deg, #2563eb, #4f8cff);
+}
+
+.admin-portal.light .section-heading h2,
+.admin-portal.light .admin-campus-card h2,
+.admin-portal.light .admin-card h2,
+.admin-portal.light .admin-card h3,
+.admin-portal.light .stat-card strong {
+  color: #0f172a;
 }
 
 .admin-flash {
