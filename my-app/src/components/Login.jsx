@@ -10,19 +10,19 @@ const HERO_SLIDES = [
     eyebrow: 'Campus portal preview',
     title: 'One clean place for students and admin teams.',
     copy: 'Move between login, registration, password recovery, and room tracking with a polished motion sequence.',
-    stat: '4 second slide cycle',
+    imagePosition: 'center center',
   },
   {
     eyebrow: 'Room visibility',
     title: 'Track capacity without guessing.',
     copy: 'The portal highlights UR and RP room totals, availability, and approvals so the admin sees the full picture.',
-    stat: 'Live campus totals',
+    imagePosition: 'center top',
   },
   {
     eyebrow: 'Password control',
     title: 'Reset flows stay secure and organized.',
     copy: 'Students can request resets and admins can issue new passwords from the same workflow, all in one view.',
-    stat: 'Student and admin access',
+    imagePosition: 'center bottom',
   },
 ];
 
@@ -317,42 +317,21 @@ const Login = ({
           </div>
 
           <div className="hero-visual" aria-label="Campus portal highlights">
-            <div className="hero-visual-frame">
-              <div
-                className="hero-visual-track"
-                style={{ transform: `translate3d(-${activeHeroSlide * 100}%, 0, 0)` }}
-              >
-                {HERO_SLIDES.map((slide, index) => (
-                  <article className="hero-visual-slide" key={slide.title}>
-                    <img
-                      src={heroImage}
-                      alt=""
-                      aria-hidden="true"
-                      className={`hero-visual-image hero-visual-image-${index + 1}`}
-                    />
-                    <div className="hero-visual-overlay">
-                      <span>{slide.stat}</span>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
-
-            <div className="hero-visual-copy" aria-live="polite">
-              <p className="hero-visual-eyebrow">{HERO_SLIDES[activeHeroSlide].eyebrow}</p>
-              <h2>{HERO_SLIDES[activeHeroSlide].title}</h2>
-              <p>{HERO_SLIDES[activeHeroSlide].copy}</p>
-              <div className="hero-visual-dots" aria-label="Landing slide progress">
-                {HERO_SLIDES.map((slide, index) => (
-                  <button
-                    key={slide.title}
-                    type="button"
-                    className={index === activeHeroSlide ? 'active' : ''}
-                    onClick={() => setActiveHeroSlide(index)}
-                    aria-label={`Show landing slide ${index + 1}`}
-                  />
-                ))}
-              </div>
+            <div className="hero-visual-frame" aria-live="polite">
+              <article className="hero-visual-slide" key={activeHeroSlide}>
+                <img
+                  src={heroImage}
+                  alt=""
+                  aria-hidden="true"
+                  className="hero-visual-image"
+                  style={{ objectPosition: HERO_SLIDES[activeHeroSlide].imagePosition }}
+                />
+                <div className="hero-visual-copy">
+                  <p className="hero-visual-eyebrow">{HERO_SLIDES[activeHeroSlide].eyebrow}</p>
+                  <h2>{HERO_SLIDES[activeHeroSlide].title}</h2>
+                  <p>{HERO_SLIDES[activeHeroSlide].copy}</p>
+                </div>
+              </article>
             </div>
           </div>
         </section>
