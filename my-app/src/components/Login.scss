@@ -193,6 +193,22 @@
   background: rgba(255, 255, 255, 0.04);
 }
 
+.hero-visual-image-hero {
+  padding: 0.4rem;
+}
+
+.hero-visual-image-react {
+  width: min(100%, 220px);
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.hero-visual-image-vite {
+  width: min(100%, 220px);
+  margin: 0 auto;
+  padding: 1rem;
+}
+
 .hero-visual-copy {
   display: grid;
   gap: 0.6rem;

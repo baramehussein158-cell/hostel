@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { FaChartLine, FaGraduationCap, FaShieldAlt } from 'react-icons/fa';
 import heroImage from '../assets/hero.png';
+import reactLogo from '../assets/react.svg';
+import viteLogo from '../assets/vite.svg';
 import { GENDER_OPTIONS } from '../data/portalData';
 import { useTheme } from '../contexts/ThemeContext';
 import './Login.scss';
@@ -10,19 +12,25 @@ const HERO_SLIDES = [
     eyebrow: 'Campus portal preview',
     title: 'One clean place for students and admin teams.',
     copy: 'Move between login, registration, password recovery, and room tracking with a polished motion sequence.',
-    imagePosition: 'center center',
+    src: heroImage,
+    alt: 'CampusStay portal illustration',
+    imageClassName: 'hero-visual-image-hero',
   },
   {
     eyebrow: 'Room visibility',
     title: 'Track capacity without guessing.',
     copy: 'The portal highlights UR and RP room totals, availability, and approvals so the admin sees the full picture.',
-    imagePosition: 'center top',
+    src: reactLogo,
+    alt: 'React logo',
+    imageClassName: 'hero-visual-image-react',
   },
   {
     eyebrow: 'Password control',
     title: 'Reset flows stay secure and organized.',
     copy: 'Students can request resets and admins can issue new passwords from the same workflow, all in one view.',
-    imagePosition: 'center bottom',
+    src: viteLogo,
+    alt: 'Vite logo',
+    imageClassName: 'hero-visual-image-vite',
   },
 ];
 
@@ -320,11 +328,9 @@ const Login = ({
             <div className="hero-visual-frame" aria-live="polite">
               <article className="hero-visual-slide" key={activeHeroSlide}>
                 <img
-                  src={heroImage}
-                  alt=""
-                  aria-hidden="true"
-                  className="hero-visual-image"
-                  style={{ objectPosition: HERO_SLIDES[activeHeroSlide].imagePosition }}
+                  src={HERO_SLIDES[activeHeroSlide].src}
+                  alt={HERO_SLIDES[activeHeroSlide].alt}
+                  className={`hero-visual-image ${HERO_SLIDES[activeHeroSlide].imageClassName}`}
                 />
                 <div className="hero-visual-copy">
                   <p className="hero-visual-eyebrow">{HERO_SLIDES[activeHeroSlide].eyebrow}</p>

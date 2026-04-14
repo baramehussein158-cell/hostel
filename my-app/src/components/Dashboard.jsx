@@ -255,8 +255,9 @@ const Dashboard = ({
               <span>Gender: {profileGenderLabel}</span>
               <span>Admin update access: {profileAccessLabel}</span>
               <label htmlFor="profile-upload" className="profile-upload-btn">
-                {isUploadingPhoto ? 'Uploading...' : 'Change Photo'}
+                {isUploadingPhoto ? 'Uploading...' : 'Upload Profile Image'}
               </label>
+              <small className="profile-upload-hint">PNG, JPG, or WEBP works best for your profile picture.</small>
               <input
                 type="file"
                 id="profile-upload"
