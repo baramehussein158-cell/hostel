@@ -1,38 +1,53 @@
 import React, { useEffect, useState } from 'react';
 import { FaChartLine, FaGraduationCap, FaShieldAlt } from 'react-icons/fa';
-import heroImage from '../assets/hero.png';
-import reactLogo from '../assets/react.svg';
-import viteLogo from '../assets/vite.svg';
 import { GENDER_OPTIONS } from '../data/portalData';
+import { PORTAL_IMAGES } from '../data/siteImages';
 import { useTheme } from '../contexts/ThemeContext';
 import './Login.scss';
 
-const HERO_SLIDES = [
-  {
+const HERO_SLIDES = PORTAL_IMAGES.map((image, index) => {
+  const slideText = [
+    {
+      eyebrow: 'Campus portal preview',
+      title: 'One clean place for students and admin teams.',
+      copy: 'Move between login, registration, password recovery, and room tracking with a polished motion sequence.',
+    },
+    {
+      eyebrow: 'Room visibility',
+      title: 'Track capacity without guessing.',
+      copy: 'The portal highlights UR and RP room totals, availability, and approvals so the admin sees the full picture.',
+    },
+    {
+      eyebrow: 'Password control',
+      title: 'Reset flows stay secure and organized.',
+      copy: 'Students can request resets and admins can issue new passwords from the same workflow, all in one view.',
+    },
+    {
+      eyebrow: 'Profile upload',
+      title: 'Students can add a profile image.',
+      copy: 'Each student can upload a personal profile photo from their dashboard and keep their account identity current.',
+    },
+    {
+      eyebrow: 'Admin summary',
+      title: 'Room totals stay visible to staff.',
+      copy: 'Admin users can quickly review campus occupancy, remaining capacity, and room availability from the portal.',
+    },
+    {
+      eyebrow: 'Mobile ready',
+      title: 'Built to fit smaller screens too.',
+      copy: 'The layout adapts smoothly so the portal stays readable and usable on phones and tablets.',
+    },
+  ][index] ?? {
     eyebrow: 'Campus portal preview',
-    title: 'One clean place for students and admin teams.',
-    copy: 'Move between login, registration, password recovery, and room tracking with a polished motion sequence.',
-    src: heroImage,
-    alt: 'CampusStay portal illustration',
-    imageClassName: 'hero-visual-image-hero',
-  },
-  {
-    eyebrow: 'Room visibility',
-    title: 'Track capacity without guessing.',
-    copy: 'The portal highlights UR and RP room totals, availability, and approvals so the admin sees the full picture.',
-    src: reactLogo,
-    alt: 'React logo',
-    imageClassName: 'hero-visual-image-react',
-  },
-  {
-    eyebrow: 'Password control',
-    title: 'Reset flows stay secure and organized.',
-    copy: 'Students can request resets and admins can issue new passwords from the same workflow, all in one view.',
-    src: viteLogo,
-    alt: 'Vite logo',
-    imageClassName: 'hero-visual-image-vite',
-  },
-];
+    title: 'CampusStay portal image',
+    copy: 'A project image from your local assets.',
+  };
+
+  return {
+    ...image,
+    ...slideText,
+  };
+});
 
 const Login = ({
   onStudentLogin,
@@ -330,7 +345,7 @@ const Login = ({
                 <img
                   src={HERO_SLIDES[activeHeroSlide].src}
                   alt={HERO_SLIDES[activeHeroSlide].alt}
-                  className={`hero-visual-image ${HERO_SLIDES[activeHeroSlide].imageClassName}`}
+                  className="hero-visual-image"
                 />
                 <div className="hero-visual-copy">
                   <p className="hero-visual-eyebrow">{HERO_SLIDES[activeHeroSlide].eyebrow}</p>

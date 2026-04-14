@@ -25,6 +25,7 @@ import {
   getUserAccountKey,
   sortApplicationsByDate,
 } from '../data/portalData';
+import { PORTAL_IMAGES } from '../data/siteImages';
 import './AdminPortal.scss';
 
 const AdminPortal = ({
@@ -410,6 +411,25 @@ const AdminPortal = ({
             </p>
           </article>
         ))}
+      </section>
+
+      <section className="admin-image-gallery" aria-label="Project images">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Project images</p>
+            <h2>Local image set used across the portal</h2>
+          </div>
+          <FaChartBar className="section-icon" />
+        </div>
+
+        <div className="admin-image-grid">
+          {PORTAL_IMAGES.map((image) => (
+            <figure key={image.name} className="admin-image-card">
+              <img src={image.src} alt={image.alt} />
+              <figcaption>{image.name}</figcaption>
+            </figure>
+          ))}
+        </div>
       </section>
 
       <div className="admin-content">
