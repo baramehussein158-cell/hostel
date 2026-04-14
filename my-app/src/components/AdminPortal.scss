@@ -237,6 +237,31 @@
   font-size: 1.1rem;
 }
 
+.campus-summary-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.campus-summary-metrics div {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.85rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.campus-summary-metrics span {
+  font-size: 0.8rem;
+  opacity: 0.82;
+}
+
+.campus-summary-metrics strong {
+  font-size: 1.05rem;
+}
+
 .campus-summary-card p {
   margin: 0;
   line-height: 1.6;
@@ -763,6 +788,10 @@
   .admin-stat-grid,
   .campus-summary-grid {
     grid-template-columns: 1fr;
+  }
+
+  .campus-summary-metrics {
+    grid-template-columns: 1fr 1fr;
   }
 
   .application-heading {

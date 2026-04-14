@@ -132,26 +132,31 @@ const AdminPortal = ({
 
   const campusSummaries = ['UR', 'RP'].map((campus) => {
     const rooms = roomInventory.filter((room) => room.campus === campus);
-    const total = rooms.reduce((sum, room) => sum + room.total, 0);
-    const occupied = applications.filter(
+    const totalRooms = rooms.reduce((sum, room) => sum + room.total, 0);
+    const openRooms = rooms.filter((room) => room.status === 'open').reduce((sum, room) => sum + room.total, 0);
+    const occupiedRooms = applications.filter(
       (application) => application.campus === campus && application.status === 'approved'
     ).length;
-    const waiting = applications.filter(
+    const waitingApplications = applications.filter(
       (application) =>
         application.campus === campus &&
         (application.status === 'pending' || application.status === 'waitlisted')
     ).length;
-    const paymentsVerified = applications.filter(
+    const verifiedPayments = applications.filter(
       (application) => application.campus === campus && application.paymentStatus === 'verified'
     ).length;
+    const availableRooms = Math.max(openRooms - occupiedRooms, 0);
+    const remainingRooms = Math.max(totalRooms - occupiedRooms, 0);
 
     return {
       campus,
-      total,
-      occupied,
-      waiting,
-      paymentsVerified,
-      remaining: Math.max(total - occupied, 0),
+      totalRooms,
+      openRooms,
+      occupiedRooms,
+      availableRooms,
+      remainingRooms,
+      waitingApplications,
+      verifiedPayments,
     };
   });
 
@@ -530,10 +535,27 @@ const AdminPortal = ({
               {campusSummaries.map((summary) => (
                 <div key={summary.campus} className="campus-summary-card">
                   <strong>{summary.campus}</strong>
-                  <span>{summary.remaining} rooms available</span>
+                  <div className="campus-summary-metrics">
+                    <div>
+                      <span>Total rooms</span>
+                      <strong>{summary.totalRooms}</strong>
+                    </div>
+                    <div>
+                      <span>Open capacity</span>
+                      <strong>{summary.openRooms}</strong>
+                    </div>
+                    <div>
+                      <span>Available now</span>
+                      <strong>{summary.availableRooms}</strong>
+                    </div>
+                    <div>
+                      <span>Remaining</span>
+                      <strong>{summary.remainingRooms}</strong>
+                    </div>
+                  </div>
                   <p>
-                    {summary.occupied} approved, {summary.waiting} waiting, and {summary.paymentsVerified} payments
-                    already verified.
+                    {summary.occupiedRooms} approved, {summary.waitingApplications} waiting, and{' '}
+                    {summary.verifiedPayments} payments already verified.
                   </p>
                 </div>
               ))}
