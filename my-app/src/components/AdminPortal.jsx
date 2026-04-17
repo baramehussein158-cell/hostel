@@ -26,6 +26,7 @@ import {
   sortApplicationsByDate,
 } from '../data/portalData';
 import { PORTAL_IMAGES } from '../data/siteImages';
+import DashboardSidebar from './DashboardSidebar';
 import './AdminPortal.scss';
 
 const AdminPortal = ({
@@ -42,6 +43,7 @@ const AdminPortal = ({
   onReviewPasswordResetRequest,
 }) => {
   const { theme, toggleTheme } = useTheme();
+  const [activeView, setActiveView] = useState('overview');
   const [roomDrafts, setRoomDrafts] = useState({});
   const [assignmentDrafts, setAssignmentDrafts] = useState({});
   const [paymentNotesDrafts, setPaymentNotesDrafts] = useState({});
@@ -140,6 +142,19 @@ const AdminPortal = ({
   ).length;
   const occupancyRate = totalRooms > 0 ? Math.round((approvedApplications.length / totalRooms) * 100) : 0;
   const openRoomGroups = roomInventory.filter((room) => room.status === 'open').length;
+  
+  // Sidebar stats
+  const sidebarStats = {
+    totalStudents: registeredUsers.length,
+    totalApplications: applications.length,
+    pendingApplications,
+    pendingPaymentReviews,
+    approvedApplications: approvedApplications.length,
+    totalRooms,
+    waitlistedApplications: applications.filter((app) => app.status === 'waitlisted').length,
+    pendingPasswordResets: pendingPasswordResetRequests,
+  };
+
   const usersById = new Map(registeredUsers.map((user) => [user.id, user]));
   const usersByRegNumber = new Map(
     registeredUsers.map((user) => [user.regNumber?.toLowerCase(), user]).filter(([regNumber]) => Boolean(regNumber))
@@ -392,6 +407,17 @@ const AdminPortal = ({
         </div>
       </header>
 
+      <div className="admin-layout-with-sidebar">
+        <DashboardSidebar 
+          activeView={activeView} 
+          onViewChange={setActiveView} 
+          stats={sidebarStats}
+          userType="admin"
+        />
+
+      <div className="admin-main-content">
+        {activeView === 'overview' && (
+          <>
       <section className="admin-campus-strip" aria-label="Campus room summary">
         {campusSummaries.map((summary) => (
           <article key={summary.campus} className="admin-campus-card">
@@ -488,10 +514,13 @@ const AdminPortal = ({
           </div>
         </div>
       </section>
+          </>
+        )}
 
       <div className="admin-content">
         {flash && <div className={`admin-flash ${flash.type}`}>{flash.message}</div>}
 
+        {(activeView === 'overview' || activeView === '') && (
         <section className="admin-stat-grid">
           <article className="admin-card stat-card">
             <FaUsers className="stat-icon" />
@@ -524,7 +553,9 @@ const AdminPortal = ({
             <strong>{openRoomGroups}</strong>
           </article>
         </section>
+        )}
 
+        {activeView === 'payment-review' && (
         <section className="admin-card payment-inbox-card">
           <div className="section-heading">
             <div>
@@ -565,7 +596,9 @@ const AdminPortal = ({
             </div>
           )}
         </section>
+        )}
 
+        {activeView === 'password-reset' && (
         <section className="admin-card password-reset-card">
           <div className="section-heading">
             <div>
@@ -635,7 +668,9 @@ const AdminPortal = ({
             </div>
           )}
         </section>
+        )}
 
+        {activeView === 'overview' && (
         <section className="admin-report-grid">
           <article className="admin-card">
             <div className="section-heading">
@@ -706,8 +741,11 @@ const AdminPortal = ({
             </div>
           </article>
         </section>
+        )}
 
+        {(activeView === 'rooms' || activeView === 'applications' || activeView === '') && (
         <section className="admin-layout">
+          {(activeView === 'rooms' || activeView === '') && (
           <article className="admin-card">
             <div className="section-heading">
               <div>
@@ -786,7 +824,9 @@ const AdminPortal = ({
               })}
             </div>
           </article>
+          )}
 
+          {(activeView === 'applications' || activeView === '') && (
           <article className="admin-card">
             <div className="section-heading applicants-heading">
               <div>
@@ -959,8 +999,11 @@ const AdminPortal = ({
               </div>
             )}
           </article>
+          )}
         </section>
+        )}
 
+        {activeView === 'students' && (
         <section className="student-directory-section">
           <article className="admin-card">
             <div className="section-heading applicants-heading">
@@ -1224,6 +1267,8 @@ const AdminPortal = ({
             )}
           </article>
         </section>
+        )}
+      </div>
       </div>
     </div>
   );

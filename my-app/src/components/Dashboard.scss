@@ -5,6 +5,21 @@
   padding-bottom: 3rem;
 }
 
+.dashboard-layout-with-sidebar {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
 .dashboard.campus-ur .hero-panel {
   background: rgba(255, 255, 255, 0.18);
   border-color: rgba(59, 130, 246, 0.28);

@@ -24,6 +24,7 @@ import {
   formatCurrency,
 } from '../data/portalData';
 import { createProfilePreviewUrl, prepareProfileImageForUpload } from '../utils/profileImage';
+import DashboardSidebar from './DashboardSidebar';
 import './Dashboard.scss';
 
 const getSavedProfileImage = (student) =>
@@ -87,6 +88,7 @@ const Dashboard = ({
 }) => {
   const campusName = campus === 'RP' ? 'Rwanda Polytechnic' : 'University of Rwanda';
   const { theme, toggleTheme } = useTheme();
+  const [activeView, setActiveView] = useState('status');
   const [showForm, setShowForm] = useState(false);
   const [viewMode, setViewMode] = useState('status');
   const [notification, setNotification] = useState('');
@@ -112,6 +114,13 @@ const Dashboard = ({
   const passwordResetStatus = latestPasswordResetRequest?.status ?? '';
   const profileGenderLabel = getGenderLabel(student.gender);
   const profileAccessLabel = student.allowAdminUpdates ? 'Allowed' : 'Not allowed';
+
+  // Sidebar stats for students
+  const studentSidebarStats = {
+    totalApplications: studentApplications.length,
+    paymentsPending: hasApplication && paymentStatus === 'pending' ? 1 : 0,
+    roomsAvailable: remainingRooms,
+  };
 
   useEffect(() => {
     if (showForm && formRef.current) {
@@ -279,6 +288,14 @@ const Dashboard = ({
           </button>
         </div>
       </header>
+
+      <div className="dashboard-layout-with-sidebar">
+        <DashboardSidebar 
+          activeView={activeView} 
+          onViewChange={setActiveView} 
+          stats={studentSidebarStats}
+          userType="student"
+        />
 
       <div className="dashboard-content">
         {notification && (
@@ -538,6 +555,7 @@ const Dashboard = ({
             <ApplicationForm student={student} onBack={() => setShowForm(false)} onSubmit={handleApplicationSubmit} />
           </div>
         )}
+      </div>
       </div>
     </div>
   );

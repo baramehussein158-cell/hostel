@@ -3,6 +3,21 @@
   padding-bottom: 3rem;
 }
 
+.admin-layout-with-sidebar {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.admin-main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
 .admin-portal.light {
   background: linear-gradient(135deg, #f8fafc 0%, #dbeafe 55%, #fef3c7 100%);
   color: #172033;
