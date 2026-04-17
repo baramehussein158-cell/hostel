@@ -25,6 +25,7 @@ import {
 } from '../data/portalData';
 import { createProfilePreviewUrl, prepareProfileImageForUpload } from '../utils/profileImage';
 import DashboardSidebar from './DashboardSidebar';
+import Settings from './Settings';
 import './Dashboard.scss';
 
 const getSavedProfileImage = (student) =>
@@ -554,6 +555,27 @@ const Dashboard = ({
           <div ref={formRef} className="form-anchor">
             <ApplicationForm student={student} onBack={() => setShowForm(false)} onSubmit={handleApplicationSubmit} />
           </div>
+        )}
+
+        {activeView === 'settings' && (
+          <Settings
+            user={student}
+            userType="student"
+            onUpdateProfile={async (data) => {
+              // For now, we'll just update the local state
+              // In a real app, this would call an API
+              console.log('Updating profile:', data);
+              return { success: true, message: 'Profile updated successfully' };
+            }}
+            onUpdateName={async (name) => {
+              console.log('Updating name:', name);
+              return { success: true, message: 'Name updated successfully' };
+            }}
+            onUpdateTheme={async () => {
+              // Theme is handled by ThemeContext
+              return { success: true, message: 'Theme updated successfully' };
+            }}
+          />
         )}
       </div>
       </div>

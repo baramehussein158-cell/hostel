@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FaGraduationCap, FaUserShield } from 'react-icons/fa';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
@@ -164,9 +164,6 @@ function AppContent() {
       }
     };
 
-    setIsSyncing(true);
-    setSyncError('');
-
     ensureRoomInventorySeeded().catch((error) => {
       console.error('Failed to seed rooms:', error);
       if (isMounted) {
@@ -268,13 +265,7 @@ function AppContent() {
     return getPreferredUserRecord(matchingUsers) ?? sessionUser;
   }, [session, users]);
 
-  useEffect(() => {
-    if (session?.role === 'student' && !isSyncing && !activeStudent) {
-      setSession(null);
-    }
-  }, [activeStudent, isSyncing, session]);
-
-  useEffect(() => {
+  const updateSessionForActiveStudent = useCallback(() => {
     if (session?.role !== 'student' || !activeStudent) {
       return;
     }
@@ -296,6 +287,16 @@ function AppContent() {
       };
     });
   }, [activeStudent, session]);
+
+  useEffect(() => {
+    updateSessionForActiveStudent();
+  }, [updateSessionForActiveStudent]);
+
+  useEffect(() => {
+    if (session?.role === 'student' && !isSyncing && !activeStudent) {
+      setSession(null);
+    }
+  }, [activeStudent, isSyncing, session]);
 
   function findStudentByIdentity(identity) {
     const normalizedEmail = identity.email?.trim().toLowerCase() ?? '';

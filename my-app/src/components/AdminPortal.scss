@@ -18,6 +18,12 @@
   gap: 2rem;
 }
 
+.admin-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
 .admin-portal.light {
   background: linear-gradient(135deg, #f8fafc 0%, #dbeafe 55%, #fef3c7 100%);
   color: #172033;

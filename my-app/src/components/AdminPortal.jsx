@@ -27,6 +27,7 @@ import {
 } from '../data/portalData';
 import { PORTAL_IMAGES } from '../data/siteImages';
 import DashboardSidebar from './DashboardSidebar';
+import Settings from './Settings';
 import './AdminPortal.scss';
 
 const AdminPortal = ({
@@ -44,19 +45,9 @@ const AdminPortal = ({
 }) => {
   const { theme, toggleTheme } = useTheme();
   const [activeView, setActiveView] = useState('overview');
-  const [roomDrafts, setRoomDrafts] = useState({});
-  const [assignmentDrafts, setAssignmentDrafts] = useState({});
-  const [paymentNotesDrafts, setPaymentNotesDrafts] = useState({});
   const [passwordDrafts, setPasswordDrafts] = useState({});
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [selectedStudentId, setSelectedStudentId] = useState('');
-  const [selectedStudentDraft, setSelectedStudentDraft] = useState({
-    name: '',
-    email: '',
-    regNumber: '',
-    campus: 'UR',
-    gender: '',
-  });
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [campusFilter, setCampusFilter] = useState('ALL');
   const [studentCampusFilter, setStudentCampusFilter] = useState('ALL');
@@ -64,35 +55,32 @@ const AdminPortal = ({
   const [flash, setFlash] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  useEffect(() => {
-    setRoomDrafts(
-      roomInventory.reduce((drafts, room) => {
-        drafts[room.id] = {
-          total: room.total,
-          status: room.status,
-        };
-        return drafts;
-      }, {})
-    );
-  }, [roomInventory]);
+  const roomDrafts = useMemo(() =>
+    roomInventory.reduce((drafts, room) => {
+      drafts[room.id] = {
+        total: room.total,
+        status: room.status,
+      };
+      return drafts;
+    }, {}),
+    [roomInventory]
+  );
 
-  useEffect(() => {
-    setAssignmentDrafts(
-      applications.reduce((drafts, application) => {
-        drafts[application.id] = application.assignedRoom ?? '';
-        return drafts;
-      }, {})
-    );
-  }, [applications]);
+  const assignmentDrafts = useMemo(() =>
+    applications.reduce((drafts, application) => {
+      drafts[application.id] = application.assignedRoom ?? '';
+      return drafts;
+    }, {}),
+    [applications]
+  );
 
-  useEffect(() => {
-    setPaymentNotesDrafts(
-      applications.reduce((drafts, application) => {
-        drafts[application.id] = application.paymentVerificationNotes ?? '';
-        return drafts;
-      }, {})
-    );
-  }, [applications]);
+  const paymentNotesDrafts = useMemo(() =>
+    applications.reduce((drafts, application) => {
+      drafts[application.id] = application.paymentVerificationNotes ?? '';
+      return drafts;
+    }, {}),
+    [applications]
+  );
 
   useEffect(() => {
     if (registeredUsers.length === 0) {
@@ -100,10 +88,11 @@ const AdminPortal = ({
       return;
     }
 
-    if (!selectedStudentId || !registeredUsers.some((user) => user.id === selectedStudentId)) {
+    // Only set default if no student is currently selected
+    if (!selectedStudentId) {
       setSelectedStudentId(registeredUsers[0].id);
     }
-  }, [registeredUsers, selectedStudentId]);
+  }, [registeredUsers]);
 
   useEffect(() => {
     if (!flash) {
@@ -225,26 +214,24 @@ const AdminPortal = ({
     [filteredStudents, selectedStudentId]
   );
 
-  useEffect(() => {
+  const selectedStudentDraft = useMemo(() => {
     if (!selectedStudent) {
-      setSelectedStudentDraft({
+      return {
         name: '',
         email: '',
         regNumber: '',
         campus: 'UR',
         gender: '',
-      });
-      return;
+      };
     }
 
-    setSelectedStudentId(selectedStudent.id);
-    setSelectedStudentDraft({
+    return {
       name: selectedStudent.name ?? '',
       email: selectedStudent.email ?? '',
       regNumber: selectedStudent.regNumber ?? '',
       campus: selectedStudent.campus ?? 'UR',
       gender: selectedStudent.gender ?? '',
-    });
+    };
   }, [selectedStudent]);
 
   const paymentInbox = useMemo(
@@ -1267,6 +1254,23 @@ const AdminPortal = ({
             )}
           </article>
         </section>
+        )}
+
+        {activeView === 'settings' && (
+          <Settings
+            user={registeredUsers.find(u => u.id === selectedStudentId) || registeredUsers[0]}
+            userType="admin"
+            onUpdateProfile={async (data) => {
+              if (selectedStudentId) {
+                return await onUpdateStudent(selectedStudentId, data);
+              }
+              return { success: false, message: 'No student selected' };
+            }}
+            onUpdateTheme={async () => {
+              // Theme is handled by ThemeContext, just return success
+              return { success: true, message: 'Theme updated' };
+            }}
+          />
         )}
       </div>
       </div>

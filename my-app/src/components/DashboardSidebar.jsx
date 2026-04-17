@@ -9,6 +9,7 @@ import {
   FaExclamationCircle,
   FaChartBar,
   FaKey,
+  FaCog,
 } from 'react-icons/fa';
 import './DashboardSidebar.scss';
 
@@ -70,6 +71,13 @@ const DashboardSidebar = ({ activeView, onViewChange, stats, userType = 'admin' 
       count: stats.pendingPasswordResets || 0,
       description: 'Reset requests',
     },
+    {
+      id: 'settings',
+      label: 'Settings',
+      icon: FaCog,
+      count: 0,
+      description: 'Account & preferences',
+    },
   ];
 
   const studentCards = [
@@ -100,6 +108,13 @@ const DashboardSidebar = ({ activeView, onViewChange, stats, userType = 'admin' 
       icon: FaUsers,
       count: 0,
       description: 'Your profile',
+    },
+    {
+      id: 'settings',
+      label: 'Settings',
+      icon: FaCog,
+      count: 0,
+      description: 'Account & preferences',
     },
   ];
 

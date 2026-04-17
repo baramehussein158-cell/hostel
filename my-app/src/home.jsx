@@ -1,6 +1,6 @@
-import React, {useState} from "react"
+import React from "react"
 
 function Hand(name){
-  alter("Hello "+ name);
+  alert("Hello "+ name);
 }
 export default Hand;
