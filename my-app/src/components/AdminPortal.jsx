@@ -1270,6 +1270,7 @@ const AdminPortal = ({
         )}
       </div>
       </div>
+      </div>
     </div>
   );
 };
