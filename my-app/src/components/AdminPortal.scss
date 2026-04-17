@@ -25,8 +25,8 @@
 }
 
 .admin-portal.light {
-  background: linear-gradient(135deg, #f8fafc 0%, #dbeafe 55%, #fef3c7 100%);
-  color: #172033;
+  background: linear-gradient(135deg, #1a2332 0%, #253447 55%, #2d3f52 100%);
+  color: #e8ecf1;
 }
 
 .admin-portal.dark {
@@ -248,8 +248,8 @@
 .admin-portal.light .application-row,
 .admin-portal.light .student-row,
 .admin-portal.light .empty-state {
-  background: rgba(255, 255, 255, 0.66);
-  border-color: rgba(148, 163, 184, 0.24);
+  background: rgba(30, 41, 59, 0.76);
+  border-color: rgba(148, 163, 184, 0.34);
 }
 
 .admin-portal.light .admin-card,
@@ -265,7 +265,7 @@
 .admin-portal.light .permission-badge-card,
 .admin-portal.light .password-reset-row,
 .admin-portal.light .password-reset-card {
-  color: #172033;
+  color: #e8ecf1;
 }
 
 .admin-portal.light .admin-copy,
@@ -282,20 +282,20 @@
 .admin-portal.light .room-row-main span,
 .admin-portal.light .student-meta,
 .admin-portal.light .empty-state {
-  color: #475569;
+  color: #cbd5e1;
   opacity: 1;
 }
 
 .admin-portal.light .campus-total-pill {
-  background: rgba(37, 99, 235, 0.12);
-  border-color: rgba(37, 99, 235, 0.24);
-  color: #1d4ed8;
+  background: rgba(59, 130, 246, 0.22);
+  border-color: rgba(59, 130, 246, 0.34);
+  color: #93c5fd;
 }
 
 .admin-portal.light .admin-campus-metrics div,
 .admin-portal.light .campus-summary-metrics div {
-  background: rgba(248, 250, 252, 0.96);
-  border-color: rgba(148, 163, 184, 0.18);
+  background: rgba(30, 41, 59, 0.96);
+  border-color: rgba(148, 163, 184, 0.34);
 }
 
 .admin-portal.light .room-controls input,

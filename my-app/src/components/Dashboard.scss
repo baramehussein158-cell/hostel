@@ -143,8 +143,8 @@
 }
 
 .dashboard.light {
-  background: linear-gradient(135deg, #eef2ff 0%, #c7d2fe 100%);
-  color: #1f2937;
+  background: linear-gradient(135deg, #1a2332 0%, #253447 100%);
+  color: #e8ecf1;
 }
 
 .dashboard.light .hero-panel,
@@ -158,9 +158,9 @@
 .dashboard.light .payment-progress-card,
 .dashboard.light .password-reset-status-card,
 .dashboard.light .toast-notification {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(148, 163, 184, 0.24);
-  color: #172033;
+  background: rgba(30, 41, 59, 0.9);
+  border-color: rgba(148, 163, 184, 0.34);
+  color: #e8ecf1;
 }
 
 .dashboard.light .hero-panel p,
@@ -175,108 +175,108 @@
 .dashboard.light .info-card p,
 .dashboard.light .overview-card p,
 .dashboard.light .profile-upload-hint {
-  color: #475569;
+  color: #cbd5e1;
   opacity: 1;
 }
 
 .dashboard.light .hero-pill,
 .dashboard.light .campus-label {
-  background: rgba(37, 99, 235, 0.12);
-  color: #1d4ed8;
+  background: rgba(59, 130, 246, 0.22);
+  color: #93c5fd;
 }
 
 .dashboard.light .campus-chip {
-  background: rgba(255, 255, 255, 0.92);
-  color: #334155;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.06);
+  background: rgba(30, 41, 59, 0.92);
+  color: #cbd5e1;
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.16);
 }
 
 .dashboard.light .campus-chip svg {
-  color: #2563eb;
+  color: #60a5fa;
 }
 
 .dashboard.light .campus-chip:hover,
 .dashboard.light .campus-chip:focus-visible {
-  background: rgba(37, 99, 235, 0.08);
-  border-color: rgba(37, 99, 235, 0.26);
-  color: #1d4ed8;
+  background: rgba(30, 41, 59, 1);
+  border-color: rgba(96, 165, 250, 0.36);
+  color: #93c5fd;
 }
 
 .dashboard.light .profile-upload-btn,
 .dashboard.light .theme-toggle,
 .dashboard.light .secondary-action {
-  background: rgba(255, 255, 255, 0.9);
-  color: #1f2937;
-  border-color: rgba(148, 163, 184, 0.24);
+  background: rgba(30, 41, 59, 0.9);
+  color: #e8ecf1;
+  border-color: rgba(148, 163, 184, 0.34);
 }
 
 .dashboard.light .profile-upload-btn:hover,
 .dashboard.light .theme-toggle:hover,
 .dashboard.light .secondary-action:hover {
-  background: rgba(255, 255, 255, 1);
+  background: rgba(30, 41, 59, 1);
 }
 
 .dashboard.light .room-badge {
-  background: rgba(37, 99, 235, 0.12);
-  color: #1d4ed8;
-  border-color: rgba(37, 99, 235, 0.24);
+  background: rgba(59, 130, 246, 0.22);
+  color: #93c5fd;
+  border-color: rgba(96, 165, 250, 0.34);
 }
 
 .dashboard.light .primary-action {
-  box-shadow: 0 18px 30px rgba(37, 99, 235, 0.18);
+  box-shadow: 0 18px 30px rgba(37, 99, 235, 0.28);
 }
 
 .dashboard.light .toast-notification {
-  background: rgba(220, 252, 231, 0.96);
-  color: #166534;
-  border-color: rgba(34, 197, 94, 0.2);
+  background: rgba(30, 41, 59, 0.96);
+  color: #86efac;
+  border-color: rgba(34, 197, 94, 0.3);
 }
 
 .dashboard.light .toast-icon {
-  color: #16a34a;
+  color: #4ade80;
 }
 
 .dashboard.light .status-badge.pending,
 .dashboard.light .status-badge.ready {
-  background: rgba(254, 243, 199, 0.98);
-  color: #a16207;
+  background: rgba(120, 53, 15, 0.42);
+  color: #fbbf24;
 }
 
 .dashboard.light .status-badge.approved {
-  background: rgba(220, 252, 231, 0.98);
-  color: #166534;
+  background: rgba(16, 185, 129, 0.22);
+  color: #6ee7b7;
 }
 
 .dashboard.light .status-badge.waitlisted {
-  background: rgba(219, 234, 254, 0.98);
-  color: #1d4ed8;
+  background: rgba(59, 130, 246, 0.22);
+  color: #93c5fd;
 }
 
 .dashboard.light .status-badge.rejected {
-  background: rgba(254, 226, 226, 0.98);
-  color: #b91c1c;
+  background: rgba(239, 68, 68, 0.22);
+  color: #fca5a5;
 }
 
 .dashboard.light .payment-status-badge.pending {
-  background: rgba(254, 243, 199, 0.98);
-  color: #a16207;
+  background: rgba(120, 53, 15, 0.42);
+  color: #fbbf24;
 }
 
 .dashboard.light .payment-status-badge.verified {
-  background: rgba(220, 252, 231, 0.98);
-  color: #166534;
+  background: rgba(16, 185, 129, 0.22);
+  color: #6ee7b7;
 }
 
 .dashboard.light .payment-status-badge.rejected {
-  background: rgba(254, 226, 226, 0.98);
-  color: #b91c1c;
+  background: rgba(239, 68, 68, 0.22);
+  color: #fca5a5;
 }
 
 .dashboard.light .hero-alert {
-  background: rgba(219, 234, 254, 0.96);
-  border-color: rgba(96, 165, 250, 0.24);
-  color: #1d4ed8;
+  background: rgba(59, 130, 246, 0.22);
+  border-color: rgba(96, 165, 250, 0.34);
+  color: #93c5fd;
 }
 
 .dashboard.light .hero-alert.warning {

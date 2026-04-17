@@ -6,9 +6,7 @@ import {
   FaClipboardList,
   FaCreditCard,
   FaKey,
-  FaMoon,
   FaSearch,
-  FaSun,
   FaUsers,
 } from 'react-icons/fa';
 import { useTheme } from '../contexts/ThemeContext';
@@ -43,7 +41,7 @@ const AdminPortal = ({
   onDeleteStudent,
   onReviewPasswordResetRequest,
 }) => {
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
   const [activeView, setActiveView] = useState('overview');
   const [passwordDrafts, setPasswordDrafts] = useState({});
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -385,9 +383,6 @@ const AdminPortal = ({
         </div>
 
         <div className="admin-actions">
-          <button onClick={toggleTheme} className="theme-toggle" aria-label="Toggle theme">
-            {theme === 'dark' ? <FaSun /> : <FaMoon />}
-          </button>
           <button onClick={onLogout} className="logout-btn">
             Logout
           </button>
@@ -467,17 +462,6 @@ const AdminPortal = ({
           </div>
 
           <div className="admin-image-controls">
-            <button
-              type="button"
-              className="admin-image-arrow"
-              onClick={() =>
-                setActiveImageIndex((currentIndex) => (currentIndex - 1 + PORTAL_IMAGES.length) % PORTAL_IMAGES.length)
-              }
-              aria-label="Previous image"
-            >
-              Prev
-            </button>
-
             <div className="admin-image-dots" aria-label="Project image controls">
               {PORTAL_IMAGES.map((image, index) => (
                 <button
@@ -489,15 +473,6 @@ const AdminPortal = ({
                 />
               ))}
             </div>
-
-            <button
-              type="button"
-              className="admin-image-arrow"
-              onClick={() => setActiveImageIndex((currentIndex) => (currentIndex + 1) % PORTAL_IMAGES.length)}
-              aria-label="Next image"
-            >
-              Next
-            </button>
           </div>
         </div>
       </section>

@@ -6,8 +6,6 @@ import {
   FaClipboardList,
   FaClock,
   FaCreditCard,
-  FaMoon,
-  FaSun,
 } from 'react-icons/fa';
 import emailjs from '@emailjs/browser';
 import { useTheme } from '../contexts/ThemeContext';
@@ -88,7 +86,7 @@ const Dashboard = ({
   onProfileImageUpload,
 }) => {
   const campusName = campus === 'RP' ? 'Rwanda Polytechnic' : 'University of Rwanda';
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
   const [activeView, setActiveView] = useState('status');
   const [showForm, setShowForm] = useState(false);
   const [viewMode, setViewMode] = useState('status');
@@ -281,9 +279,7 @@ const Dashboard = ({
         </div>
 
         <div className="header-actions">
-          <button onClick={toggleTheme} className="theme-toggle" aria-label="Toggle theme">
-            {theme === 'dark' ? <FaSun /> : <FaMoon />}
-          </button>
+
           <button onClick={onLogout} className="logout-btn">
             Logout
           </button>
