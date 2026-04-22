@@ -469,3 +469,328 @@ textarea {
   }
 }
 
+/* System-wide green dashboard skin */
+.app {
+  background:
+    radial-gradient(circle at top left, rgba(109, 242, 162, 0.14), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(15, 23, 42, 0.06), transparent 34%),
+    linear-gradient(180deg, #f6f8fc 0%, #eef3f8 100%);
+}
+
+.app.light {
+  background:
+    radial-gradient(circle at top left, rgba(109, 242, 162, 0.16), transparent 26%),
+    linear-gradient(180deg, #f8fbfd 0%, #eef3f8 100%);
+}
+
+.app.dark {
+  background:
+    radial-gradient(circle at top, rgba(109, 242, 162, 0.14), transparent 24%),
+    linear-gradient(180deg, #0a1220 0%, #111827 88%);
+}
+
+.site-header,
+.site-footer {
+  max-width: 1480px;
+  width: calc(100% - 2rem);
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 28px;
+  backdrop-filter: blur(18px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+.site-header {
+  margin-top: 1rem;
+  padding: 1rem 1.5rem 0.85rem;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(219, 228, 240, 0.9);
+}
+
+.site-footer {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(219, 228, 240, 0.9);
+}
+
+.app.dark .site-header,
+.app.dark .site-footer {
+  background: rgba(17, 24, 39, 0.86);
+  border-color: rgba(109, 242, 162, 0.16);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.24);
+}
+
+.app.light .site-title,
+.app.dark .site-title {
+  letter-spacing: -0.04em;
+}
+
+.campus-symbol {
+  border: 1px solid rgba(219, 228, 240, 0.9);
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.ur-symbol,
+.rp-symbol,
+.admin-symbol {
+  background: linear-gradient(135deg, #0f172a 0%, #1f2937 100%);
+  color: #eef5ff;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.dashboard,
+.admin-portal,
+.portal-gateway,
+.login-container,
+.student-login-container {
+  background:
+    radial-gradient(circle at top left, rgba(109, 242, 162, 0.12), transparent 24%),
+    linear-gradient(180deg, rgba(248, 251, 253, 0.98) 0%, rgba(238, 243, 248, 0.98) 100%) !important;
+  color: #0f172a !important;
+}
+
+.dashboard.dark,
+.admin-portal.dark,
+.portal-gateway.dark,
+.login-container.dark,
+.student-login-container.dark {
+  background:
+    radial-gradient(circle at top, rgba(109, 242, 162, 0.14), transparent 24%),
+    linear-gradient(180deg, #0a1220 0%, #111827 90%) !important;
+  color: #eef5ff !important;
+}
+
+.dashboard.light :where(
+  .hero-panel,
+  .metric-card,
+  .overview-card,
+  .info-card,
+  .application-form-panel,
+  .toast-notification,
+  .status-summary div,
+  .summary-block div,
+  .payment-progress-card,
+  .password-reset-status-card,
+  .room-card,
+  .room-occupancy,
+  .session-summary-card div,
+  .campus-chip,
+  .hero-features div,
+  .profile-block
+) {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border-color: rgba(219, 228, 240, 0.95) !important;
+  color: #0f172a !important;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08) !important;
+}
+
+.dashboard.dark :where(
+  .hero-panel,
+  .metric-card,
+  .overview-card,
+  .info-card,
+  .application-form-panel,
+  .toast-notification,
+  .status-summary div,
+  .summary-block div,
+  .payment-progress-card,
+  .password-reset-status-card,
+  .room-card,
+  .room-occupancy,
+  .session-summary-card div,
+  .campus-chip,
+  .hero-features div,
+  .profile-block
+) {
+  background: rgba(17, 24, 39, 0.94) !important;
+  border-color: rgba(109, 242, 162, 0.14) !important;
+  color: #eef5ff !important;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.2) !important;
+}
+
+.admin-portal.light :where(
+  .admin-card,
+  .admin-campus-card,
+  .admin-image-frame,
+  .campus-summary-card,
+  .room-row,
+  .application-row,
+  .student-row,
+  .empty-state,
+  .payment-inbox-row,
+  .permission-badge-card,
+  .password-reset-card,
+  .student-editor-card,
+  .admin-flash
+) {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border-color: rgba(219, 228, 240, 0.95) !important;
+  color: #0f172a !important;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08) !important;
+}
+
+.admin-portal.dark :where(
+  .admin-card,
+  .admin-campus-card,
+  .admin-image-frame,
+  .campus-summary-card,
+  .room-row,
+  .application-row,
+  .student-row,
+  .empty-state,
+  .payment-inbox-row,
+  .permission-badge-card,
+  .password-reset-card,
+  .student-editor-card,
+  .admin-flash
+) {
+  background: rgba(17, 24, 39, 0.94) !important;
+  border-color: rgba(109, 242, 162, 0.14) !important;
+  color: #eef5ff !important;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dashboard :where(
+  .primary-action,
+  .login-btn,
+  .register-button,
+  .submit-btn,
+  .action-button,
+  .logout-btn
+),
+.admin-portal :where(.action-button, .logout-btn),
+.portal-gateway :where(.portal-card),
+.login-container :where(.login-btn, .register-button),
+.student-login-container :where(.login-button, .register-button) {
+  background: linear-gradient(135deg, #6df2a2 0%, #22c55e 100%) !important;
+  color: #0b2413 !important;
+  border-color: transparent !important;
+  box-shadow: 0 18px 30px rgba(34, 197, 94, 0.22) !important;
+}
+
+.dashboard :where(.secondary-action, .theme-toggle, .back-button, .back-btn, .profile-upload-btn),
+.admin-portal :where(.theme-toggle, .back-btn),
+.portal-gateway :where(.portal-card),
+.login-container :where(.back-button, .login-nav button),
+.student-login-container :where(.back-button, .form-group input, .form-group select) {
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(219, 228, 240, 0.95) !important;
+}
+
+.dashboard.light :where(.room-badge, .hero-pill, .campus-label, .status-pill, .payment-pill, .password-reset-pill) {
+  background: rgba(109, 242, 162, 0.12) !important;
+  color: #0f766e !important;
+  border-color: rgba(109, 242, 162, 0.22) !important;
+}
+
+.dashboard.dark :where(.room-badge, .hero-pill, .campus-label, .status-pill, .payment-pill, .password-reset-pill) {
+  background: rgba(109, 242, 162, 0.16) !important;
+  color: #defce7 !important;
+  border-color: rgba(109, 242, 162, 0.22) !important;
+}
+
+.stat-icon,
+.section-icon,
+.metric-icon,
+.hero-features svg,
+.info-card li svg,
+.section-subtitle svg,
+.toast-icon {
+  color: #22c55e !important;
+}
+
+.dashboard :where(.campus-chip:hover, .campus-chip:focus-visible),
+.dashboard :where(.secondary-action:hover, .theme-toggle:hover, .profile-upload-btn:hover),
+.admin-portal :where(.theme-toggle:hover, .back-btn:hover) {
+  background: rgba(109, 242, 162, 0.12) !important;
+  border-color: rgba(109, 242, 162, 0.28) !important;
+}
+
+.login-container :where(.hero-pill, .hero-visual-eyebrow, .signup-link button),
+.student-login-container :where(.stat, .link-button),
+.portal-gateway :where(.feature-tag) {
+  color: #0f766e !important;
+}
+
+.portal-gateway :where(.portal-card.blue, .portal-card.red) {
+  border-color: rgba(109, 242, 162, 0.24) !important;
+}
+
+.portal-gateway .portal-card.blue::before,
+.portal-gateway .portal-card.red::before {
+  background: linear-gradient(135deg, #0f172a 0%, #6df2a2 100%) !important;
+}
+
+.portal-gateway :where(.gateway-header h1) {
+  background: linear-gradient(135deg, #0f172a 0%, #22c55e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.login-container :where(.form-group input, .form-group select, .form-group textarea),
+.student-login-container :where(.form-group input, .form-group select),
+.admin-portal :where(
+  .room-controls input,
+  .room-controls select,
+  .applicant-filters select,
+  .application-controls input,
+  .application-controls textarea,
+  .student-search input,
+  .student-tools select,
+  .password-reset-group input,
+  .student-editor-grid input,
+  .student-editor-grid select,
+  .student-picker select
+) {
+  background: rgba(255, 255, 255, 0.94) !important;
+  color: #0f172a !important;
+  border-color: rgba(219, 228, 240, 0.95) !important;
+}
+
+.login-container :where(.form-group input:focus, .form-group select:focus, .form-group textarea:focus),
+.student-login-container :where(.form-group input:focus, .form-group select:focus),
+.admin-portal :where(
+  .room-controls input:focus,
+  .room-controls select:focus,
+  .applicant-filters select:focus,
+  .application-controls input:focus,
+  .application-controls textarea:focus,
+  .student-search input:focus,
+  .student-tools select:focus,
+  .password-reset-group input:focus,
+  .student-editor-grid input:focus,
+  .student-editor-grid select:focus,
+  .student-picker select:focus
+) {
+  border-color: #22c55e !important;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12) !important;
+}
+
+.dashboard-header,
+.admin-header {
+  background: rgba(255, 255, 255, 0.82) !important;
+  border: 1px solid rgba(219, 228, 240, 0.9) !important;
+  backdrop-filter: blur(18px);
+  border-radius: 28px !important;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08) !important;
+}
+
+.dashboard.dark .dashboard-header,
+.admin-portal.dark .admin-header {
+  background: rgba(17, 24, 39, 0.86) !important;
+  border-color: rgba(109, 242, 162, 0.16) !important;
+}
+
+.dashboard-content,
+.admin-content,
+.admin-main-content {
+  width: min(100%, 1480px);
+  margin-left: auto;
+  margin-right: auto;
+}
+

@@ -5,59 +5,59 @@ const ThemeContext = createContext();
 
 const THEME_COLORS = {
   light: {
-    primary: '#3b82f6',
-    secondary: '#1e40af',
-    accent: '#f59e0b',
-    success: '#10b981',
+    primary: '#16a34a',
+    secondary: '#0f766e',
+    accent: '#6df2a2',
+    success: '#22c55e',
     danger: '#ef4444',
     warning: '#f59e0b',
-    info: '#06b6d4',
-    background: '#ffffff',
+    info: '#14b8a6',
+    background: '#f5f7fb',
     surface: '#ffffff',
     text: '#0f172a',
     textSecondary: '#475569',
     sidebarBg: '#ffffff',
-    sidebarBorder: '#e2e8f0',
+    sidebarBorder: '#dbe4f0',
     sidebarSurface: '#f8fafc',
-    sidebarHover: '#eef4ff',
+    sidebarHover: '#edf7f0',
   },
   dark: {
-    primary: '#60a5fa',
-    secondary: '#3b82f6',
-    accent: '#fbbf24',
+    primary: '#6df2a2',
+    secondary: '#22c55e',
+    accent: '#6df2a2',
     success: '#34d399',
     danger: '#f87171',
     warning: '#fbbf24',
-    info: '#22d3ee',
-    background: '#0f1c33',
-    surface: '#10263f',
+    info: '#2dd4bf',
+    background: '#0a1220',
+    surface: '#111827',
     text: '#eef5ff',
     textSecondary: '#c7d5ea',
-    sidebarBg: '#0c1830',
-    sidebarBorder: 'rgba(102, 135, 182, 0.24)',
-    sidebarSurface: 'rgba(16, 38, 63, 0.94)',
-    sidebarHover: 'rgba(24, 49, 82, 1)',
+    sidebarBg: '#0a1220',
+    sidebarBorder: 'rgba(109, 242, 162, 0.16)',
+    sidebarSurface: 'rgba(17, 24, 39, 0.96)',
+    sidebarHover: 'rgba(24, 39, 54, 1)',
   },
 };
 
 const THEME_VARIABLE_MAP = {
   light: {
-    '--bg-primary': '#ffffff',
-    '--bg-secondary': '#f8fafc',
-    '--bg-tertiary': '#eef4ff',
+    '--bg-primary': '#f5f7fb',
+    '--bg-secondary': '#ffffff',
+    '--bg-tertiary': '#edf7f0',
     '--text-primary': '#0f172a',
     '--text-secondary': '#475569',
     '--border-color': '#dbe4f0',
-    '--accent-color': '#3b82f6',
+    '--accent-color': '#16a34a',
   },
   dark: {
-    '--bg-primary': '#0f1c33',
-    '--bg-secondary': '#10263f',
-    '--bg-tertiary': '#183153',
+    '--bg-primary': '#0a1220',
+    '--bg-secondary': '#111827',
+    '--bg-tertiary': '#172033',
     '--text-primary': '#eef5ff',
     '--text-secondary': '#c7d5ea',
-    '--border-color': 'rgba(102, 135, 182, 0.24)',
-    '--accent-color': '#60a5fa',
+    '--border-color': 'rgba(109, 242, 162, 0.16)',
+    '--accent-color': '#6df2a2',
   },
 };
 
@@ -71,7 +71,7 @@ export const ThemeProvider = ({ children }) => {
 
   const [color, setColor] = useState(() => {
     const saved = localStorage.getItem('app-color');
-    return saved || 'blue';
+    return saved || 'green';
   });
 
   useEffect(() => {
@@ -112,7 +112,7 @@ export const ThemeProvider = ({ children }) => {
       changeTheme,
       changeColor,
       themeOptions: ['light', 'dark'],
-      colorOptions: ['blue', 'purple', 'green', 'red', 'orange'],
+      colorOptions: ['green', 'blue', 'purple', 'red', 'orange'],
     }}>
       {children}
     </ThemeContext.Provider>

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { FaArrowLeft, FaChartLine, FaGraduationCap, FaShieldAlt } from 'react-icons/fa';
 import { GENDER_OPTIONS } from '../data/portalData';
-import { PORTAL_IMAGES } from '../data/siteImages';
+import { LOGIN_HERO_IMAGES } from '../data/siteImages';
 import { useTheme } from '../contexts/ThemeContext';
 import './Login.scss';
 
-const HERO_SLIDES = PORTAL_IMAGES.map((image, index) => {
+const HERO_SLIDES = LOGIN_HERO_IMAGES.map((image, index) => {
   const slideText = [
     {
       eyebrow: 'Campus portal preview',

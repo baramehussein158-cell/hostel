@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import {
   FaUsers,
   FaBed,
@@ -119,82 +119,154 @@ const DashboardSidebar = ({ activeView, onViewChange, stats, userType = 'admin',
   ];
 
   const cards = userType === 'admin' ? adminCards : studentCards;
+  const primaryCards = cards.slice(0, userType === 'admin' ? 5 : 3);
+  const secondaryCards = cards.slice(userType === 'admin' ? 5 : 3);
 
   const handleCardClick = (cardId) => {
-    onViewChange(cardId);
+    onViewChange?.(cardId);
   };
 
   return (
-    <aside className="dashboard-sidebar">
-      <div className="sidebar-header">
-        <span className="sidebar-eyebrow">
-          {userType === 'student' ? 'Student Sidebar' : 'Admin Sidebar'}
-        </span>
-        <div className="sidebar-header-top">
-          <h3>{userType === 'student' ? 'My Portal Menu' : 'Portal Menu'}</h3>
-        </div>
-        <p className="sidebar-description">
-          Use the left rail to jump between sections without losing your place.
-        </p>
-      </div>
+    <aside className={`dashboard-sidebar dashboard-sidebar--${userType}`}>
+      <div className="sidebar-shell">
+        <div className="sidebar-rail" aria-label="Sidebar shortcuts">
+          <div className="sidebar-brand-mark" aria-hidden="true">
+            <span className="sidebar-brand-initials">CS</span>
+          </div>
 
-      {quickLinks.length > 0 && (
-        <section className="sidebar-quick-links" aria-label="Quick links">
-          <div className="sidebar-section-title">Quick Links</div>
-          <div className="sidebar-quick-link-grid">
-            {quickLinks.map((link) => {
-              const IconComponent = link.icon;
+          <nav className="sidebar-rail-nav" aria-label="Primary sections">
+            {primaryCards.map((card) => {
+              const IconComponent = card.icon;
+              const isActive = activeView === card.id;
 
               return (
                 <button
-                  key={link.id}
+                  key={card.id}
                   type="button"
-                  className="quick-link-card"
-                  onClick={link.onClick}
-                  aria-label={`${link.label}. ${link.description}`}
-                  title={link.label}
+                  className={`sidebar-rail-button ${isActive ? 'active' : ''}`}
+                  onClick={() => handleCardClick(card.id)}
+                  aria-pressed={isActive}
+                  aria-label={card.label}
+                  title={card.label}
                 >
-                  <div className="quick-link-icon">
-                    <IconComponent />
-                  </div>
-                  <div className="quick-link-copy">
-                    <strong>{link.label}</strong>
-                    <span>{link.description}</span>
-                  </div>
-                  <span className="sr-only">
-                    {link.label}. {link.description}
-                  </span>
+                  <IconComponent />
                 </button>
               );
             })}
+          </nav>
+
+          <div className="sidebar-rail-footer" aria-hidden="true">
+            <span />
+            <span />
+            <span />
           </div>
-        </section>
-      )}
+        </div>
 
-      <nav className="sidebar-nav-grid">
-        {cards.map((card) => {
-          const IconComponent = card.icon;
-          const isActive = activeView === card.id;
+        <div className="sidebar-panel">
+          <header className="sidebar-brand">
+            <div className="sidebar-brand-copy">
+              <span className="sidebar-eyebrow">
+                {userType === 'student' ? 'Student Portal' : 'Admin Portal'}
+              </span>
+              <h3>CampusStay</h3>
+              <p>{userType === 'student' ? 'Track your room journey' : 'Manage hostel operations'}</p>
+            </div>
+            <div className="sidebar-status-chip">Live</div>
+          </header>
 
-          return (
-            <button
-              key={card.id}
-              className={`nav-card ${isActive ? 'active' : ''}`}
-              onClick={() => handleCardClick(card.id)}
-              aria-pressed={isActive}
-            >
-              <div className="nav-card-icon">
-                <IconComponent />
+          <section className="sidebar-section" aria-label="Explore navigation">
+            <div className="sidebar-section-title">Explore Task</div>
+            <div className="sidebar-menu-list">
+              {primaryCards.map((card) => {
+                const IconComponent = card.icon;
+                const isActive = activeView === card.id;
+
+                return (
+                  <button
+                    key={card.id}
+                    type="button"
+                    className={`sidebar-menu-item ${isActive ? 'active' : ''}`}
+                    onClick={() => handleCardClick(card.id)}
+                    aria-pressed={isActive}
+                  >
+                    <span className="sidebar-menu-icon">
+                      <IconComponent />
+                    </span>
+                    <span className="sidebar-menu-copy">
+                      <strong>{card.label}</strong>
+                      <span>{card.description}</span>
+                    </span>
+                    <span className="sidebar-menu-badge">{card.count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          {secondaryCards.length > 0 && (
+            <section className="sidebar-section sidebar-section-muted" aria-label="More navigation">
+              <div className="sidebar-section-title">
+                {userType === 'student' ? 'More' : 'Workspace'}
               </div>
-              <div className="nav-card-content">
-                <div className="nav-card-label">{card.label}</div>
-                <div className="nav-card-count">{card.count}</div>
-                <div className="nav-card-description">{card.description}</div>
+              <div className="sidebar-menu-list sidebar-menu-list-compact">
+                {secondaryCards.map((card) => {
+                  const IconComponent = card.icon;
+                  const isActive = activeView === card.id;
+
+                  return (
+                    <button
+                      key={card.id}
+                      type="button"
+                      className={`sidebar-menu-item sidebar-menu-item-compact ${isActive ? 'active' : ''}`}
+                      onClick={() => handleCardClick(card.id)}
+                      aria-pressed={isActive}
+                    >
+                      <span className="sidebar-menu-icon">
+                        <IconComponent />
+                      </span>
+                      <span className="sidebar-menu-copy">
+                        <strong>{card.label}</strong>
+                        <span>{card.description}</span>
+                      </span>
+                      <span className="sidebar-menu-badge">{card.count}</span>
+                    </button>
+                  );
+                })}
               </div>
-            </button>
-          );
-        })}
-      </nav>
+            </section>
+          )}
+
+          {quickLinks.length > 0 && (
+            <section className="sidebar-section sidebar-section-muted" aria-label="Quick links">
+              <div className="sidebar-section-title">Quick Links</div>
+              <div className="sidebar-quick-link-list">
+                {quickLinks.map((link) => {
+                  const IconComponent = link.icon;
+
+                  return (
+                    <button
+                      key={link.id}
+                      type="button"
+                      className="sidebar-quick-link"
+                      onClick={link.onClick}
+                      aria-label={`${link.label}. ${link.description}`}
+                      title={link.label}
+                    >
+                      <span className="sidebar-menu-icon sidebar-quick-link-icon">
+                        <IconComponent />
+                      </span>
+                      <span className="sidebar-quick-link-copy">
+                        <strong>{link.label}</strong>
+                        <span>{link.description}</span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+        </div>
+      </div>
     </aside>
   );
 };
