@@ -75,7 +75,9 @@
   margin: 0 auto;
   padding: 1rem;
   border-radius: 20px;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
 }
 
@@ -133,7 +135,9 @@
   height: 100vh;
   margin: 0;
   padding: 2rem 1.5rem;
+  overflow-x: hidden;
   overflow-y: auto;
+  scrollbar-gutter: stable;
   border-radius: 0;
   border: none;
   top: 60px;
@@ -160,6 +164,16 @@
 .admin-portal.dark {
   background: #0f1c33;
   color: #eef5ff;
+}
+
+.admin-portal.light .header-user-subtitle,
+.admin-portal.light .time-note {
+  color: #64748b;
+}
+
+.admin-portal.dark .header-user-subtitle,
+.admin-portal.dark .time-note {
+  color: rgba(238, 245, 255, 0.72);
 }
 
 .admin-header,
@@ -1087,6 +1101,28 @@
   margin-top: 1.5rem;
 }
 
+.student-directory-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+  padding: 1rem 1.1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.student-directory-summary strong {
+  display: block;
+  font-size: 1.15rem;
+}
+
+.student-directory-summary span {
+  opacity: 0.82;
+}
+
 .student-tools {
   align-items: center;
 }
@@ -1132,6 +1168,15 @@
 
 .student-controls {
   align-items: end;
+}
+
+.student-delete-button {
+  background: rgba(220, 38, 38, 0.18);
+  color: #fee2e2;
+}
+
+.student-delete-button:hover {
+  opacity: 1;
 }
 
 .password-reset-group {
@@ -1236,6 +1281,10 @@
     min-width: 100%;
   }
 
+  .student-directory-summary {
+    align-items: flex-start;
+  }
+
   .student-editor-grid {
     grid-template-columns: 1fr;
   }
@@ -1306,7 +1355,9 @@
     padding: 1rem;
     border-radius: 20px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
   }
 
   .dashboard-sidebar-mobile .dashboard-sidebar .sidebar-nav-grid {
@@ -1385,7 +1436,542 @@
     margin-bottom: 1rem;
   }
 
-  .admin-portal .admin-main-content {
+.admin-portal .admin-main-content {
     padding-top: 0;
+  }
+}
+
+/* Screenshot-style admin shell */
+.admin-portal {
+  background:
+    radial-gradient(circle at top left, rgba(96, 165, 250, 0.18), transparent 32%),
+    linear-gradient(180deg, #f8fbff 0%, #edf4fb 100%);
+}
+
+.admin-header {
+  display: grid;
+  gap: 1.2rem;
+  padding: 1.25rem 2rem 0.75rem;
+  max-width: 1480px;
+  margin: 0 auto;
+  position: sticky;
+  top: 0;
+  z-index: 120;
+  background: rgba(248, 251, 255, 0.88);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.admin-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-search {
+  flex: 1 1 460px;
+  max-width: 520px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.95rem 1.1rem;
+  border-radius: 18px;
+  background: #f2f6fb;
+  border: 1px solid #dbe4f0;
+  color: #64748b;
+}
+
+.admin-search svg {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.admin-search input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #1e293b;
+  font-size: 0.96rem;
+}
+
+.admin-search input:focus {
+  outline: none;
+}
+
+.admin-search-results-panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.15rem;
+  border-radius: 24px;
+  border: 1px solid rgba(219, 228, 240, 0.95);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.06);
+  backdrop-filter: blur(14px);
+  min-width: 0;
+}
+
+.admin-portal.light .admin-search-results-panel {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+.admin-portal.dark .admin-search-results-panel {
+  background: #10263f;
+  border-color: rgba(102, 135, 182, 0.24);
+}
+
+.search-results-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 0.85rem;
+  border-radius: 999px;
+  background: rgba(111, 57, 207, 0.1);
+  color: #6f39cf;
+  font-size: 0.84rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.search-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.85rem;
+}
+
+.search-result-card {
+  all: unset;
+  display: grid;
+  gap: 0.45rem;
+  padding: 1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(219, 228, 240, 0.95);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+  min-width: 0;
+}
+
+.search-result-card:hover,
+.search-result-card:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(111, 57, 207, 0.24);
+  box-shadow: 0 14px 28px rgba(111, 57, 207, 0.12);
+  outline: none;
+}
+
+.search-result-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.search-result-description,
+.search-result-detail {
+  color: #64748b;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-result-description {
+  white-space: normal;
+}
+
+.search-result-detail {
+  white-space: nowrap;
+}
+
+.search-highlight {
+  padding: 0 0.16rem;
+  border-radius: 0.35rem;
+  background: rgba(250, 204, 21, 0.32);
+  color: inherit;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.admin-portal.dark .search-result-card {
+  background: linear-gradient(180deg, #10263f 0%, #13294b 100%);
+  border-color: rgba(102, 135, 182, 0.24);
+}
+
+.admin-portal.dark .search-result-title {
+  color: #eef5ff;
+}
+
+.admin-portal.dark .search-result-description,
+.admin-portal.dark .search-result-detail {
+  color: rgba(238, 245, 255, 0.74);
+}
+
+.admin-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-user-block {
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+}
+
+.user-chip {
+  width: 3.15rem;
+  height: 3.15rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #6f39cf 0%, #8b5cf6 100%);
+  color: #fff;
+  font-weight: 800;
+  box-shadow: 0 12px 24px rgba(111, 57, 207, 0.18);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.user-chip span {
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+}
+
+.user-chip img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 999px;
+}
+
+.user-chip:hover,
+.user-chip:focus-visible {
+  transform: translateY(-1px);
+  outline: none;
+  box-shadow: 0 16px 28px rgba(111, 57, 207, 0.22);
+}
+
+.header-user-subtitle {
+  max-width: 8rem;
+  text-align: center;
+  font-size: 0.72rem;
+  line-height: 1.2;
+  color: #64748b;
+}
+
+.admin-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.admin-hero h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 2.9rem);
+  line-height: 1.08;
+  color: #10233d;
+}
+
+.admin-copy {
+  max-width: 760px;
+  color: #5b6b81;
+}
+
+.time-note {
+  margin: 0.15rem 0 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #5b6476;
+}
+
+.admin-layout-with-sidebar {
+  display: grid !important;
+  grid-template-columns: 19.5rem minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 1rem 2rem 4rem;
+}
+
+.admin-portal .dashboard-sidebar {
+  display: grid !important;
+  position: sticky !important;
+  top: 7.5rem !important;
+  width: 100% !important;
+  max-height: calc(100dvh - 9rem);
+}
+
+.admin-main-content {
+  min-width: 0;
+}
+
+.admin-content {
+  padding: 0 0 4rem;
+  max-width: none;
+}
+
+.admin-campus-strip,
+.admin-image-gallery,
+.admin-content {
+  max-width: none;
+}
+
+.admin-card,
+.admin-campus-card,
+.admin-image-frame,
+.campus-summary-card,
+.pipeline-list div,
+.room-row,
+.application-row,
+.student-row,
+.empty-state,
+.payment-inbox-row,
+.permission-badge-card,
+.password-reset-row,
+.password-reset-card {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(219, 228, 240, 0.95);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+.admin-stat-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.admin-card.stat-card {
+  min-height: 126px;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.admin-card.stat-card strong {
+  font-size: 2rem;
+  color: #12253f;
+}
+
+.admin-card.stat-card span {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  color: #5f7390;
+}
+
+.admin-portal .section-heading h2,
+.admin-portal .section-heading h3,
+.admin-portal .admin-card h2,
+.admin-portal .admin-card h3 {
+  color: #10233d;
+}
+
+.admin-portal .eyebrow {
+  color: #7c3aed;
+}
+
+.admin-portal .dashboard-sidebar {
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.admin-portal .theme-toggle {
+  width: 3.15rem;
+  height: 3.15rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #ffffff;
+  border: 1px solid #dbe4f0;
+  color: #64748b;
+}
+
+.admin-portal .theme-toggle:hover {
+  background: #f8fafc;
+}
+
+.student-directory-summary {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(219, 228, 240, 0.95);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+@media (max-width: 1100px) {
+  .admin-header {
+    position: static;
+  }
+
+  .admin-layout-with-sidebar {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-portal .dashboard-sidebar {
+    position: relative !important;
+    top: auto !important;
+    max-height: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .admin-toolbar {
+    display: grid;
+  }
+
+  .admin-toolbar-actions {
+    justify-content: flex-end;
+  }
+
+  .admin-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-header {
+    padding: 1rem 1rem 0.5rem;
+  }
+
+  .admin-layout-with-sidebar {
+    padding: 1rem 1rem 3rem;
+  }
+
+  .admin-stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-search {
+    max-width: none;
+  }
+
+  .user-chip {
+    width: 2.8rem;
+    height: 2.8rem;
+  }
+}
+
+/* Final content-fit polish */
+.admin-portal,
+.admin-portal * {
+  box-sizing: border-box;
+}
+
+.admin-portal h1,
+.admin-portal h2,
+.admin-portal h3,
+.admin-portal h4,
+.admin-portal p,
+.admin-portal span,
+.admin-portal label,
+.admin-portal strong,
+.admin-portal small,
+.admin-portal button,
+.admin-portal input,
+.admin-portal select,
+.admin-portal textarea {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.admin-portal .admin-card,
+.admin-portal .admin-campus-card,
+.admin-portal .admin-image-frame,
+.admin-portal .campus-summary-card,
+.admin-portal .pipeline-list div,
+.admin-portal .room-row,
+.admin-portal .application-row,
+.admin-portal .student-row,
+.admin-portal .empty-state,
+.admin-portal .payment-inbox-row,
+.admin-portal .permission-badge-card,
+.admin-portal .password-reset-row,
+.admin-portal .password-reset-card,
+.admin-portal .student-directory-summary {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.admin-portal .admin-stat-grid,
+.admin-portal .campus-summary-grid,
+.admin-portal .student-editor-grid {
+  align-items: stretch;
+}
+
+.admin-portal .pipeline-list div,
+.admin-portal .room-row,
+.admin-portal .application-row,
+.admin-portal .student-row,
+.admin-portal .payment-inbox-row,
+.admin-portal .password-reset-row,
+.admin-portal .student-directory-summary {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.admin-portal .application-heading,
+.admin-portal .section-heading,
+.admin-portal .admin-campus-card-head,
+.admin-portal .password-reset-heading,
+.admin-portal .payment-inbox-row > div {
+  gap: 0.85rem;
+}
+
+.admin-portal .student-controls,
+.admin-portal .student-editor-actions,
+.admin-portal .application-actions,
+.admin-portal .room-controls,
+.admin-portal .applicant-filters,
+.admin-portal .application-controls,
+.admin-portal .student-tools {
+  align-items: stretch;
+}
+
+@media (max-width: 900px) {
+  .admin-portal .admin-stat-grid,
+  .admin-portal .campus-summary-grid,
+  .admin-portal .student-editor-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-portal .payment-inbox-row > div,
+  .admin-portal .password-reset-heading,
+  .admin-portal .section-heading,
+  .admin-portal .application-heading {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-portal .student-controls,
+  .admin-portal .student-editor-actions,
+  .admin-portal .application-actions,
+  .admin-portal .room-controls,
+  .admin-portal .applicant-filters,
+  .admin-portal .application-controls,
+  .admin-portal .student-tools {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-portal .admin-card,
+  .admin-portal .admin-campus-card,
+  .admin-portal .admin-image-frame,
+  .admin-portal .campus-summary-card,
+  .admin-portal .pipeline-list div,
+  .admin-portal .room-row,
+  .admin-portal .application-row,
+  .admin-portal .student-row,
+  .admin-portal .empty-state,
+  .admin-portal .payment-inbox-row,
+  .admin-portal .permission-badge-card,
+  .admin-portal .password-reset-row,
+  .admin-portal .password-reset-card,
+  .admin-portal .student-directory-summary {
+    padding: 1rem;
+    border-radius: 18px;
   }
 }

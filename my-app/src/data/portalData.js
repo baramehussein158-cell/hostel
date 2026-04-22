@@ -8,7 +8,7 @@ export const STORAGE_KEYS = {
 export const ADMIN_ACCOUNT = {
   email: 'admin@campusstay.rw',
   password: 'Admin@2026!',
-  name: 'Housing Administrator',
+  name: 'Hussein Barame',
 };
 
 export const DEFAULT_ROOM_INVENTORY = [

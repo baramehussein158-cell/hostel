@@ -150,6 +150,13 @@ function AppContent() {
   const [syncError, setSyncError] = useState('');
   const [selectedPortal, setSelectedPortal] = useState(() => readStoredValue('selected-portal', null));
 
+  function handleLogout() {
+    sessionManager.destroySession();
+    setSession(null);
+    setSelectedPortal(null);
+    localStorage.removeItem('selected-portal');
+  }
+
   useEffect(() => {
     if (session) {
       sessionStorage.setItem(STORAGE_KEYS.session, JSON.stringify(session));
@@ -334,13 +341,6 @@ function AppContent() {
     }
   }, [activeStudent, isSyncing, session]);
 
-  const handleLogout = () => {
-    sessionManager.destroySession();
-    setSession(null);
-    setSelectedPortal(null);
-    localStorage.removeItem('selected-portal');
-  };
-
   function findStudentByIdentity(identity) {
     const normalizedEmail = identity.email?.trim().toLowerCase() ?? '';
     const normalizedRegNumber = identity.regNumber?.trim().toLowerCase() ?? '';
@@ -422,6 +422,9 @@ function AppContent() {
       role: 'student',
       userId: matchedUser.id,
       accountKey: getUserAccountKey(matchedUser),
+      name: matchedUser.name,
+      email: matchedUser.email,
+      regNumber: matchedUser.regNumber,
       startedAt: new Date().toISOString(),
     });
     sessionManager.startSession();
@@ -441,6 +444,7 @@ function AppContent() {
     setSession({
       role: 'admin',
       email: ADMIN_ACCOUNT.email,
+      name: ADMIN_ACCOUNT.name,
       startedAt: new Date().toISOString(),
     });
     sessionManager.startSession();
@@ -868,6 +872,86 @@ function AppContent() {
     }
   };
 
+  const handleUpdateActiveStudentProfile = async (updates) => {
+    if (!activeStudent) {
+      return { success: false, message: 'Student account not found.' };
+    }
+
+    const nextName = updates.name?.trim() ?? activeStudent.name;
+    const nextEmail = updates.email?.trim() ?? activeStudent.email;
+    const nextPhone = updates.phone?.trim() ?? activeStudent.phone ?? '';
+    const nextGender = updates.gender ?? activeStudent.gender;
+    const nextAllowAdminUpdates = Boolean(updates.allowAdminUpdates);
+
+    if (!nextName || !nextEmail || !nextGender) {
+      return { success: false, message: 'Name, email, and gender are required.' };
+    }
+
+    const duplicateEmail = users.some(
+      (existingUser) =>
+        existingUser.id !== activeStudent.id &&
+        existingUser.email?.toLowerCase() === nextEmail.toLowerCase()
+    );
+    if (duplicateEmail) {
+      return { success: false, message: 'Another student already uses that email address.' };
+    }
+
+    const currentAccountKey = getUserAccountKey(activeStudent);
+    const relatedUsers = users.filter((user) => getUserAccountKey(user) === currentAccountKey);
+    const relatedUserIds = relatedUsers.map((user) => user.id);
+    const relatedApplicationIds = applications
+      .filter((application) => {
+        const applicationAccountKey =
+          application.studentAccountKey ||
+          getUserAccountKey({
+            campus: application.campus,
+            regNumber: application.regNumber,
+            email: application.email,
+          });
+
+        return (
+          application.studentId === activeStudent.id ||
+          applicationAccountKey === currentAccountKey ||
+          application.regNumber?.toLowerCase() === activeStudent.regNumber?.toLowerCase() ||
+          application.email?.toLowerCase() === activeStudent.email?.toLowerCase()
+        );
+      })
+      .map((application) => application.id);
+
+    const updatedAccountKey = getUserAccountKey({
+      campus: activeStudent.campus,
+      regNumber: activeStudent.regNumber,
+      email: nextEmail,
+    });
+
+    try {
+      await updateUserProfileForUsers(relatedUserIds, {
+        name: nextName,
+        email: nextEmail,
+        phone: nextPhone,
+        gender: nextGender,
+        allowAdminUpdates: nextAllowAdminUpdates,
+        updatedAt: new Date().toISOString(),
+        updatedBy: 'student',
+        accountKey: updatedAccountKey,
+      });
+
+      await updateApplicationsByIds(relatedApplicationIds, {
+        name: nextName,
+        email: nextEmail,
+        phone: nextPhone,
+        gender: nextGender,
+        allowAdminUpdates: nextAllowAdminUpdates,
+        studentAccountKey: updatedAccountKey,
+      });
+
+      return { success: true, message: 'Your profile was updated successfully.' };
+    } catch (error) {
+      console.error('Failed to update active student profile:', error);
+      return { success: false, message: 'Failed to update your profile in Database.' };
+    }
+  };
+
   const handleDeleteStudent = async (studentId) => {
     const student = users.find((user) => user.id === studentId);
     if (!student) {
@@ -1179,6 +1263,7 @@ function AppContent() {
             latestPasswordResetRequest={latestPasswordResetRequest}
             onRoomApplication={handleRoomApplication}
             onProfileImageUpload={handleProfileImageUpload}
+            onUpdateProfile={handleUpdateActiveStudentProfile}
           />
         ) : (
           <StudentLogin
@@ -1205,6 +1290,8 @@ function AppContent() {
         ) : session?.role === 'admin' ? (
           <AdminPortal
             onLogout={handleLogout}
+            session={session}
+            adminName={session?.name || ADMIN_ACCOUNT.name}
             applications={applications}
             roomInventory={roomInventory}
             registeredUsers={users}

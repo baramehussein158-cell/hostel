@@ -7,6 +7,7 @@ import {
   FaClock,
   FaCreditCard,
   FaMoon,
+  FaSearch,
   FaSun,
 } from 'react-icons/fa';
 import emailjs from '@emailjs/browser';
@@ -23,6 +24,8 @@ import {
   buildProfileImageSrc,
   formatCurrency,
 } from '../data/portalData';
+import { getInitials, getLocalTimeLabel, getTimeGreeting } from '../utils/display';
+import HighlightText from './HighlightText';
 import DashboardSidebar from './DashboardSidebar';
 import Settings from './Settings';
 import './Dashboard.scss';
@@ -70,7 +73,6 @@ const PAYMENT_STATUS_COPY = {
 const Dashboard = ({
   onLogout,
   student,
-  session,
   campus,
   totalRooms,
   occupiedRooms,
@@ -82,7 +84,8 @@ const Dashboard = ({
   studentApplications,
   latestPasswordResetRequest,
   onRoomApplication,
-  onProfileImageUpload,
+  onUpdateProfile,
+  session,
 }) => {
   const campusName = campus === 'RP' ? 'Rwanda Polytechnic' : 'University of Rwanda';
   const { theme, changeTheme } = useTheme();
@@ -90,8 +93,16 @@ const Dashboard = ({
   const [showForm, setShowForm] = useState(false);
   const [viewMode, setViewMode] = useState('status');
   const [notification, setNotification] = useState('');
+  const [topSearch, setTopSearch] = useState('');
   const formRef = useRef(null);
   const statusRef = useRef(null);
+  const displayName = student.name || session?.name || 'Student';
+  const timeGreeting = getTimeGreeting();
+  const currentTimeLabel = getLocalTimeLabel();
+  const studentInitials = getInitials(displayName, 'ST');
+  const studentAvatarSrc = student.profileImageUrl
+    ? buildProfileImageSrc(student.profileImageUrl, student.profileImageUpdatedAt)
+    : '';
   const occupancyRate = totalRooms > 0 ? Math.round((occupiedRooms / totalRooms) * 100) : 0;
   const applicationStatus = latestApplication?.status ?? 'ready';
   const paymentStatus = latestApplication?.paymentStatus ?? 'pending';
@@ -110,8 +121,6 @@ const Dashboard = ({
   const passwordResetStatus = latestPasswordResetRequest?.status ?? '';
   const profileGenderLabel = getGenderLabel(student.gender);
   const profileAccessLabel = student.allowAdminUpdates ? 'Allowed' : 'Not allowed';
-  const sessionStartedLabel = session?.startedAt ? new Date(session.startedAt).toLocaleString() : 'Just started';
-  const sessionTypeLabel = session?.role === 'student' ? 'Student session' : 'Active session';
   const studentQuickLinks = [
     {
       id: 'quick-apply',
@@ -133,7 +142,6 @@ const Dashboard = ({
         setActiveView('application-status');
         setViewMode('status');
         setShowForm(false);
-        statusRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       },
     },
     {
@@ -160,6 +168,116 @@ const Dashboard = ({
       },
     },
   ];
+
+  const dashboardSearchQuery = topSearch.trim().toLowerCase();
+  const dashboardSearchResults = dashboardSearchQuery
+    ? [
+        {
+          id: 'application-status',
+          title: 'Application Status',
+          description: `${statusCopy.title} - ${statusCopy.summary}`,
+          detail: `${APPLICATION_STATUS_LABELS[applicationStatus]} | ${PAYMENT_STATUS_LABELS[paymentStatus]}`,
+          keywords: [
+            'application',
+            'status',
+            'room',
+            'request',
+            applicationStatus,
+            paymentStatus,
+            statusCopy.title,
+            statusCopy.summary,
+          ]
+            .filter(Boolean)
+            .join(' '),
+          onClick: () => {
+            setActiveView('application-status');
+            setViewMode('status');
+            setShowForm(false);
+          },
+        },
+        {
+          id: 'payment-status',
+          title: 'Payment Status',
+          description: `${paymentCopy.title} - ${paymentCopy.summary}`,
+          detail: `${formatCurrency(latestApplication?.amountPaid)} | ${PAYMENT_STATUS_LABELS[paymentStatus]}`,
+          keywords: [
+            'payment',
+            'rent',
+            'verification',
+            paymentStatus,
+            paymentCopy.title,
+            paymentCopy.summary,
+            latestApplication?.paymentReference,
+          ]
+            .filter(Boolean)
+            .join(' '),
+          onClick: () => {
+            setActiveView('payment-status');
+            setViewMode('status');
+            setShowForm(false);
+          },
+        },
+        {
+          id: 'room-info',
+          title: 'Room Information',
+          description: `${remainingRooms} rooms remaining and ${occupancyRate}% occupancy.`,
+          detail: ROOM_TYPE_LABELS[latestApplication?.roomType] || 'Room allocation',
+          keywords: [
+            'room',
+            'rooms',
+            'occupancy',
+            'allocation',
+            'availability',
+            remainingRooms,
+            occupancyRate,
+            latestApplication?.roomType,
+          ]
+            .filter(Boolean)
+            .join(' '),
+          onClick: () => {
+            setActiveView('room-info');
+            setViewMode('status');
+            setShowForm(false);
+          },
+        },
+        {
+          id: 'profile',
+          title: 'Profile',
+          description: `${student.name} | ${student.email} | ${student.regNumber || 'No registration number'}`,
+          detail: `Gender: ${profileGenderLabel}`,
+          keywords: [student.name, student.email, student.regNumber, student.gender, 'profile', 'account']
+            .filter(Boolean)
+            .join(' '),
+          onClick: () => {
+            setActiveView('profile');
+            setShowForm(false);
+          },
+        },
+        {
+          id: 'settings',
+          title: 'Settings',
+          description: 'Update your profile information and appearance preferences.',
+          detail: 'Open account settings',
+          keywords: ['settings', 'profile', 'theme', 'appearance', 'account', 'update']
+            .filter(Boolean)
+            .join(' '),
+          onClick: () => {
+            setActiveView('settings');
+            setShowForm(false);
+          },
+        },
+        ...studentQuickLinks.map((link) => ({
+          id: link.id,
+          title: link.label,
+          description: link.description,
+          detail: 'Quick link',
+          keywords: [link.label, link.description, 'quick', 'link'].join(' '),
+          onClick: link.onClick,
+        })),
+      ].filter((item) =>
+        `${item.title} ${item.description} ${item.detail} ${item.keywords}`.toLowerCase().includes(dashboardSearchQuery)
+      )
+    : [];
 
   // Sidebar stats for students
   const studentSidebarStats = {
@@ -206,18 +324,60 @@ const Dashboard = ({
     }
   };
 
-
-
   return (
     <div className={`dashboard ${theme} campus-${campus.toLowerCase()}`}>
       <header className="dashboard-header">
+        <div className="dashboard-toolbar">
+          <label className="portal-search">
+            <FaSearch />
+            <input
+              type="search"
+              value={topSearch}
+              onChange={(event) => setTopSearch(event.target.value)}
+              placeholder="Search..."
+              aria-label="Search dashboard"
+            />
+          </label>
+
+          <div className="dashboard-toolbar-actions">
+            <button
+              className="theme-toggle"
+              onClick={() => changeTheme(theme === 'light' ? 'dark' : 'light')}
+              aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            >
+              {theme === 'light' ? <FaMoon /> : <FaSun />}
+            </button>
+
+            <div className="header-user-block">
+              <button
+                type="button"
+                className="user-chip"
+                aria-label={`${displayName} profile settings`}
+                onClick={() => {
+                  setActiveView('settings');
+                  setShowForm(false);
+                  setViewMode('status');
+                }}
+              >
+                {studentAvatarSrc ? (
+                  <img src={studentAvatarSrc} alt="" />
+                ) : (
+                  <span>{studentInitials}</span>
+                )}
+              </button>
+              <span className="header-user-subtitle">Signed in as {displayName}</span>
+            </div>
+          </div>
+        </div>
+
         <div className="header-main">
-          <div>
+          <div className="hero-copy">
             <p className="eyebrow">CampusStay Student Portal</p>
-            <h1>Welcome back, {student.name}</h1>
+            <h1>{timeGreeting}, {displayName}</h1>
             <p className="subheading">
               Manage your room application, submit payment details, and track admin decisions from one portal.
             </p>
+            <p className="time-note">Local time: {currentTimeLabel}</p>
             <div className="campus-intro">
               <span className="campus-label">{campusName}</span>
             </div>
@@ -225,41 +385,16 @@ const Dashboard = ({
 
           <div className="profile-block">
             <div className="avatar">
-              {student.name?.charAt(0).toUpperCase()}
+              {studentAvatarSrc ? <img src={studentAvatarSrc} alt="" /> : studentInitials}
             </div>
-            <div className="profile-info">
-              <strong>{student.name}</strong>
+              <div className="profile-info">
+              <strong>{displayName}</strong>
               <span>{student.email}</span>
               <span>{student.regNumber}</span>
               <span>Gender: {profileGenderLabel}</span>
               <span>Admin update access: {profileAccessLabel}</span>
             </div>
           </div>
-
-          <div className="session-summary-card">
-            <div>
-              <span>Session started</span>
-              <strong>{sessionStartedLabel}</strong>
-            </div>
-            <div>
-              <span>Status</span>
-              <strong>{sessionTypeLabel}</strong>
-            </div>
-          </div>
-        </div>
-
-        <div className="header-actions">
-          <button 
-            className="theme-toggle" 
-            onClick={() => changeTheme(theme === 'light' ? 'dark' : 'light')}
-            aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-          >
-            {theme === 'light' ? <FaMoon /> : <FaSun />}
-          </button>
-
-          <button onClick={onLogout} className="logout-btn" aria-label="Destroy session and log out">
-            Logout
-          </button>
         </div>
       </header>
 
@@ -270,6 +405,8 @@ const Dashboard = ({
           stats={studentSidebarStats}
           userType="student"
           quickLinks={studentQuickLinks}
+          searchQuery={topSearch}
+          onLogout={onLogout}
         />
 
         <div className="dashboard-content">
@@ -278,6 +415,43 @@ const Dashboard = ({
             <FaCheckCircle className="toast-icon" />
             <span>{notification}</span>
           </div>
+        )}
+
+        {topSearch.trim() && (
+          <section className="search-results-panel">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">Search results</p>
+                <h2>Matches for "{topSearch.trim()}"</h2>
+              </div>
+              <span className="search-results-count">{dashboardSearchResults.length} result(s)</span>
+            </div>
+
+            {dashboardSearchResults.length === 0 ? (
+              <div className="empty-state">No dashboard matches found. Try a different word like payment, room, or profile.</div>
+            ) : (
+              <div className="search-results-grid">
+                {dashboardSearchResults.map((result) => (
+                  <button
+                    key={result.id}
+                    type="button"
+                    className="search-result-card"
+                    onClick={result.onClick}
+                  >
+                    <span className="search-result-title">
+                      <HighlightText text={result.title} query={topSearch} />
+                    </span>
+                    <span className="search-result-description">
+                      <HighlightText text={result.description} query={topSearch} />
+                    </span>
+                    <span className="search-result-detail">
+                      <HighlightText text={result.detail} query={topSearch} />
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </section>
         )}
 
         {activeView === 'profile' ? (
@@ -487,14 +661,7 @@ const Dashboard = ({
           <Settings
             user={student}
             userType="student"
-            onUpdateProfile={async (data) => {
-              console.log('Updating profile:', data);
-              return { success: true, message: 'Profile updated successfully' };
-            }}
-            onUpdateName={async (name) => {
-              console.log('Updating name:', name);
-              return { success: true, message: 'Name updated successfully' };
-            }}
+            onUpdateProfile={onUpdateProfile}
             onUpdateTheme={async () => {
               return { success: true, message: 'Theme updated successfully' };
             }}

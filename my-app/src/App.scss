@@ -325,12 +325,18 @@ textarea {
 }
 
 .footer-contact a {
-  color: #dbeafe;
+  color: #2563eb !important;
   text-decoration: none;
 }
 
 .footer-contact a:hover {
   text-decoration: underline;
+  color: #1d4ed8 !important;
+}
+
+.site-footer a,
+.site-footer a:visited {
+  color: #2563eb !important;
 }
 
 .footer-bottom {
