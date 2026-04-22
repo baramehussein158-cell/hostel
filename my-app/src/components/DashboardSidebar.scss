@@ -3,9 +3,9 @@
   flex-direction: column;
   gap: 1.5rem;
   padding: 1.5rem;
-  background: var(--bg-secondary);
+  background: var(--theme-sidebarBg);
   border-radius: 0.5rem;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--theme-sidebarBorder);
   height: fit-content;
   position: sticky;
   top: 1.5rem;
@@ -14,6 +14,13 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+
+    .sidebar-header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
 
     h3 {
       margin: 0;
@@ -29,9 +36,72 @@
     }
   }
 
+  .sidebar-quick-links {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .sidebar-section-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  .sidebar-quick-link-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(3.1rem, 1fr));
+    gap: 0.75rem;
+  }
+
+  .quick-link-card {
+    all: unset;
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1 / 1;
+    padding: 0.75rem;
+    border-radius: 0.9rem;
+    background: var(--theme-sidebarSurface);
+    border: 1px solid var(--theme-sidebarBorder);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    min-width: 0;
+
+    &:hover {
+      background: var(--theme-sidebarHover);
+      border-color: var(--accent-color);
+      transform: translateY(-1px);
+    }
+
+    .quick-link-icon {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 0.6rem;
+      display: grid;
+      place-items: center;
+      background: rgba(59, 130, 246, 0.12);
+      color: var(--accent-color);
+      font-size: 1rem;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  }
+
   .sidebar-nav-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
     gap: 1rem;
     list-style: none;
     padding: 0;
@@ -40,21 +110,22 @@
     .nav-card {
       all: unset;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       gap: 0.75rem;
       padding: 1rem;
-      background: var(--bg-primary);
+      background: var(--theme-sidebarSurface);
       border: 2px solid transparent;
       border-radius: 0.5rem;
       cursor: pointer;
       transition: all 0.3s ease;
-      text-align: center;
+      text-align: left;
+      min-width: 0;
 
       &:hover {
-        background: var(--bg-tertiary);
-        border-color: var(--accent-color);
+        background: var(--theme-sidebarHover);
+        border-color: var(--theme-accent);
         transform: translateY(-2px);
       }
 
@@ -85,6 +156,7 @@
         flex-direction: column;
         gap: 0.25rem;
         width: 100%;
+        min-width: 0;
       }
 
       .nav-card-label {
@@ -102,6 +174,7 @@
       .nav-card-description {
         font-size: 0.75rem;
         color: var(--text-secondary);
+        word-break: break-word;
       }
 
       &.active .nav-card-count {
@@ -115,15 +188,23 @@
     position: relative;
     top: auto;
     width: 100%;
-
-    .sidebar-nav-grid {
-      grid-template-columns: repeat(4, 1fr);
-    }
   }
 
   @media (max-width: 768px) {
+    .sidebar-quick-links {
+      gap: 0.7rem;
+    }
+
+    .quick-link-card {
+      padding: 0.7rem;
+
+      .quick-link-icon {
+        width: 1.85rem;
+        height: 1.85rem;
+      }
+    }
+
     .sidebar-nav-grid {
-      grid-template-columns: repeat(3, 1fr);
       gap: 0.75rem;
 
       .nav-card {
@@ -142,7 +223,7 @@
         }
 
         .nav-card-description {
-          display: none;
+          font-size: 0.7rem;
         }
       }
     }
@@ -151,8 +232,11 @@
   @media (max-width: 480px) {
     padding: 1rem;
 
+    .quick-link-card {
+      padding: 0.6rem;
+    }
+
     .sidebar-nav-grid {
-      grid-template-columns: repeat(2, 1fr);
       gap: 0.5rem;
 
       .nav-card {
@@ -170,30 +254,4 @@
   }
 }
 
-/* Dark theme support */
-.dark .dashboard-sidebar {
-  background: var(--bg-secondary);
-  border-color: rgba(255, 255, 255, 0.1);
-
-  .nav-card {
-    background: var(--bg-primary);
-
-    &:hover {
-      background: var(--bg-tertiary);
-    }
-  }
-}
-
-/* Light theme support */
-.light .dashboard-sidebar {
-  background: #1e293b;
-  border-color: rgba(148, 163, 184, 0.34);
-
-  .nav-card {
-    background: rgba(30, 41, 59, 0.9);
-
-    &:hover {
-      background: rgba(30, 41, 59, 1);
-    }
-  }
-}
+/* Theme colors now handled by CSS custom properties */

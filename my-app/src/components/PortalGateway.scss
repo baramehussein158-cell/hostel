@@ -1,0 +1,336 @@
+.portal-gateway {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  padding: 2rem 1rem;
+
+  &.light {
+    background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+    color: #0f172a;
+  }
+
+  &.dark {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #e8ecf1;
+  }
+}
+
+.gateway-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 2rem 1rem;
+
+  h1 {
+    font-size: 2.5rem;
+    margin: 0 0 1rem 0;
+    font-weight: 700;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  p {
+    font-size: 1.125rem;
+    margin: 0;
+    opacity: 0.8;
+  }
+
+  @media (max-width: 768px) {
+    margin-bottom: 2rem;
+    padding: 1rem;
+
+    h1 {
+      font-size: 1.75rem;
+    }
+
+    p {
+      font-size: 1rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    margin-bottom: 1.5rem;
+    padding: 1rem 0.5rem;
+
+    h1 {
+      font-size: 1.5rem;
+    }
+  }
+}
+
+.gateway-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.gateway-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  width: 100%;
+  max-width: 900px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 480px) {
+    gap: 1rem;
+  }
+}
+
+.portal-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.1;
+    transition: opacity 0.3s ease;
+  }
+
+  &.blue {
+    border-color: #3b82f6;
+    
+    &::before {
+      background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+    }
+
+    &:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
+    }
+  }
+
+  &.red {
+    border-color: #ef4444;
+    
+    &::before {
+      background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%);
+    }
+
+    &:hover {
+      border-color: #ef4444;
+      box-shadow: 0 8px 32px rgba(239, 68, 68, 0.3);
+    }
+  }
+
+  &.hovered {
+    transform: translateY(-8px);
+  }
+
+  @media (max-width: 480px) {
+    padding: 1.5rem;
+  }
+}
+
+.card-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+
+  .portal-card.hovered & {
+    font-size: 4.5rem;
+    opacity: 1;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.card-content {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+.card-content h2 {
+  font-size: 1.5rem;
+  margin: 0 0 1rem 0;
+  font-weight: 600;
+}
+
+.card-description {
+  font-size: 1rem;
+  margin: 0 0 1.5rem 0;
+  opacity: 0.85;
+  line-height: 1.5;
+}
+
+.card-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.feature-tag {
+  display: inline-block;
+  padding: 0.375rem 0.75rem;
+  background: rgba(59, 130, 246, 0.2);
+  color: inherit;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+
+  .portal-card.red & {
+    background: rgba(239, 68, 68, 0.2);
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+.card-action {
+  position: relative;
+  z-index: 1;
+  margin-top: 1.5rem;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+
+  .portal-card.hovered & {
+    opacity: 1;
+    transform: translateX(4px);
+  }
+
+  .arrow-icon {
+    font-size: 1.5rem;
+  }
+}
+
+.gateway-footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  opacity: 0.7;
+  font-size: 0.975rem;
+
+  @media (max-width: 480px) {
+    padding: 1rem 0.5rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+  .portal-gateway {
+    padding: 1.5rem 1rem;
+  }
+
+  .gateway-header {
+    margin-bottom: 2rem;
+
+    h1 {
+      font-size: 2rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .portal-gateway {
+    padding: 1rem;
+  }
+
+  .gateway-header {
+    margin-bottom: 1.5rem;
+    padding: 1rem 0.5rem;
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    p {
+      font-size: 0.95rem;
+    }
+  }
+
+  .gateway-container {
+    padding: 0.5rem;
+  }
+
+  .gateway-options {
+    gap: 0.75rem;
+  }
+
+  .portal-card {
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+
+  .card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+
+    .portal-card.hovered & {
+      font-size: 2.75rem;
+    }
+  }
+
+  .card-content h2 {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .card-description {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  .card-features {
+    gap: 0.375rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .card-action {
+    margin-top: 1rem;
+
+    .arrow-icon {
+      font-size: 1.25rem;
+    }
+  }
+
+  .gateway-footer {
+    padding: 1rem 0.5rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Tablet optimization */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .gateway-options {
+    gap: 1.5rem;
+  }
+
+  .portal-card {
+    padding: 1.75rem;
+  }
+}

@@ -3,6 +3,8 @@ import { FaGraduationCap, FaUserShield } from 'react-icons/fa';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import AdminPortal from './components/AdminPortal';
+import PortalGateway from './components/PortalGateway';
+import StudentLogin from './components/StudentLogin';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import {
   ADMIN_ACCOUNT,
@@ -37,6 +39,7 @@ import {
   updateUserPasswordForUsers,
   uploadProfileImage,
 } from './services/portalRepository';
+import sessionManager from './utils/sessionManager';
 import './App.scss';
 
 const APPLICATION_DEADLINE = new Date('2026-05-15T23:59:59');
@@ -135,17 +138,50 @@ function AppContent() {
   const [applications, setApplications] = useState([]);
   const [passwordResetRequests, setPasswordResetRequests] = useState([]);
   const [roomInventory, setRoomInventory] = useState([]);
-  const [session, setSession] = useState(() => readStoredValue(STORAGE_KEYS.session, null));
+  const [session, setSession] = useState(() => {
+    try {
+      const stored = sessionStorage.getItem(STORAGE_KEYS.session);
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
   const [isSyncing, setIsSyncing] = useState(true);
   const [syncError, setSyncError] = useState('');
+  const [selectedPortal, setSelectedPortal] = useState(() => readStoredValue('selected-portal', null));
 
   useEffect(() => {
     if (session) {
-      localStorage.setItem(STORAGE_KEYS.session, JSON.stringify(session));
+      sessionStorage.setItem(STORAGE_KEYS.session, JSON.stringify(session));
+      sessionManager.startSession();
+    }
+
+    return () => {
+      sessionManager.destroySession();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (session) {
+      sessionStorage.setItem(STORAGE_KEYS.session, JSON.stringify(session));
       return;
     }
 
-    localStorage.removeItem(STORAGE_KEYS.session);
+    sessionStorage.removeItem(STORAGE_KEYS.session);
+  }, [session]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      if (session) {
+        handleLogout();
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
   }, [session]);
 
   useEffect(() => {
@@ -298,6 +334,13 @@ function AppContent() {
     }
   }, [activeStudent, isSyncing, session]);
 
+  const handleLogout = () => {
+    sessionManager.destroySession();
+    setSession(null);
+    setSelectedPortal(null);
+    localStorage.removeItem('selected-portal');
+  };
+
   function findStudentByIdentity(identity) {
     const normalizedEmail = identity.email?.trim().toLowerCase() ?? '';
     const normalizedRegNumber = identity.regNumber?.trim().toLowerCase() ?? '';
@@ -379,7 +422,9 @@ function AppContent() {
       role: 'student',
       userId: matchedUser.id,
       accountKey: getUserAccountKey(matchedUser),
+      startedAt: new Date().toISOString(),
     });
+    sessionManager.startSession();
 
     return { success: true };
   };
@@ -396,7 +441,9 @@ function AppContent() {
     setSession({
       role: 'admin',
       email: ADMIN_ACCOUNT.email,
+      startedAt: new Date().toISOString(),
     });
+    sessionManager.startSession();
 
     return { success: true };
   };
@@ -1046,7 +1093,14 @@ function AppContent() {
     }
   };
 
-  const handleLogout = () => {
+  const handlePortalSelect = (portal) => {
+    setSelectedPortal(portal);
+    localStorage.setItem('selected-portal', JSON.stringify(portal));
+  };
+
+  const handleBackFromPortal = () => {
+    setSelectedPortal(null);
+    localStorage.removeItem('selected-portal');
     setSession(null);
   };
 
@@ -1097,37 +1151,84 @@ function AppContent() {
 
       {syncError && <div className="sync-banner">{syncError}</div>}
 
-      {session?.role === 'admin' ? (
-        <AdminPortal
-          onLogout={handleLogout}
-          applications={applications}
-          roomInventory={roomInventory}
-          registeredUsers={users}
-          passwordResetRequests={passwordResetRequests}
-          onUpdateRoom={handleUpdateRoom}
-          onUpdateApplication={handleUpdateApplication}
-          onResetStudentPassword={handleResetStudentPassword}
-          onUpdateStudent={handleUpdateStudent}
-          onDeleteStudent={handleDeleteStudent}
-          onReviewPasswordResetRequest={handlePasswordResetReview}
-        />
-      ) : session?.role === 'student' && activeStudent ? (
-        <Dashboard
-          onLogout={handleLogout}
-          student={activeStudent}
-          campus={activeStudent.campus}
-          totalRooms={totalRooms}
-          occupiedRooms={occupiedRooms}
-          remainingRooms={remainingRooms}
-          roomClosed={roomClosed}
-          pastDeadline={pastDeadline}
-          deadline={APPLICATION_DEADLINE}
-          latestApplication={latestStudentApplication}
-          studentApplications={studentApplications}
-          latestPasswordResetRequest={latestPasswordResetRequest}
-          onRoomApplication={handleRoomApplication}
-          onProfileImageUpload={handleProfileImageUpload}
-        />
+      {!selectedPortal ? (
+        <PortalGateway onSelectPortal={handlePortalSelect} />
+      ) : selectedPortal === 'student' ? (
+        !session ? (
+          <StudentLogin
+            onStudentLogin={handleStudentLogin}
+            onRegister={handleRegister}
+            onBack={handleBackFromPortal}
+            registeredUsersCount={users.length}
+            isSyncing={isSyncing}
+          />
+        ) : session?.role === 'student' && activeStudent ? (
+          <Dashboard
+            onLogout={handleLogout}
+            student={activeStudent}
+            campus={activeStudent.campus}
+            session={session}
+            totalRooms={totalRooms}
+            occupiedRooms={occupiedRooms}
+            remainingRooms={remainingRooms}
+            roomClosed={roomClosed}
+            pastDeadline={pastDeadline}
+            deadline={APPLICATION_DEADLINE}
+            latestApplication={latestStudentApplication}
+            studentApplications={studentApplications}
+            latestPasswordResetRequest={latestPasswordResetRequest}
+            onRoomApplication={handleRoomApplication}
+            onProfileImageUpload={handleProfileImageUpload}
+          />
+        ) : (
+          <StudentLogin
+            onStudentLogin={handleStudentLogin}
+            onRegister={handleRegister}
+            onBack={handleBackFromPortal}
+            registeredUsersCount={users.length}
+            isSyncing={isSyncing}
+          />
+        )
+      ) : selectedPortal === 'admin' ? (
+        !session ? (
+          <Login
+            onStudentLogin={handleStudentLogin}
+            onAdminLogin={handleAdminLogin}
+            onRegister={handleRegister}
+            onPasswordResetRequest={handlePasswordResetRequest}
+            onPasswordResetConfirm={handlePasswordResetConfirm}
+            registeredUsersCount={users.length}
+            isSyncing={isSyncing}
+            isAdminMode={true}
+            onBack={handleBackFromPortal}
+          />
+        ) : session?.role === 'admin' ? (
+          <AdminPortal
+            onLogout={handleLogout}
+            applications={applications}
+            roomInventory={roomInventory}
+            registeredUsers={users}
+            passwordResetRequests={passwordResetRequests}
+            onUpdateRoom={handleUpdateRoom}
+            onUpdateApplication={handleUpdateApplication}
+            onResetStudentPassword={handleResetStudentPassword}
+            onUpdateStudent={handleUpdateStudent}
+            onDeleteStudent={handleDeleteStudent}
+            onReviewPasswordResetRequest={handlePasswordResetReview}
+          />
+        ) : (
+          <Login
+            onStudentLogin={handleStudentLogin}
+            onAdminLogin={handleAdminLogin}
+            onRegister={handleRegister}
+            onPasswordResetRequest={handlePasswordResetRequest}
+            onPasswordResetConfirm={handlePasswordResetConfirm}
+            registeredUsersCount={users.length}
+            isSyncing={isSyncing}
+            isAdminMode={true}
+            onBack={handleBackFromPortal}
+          />
+        )
       ) : (
         <Login
           onStudentLogin={handleStudentLogin}

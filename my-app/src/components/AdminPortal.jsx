@@ -6,7 +6,9 @@ import {
   FaClipboardList,
   FaCreditCard,
   FaKey,
+  FaMoon,
   FaSearch,
+  FaSun,
   FaUsers,
 } from 'react-icons/fa';
 import { useTheme } from '../contexts/ThemeContext';
@@ -41,7 +43,7 @@ const AdminPortal = ({
   onDeleteStudent,
   onReviewPasswordResetRequest,
 }) => {
-  const { theme } = useTheme();
+  const { theme, changeTheme } = useTheme();
   const [activeView, setActiveView] = useState('overview');
   const [passwordDrafts, setPasswordDrafts] = useState({});
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -383,6 +385,14 @@ const AdminPortal = ({
         </div>
 
         <div className="admin-actions">
+          <button 
+            className="theme-toggle" 
+            onClick={() => changeTheme(theme === 'light' ? 'dark' : 'light')}
+            aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+          >
+            {theme === 'light' ? <FaMoon /> : <FaSun />}
+          </button>
+
           <button onClick={onLogout} className="logout-btn">
             Logout
           </button>
@@ -397,7 +407,7 @@ const AdminPortal = ({
           userType="admin"
         />
 
-      <div className="admin-main-content">
+        <div className="admin-main-content">
         {activeView === 'overview' && (
           <>
       <section className="admin-campus-strip" aria-label="Campus room summary">
@@ -1248,7 +1258,7 @@ const AdminPortal = ({
           />
         )}
       </div>
-      </div>
+        </div>
       </div>
     </div>
   );

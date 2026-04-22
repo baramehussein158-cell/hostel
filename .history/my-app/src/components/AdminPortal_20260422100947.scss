@@ -1,0 +1,1202 @@
+.admin-portal {
+  min-height: 100vh;
+  padding-bottom: 3rem;
+}
+
+.admin-layout-with-sidebar {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.hamburger-menu {
+  display: none;
+  flex-direction: column;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  gap: 0.4rem;
+  z-index: 101;
+}
+
+.hamburger-menu span {
+  width: 24px;
+  height: 2px;
+  background: var(--theme-text);
+  transition: all 0.3s ease;
+  display: block;
+}
+
+.hamburger-menu.active span:nth-child(1) {
+  transform: rotate(45deg) translate(8px, 8px);
+}
+
+.hamburger-menu.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-menu.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -7px);
+}
+
+.dashboard-sidebar-mobile {
+  display: none;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+}
+
+.dashboard-sidebar-mobile.active {
+  display: block;
+}
+
+.dashboard-sidebar-mobile .dashboard-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 280px;
+  height: 100vh;
+  margin: 0;
+  padding: 2rem 1.5rem;
+  overflow-y: auto;
+  border-radius: 0;
+  border: none;
+  top: 60px;
+  z-index: 100;
+}
+
+.admin-main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.admin-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.admin-portal.light {
+  background: linear-gradient(135deg, #1a2332 0%, #253447 55%, #2d3f52 100%);
+  color: #e8ecf1;
+}
+
+.admin-portal.dark {
+  background: linear-gradient(135deg, #0f172a 0%, #16213c 55%, #1f2937 100%);
+  color: #eef2ff;
+}
+
+.admin-header,
+.admin-content {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.admin-header {
+  padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.admin-campus-strip {
+  max-width: 1280px;
+  margin: 0 auto 1.5rem;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.admin-campus-card {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1.35rem;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 22px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16);
+}
+
+.admin-campus-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-campus-card h2 {
+  margin: 0.2rem 0 0;
+  font-size: 1.55rem;
+}
+
+.campus-total-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 0.9rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #dbeafe;
+  background: rgba(59, 130, 246, 0.18);
+  border: 1px solid rgba(96, 165, 250, 0.22);
+}
+
+.admin-campus-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.admin-campus-metrics div {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-campus-metrics span {
+  font-size: 0.78rem;
+  opacity: 0.82;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.admin-campus-metrics strong {
+  font-size: 1.05rem;
+}
+
+.admin-campus-card p {
+  margin: 0;
+  line-height: 1.6;
+  opacity: 0.82;
+}
+
+.admin-image-gallery {
+  max-width: 1280px;
+  margin: 0 auto 1.5rem;
+  padding: 0 2rem;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.admin-image-carousel {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-image-frame {
+  overflow: hidden;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.96));
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16);
+}
+
+.admin-image-track {
+  display: flex;
+  width: 100%;
+  transition: transform 0.95s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.admin-image-slide {
+  flex: 0 0 100%;
+  margin: 0;
+  overflow: hidden;
+  display: block;
+}
+
+.admin-image-slide img {
+  display: block;
+  width: 100%;
+  height: min(58vw, 460px);
+  object-fit: cover;
+  filter: saturate(1.08) contrast(1.06) brightness(1.03);
+  transform: scale(1.01);
+}
+
+.admin-image-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-image-arrow {
+  min-height: 44px;
+  padding: 0 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+  font-weight: 700;
+}
+
+.admin-image-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex: 1 1 auto;
+}
+
+.admin-image-dots button {
+  width: 0.8rem;
+  height: 0.8rem;
+  border: none;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.4);
+  transition: transform 0.2s ease, width 0.2s ease, background 0.2s ease;
+}
+
+.admin-image-dots button.active {
+  width: 2rem;
+  background: linear-gradient(90deg, #60a5fa, #4f8cff);
+}
+
+.admin-image-dots button:hover {
+  transform: scale(1.08);
+}
+
+.admin-copy {
+  max-width: 720px;
+  line-height: 1.75;
+  opacity: 0.85;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-content {
+  padding: 0 2rem 4rem;
+}
+
+.admin-card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 22px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16);
+  padding: 1.5rem;
+}
+
+.admin-portal.light .admin-card,
+.admin-portal.light .admin-campus-card,
+.admin-portal.light .admin-image-frame,
+.admin-portal.light .campus-summary-card,
+.admin-portal.light .pipeline-list div,
+.admin-portal.light .room-row,
+.admin-portal.light .application-row,
+.admin-portal.light .student-row,
+.admin-portal.light .empty-state {
+  background: rgba(30, 41, 59, 0.76);
+  border-color: rgba(148, 163, 184, 0.34);
+}
+
+.admin-portal.light .admin-card,
+.admin-portal.light .admin-campus-card,
+.admin-portal.light .admin-image-frame,
+.admin-portal.light .campus-summary-card,
+.admin-portal.light .pipeline-list div,
+.admin-portal.light .room-row,
+.admin-portal.light .application-row,
+.admin-portal.light .student-row,
+.admin-portal.light .empty-state,
+.admin-portal.light .payment-inbox-row,
+.admin-portal.light .permission-badge-card,
+.admin-portal.light .password-reset-row,
+.admin-portal.light .password-reset-card {
+  color: #e8ecf1;
+}
+
+.admin-portal.light .admin-copy,
+.admin-portal.light .admin-campus-card p,
+.admin-portal.light .campus-summary-card p,
+.admin-portal.light .payment-inbox-row span,
+.admin-portal.light .payment-inbox-row p,
+.admin-portal.light .password-reset-meta,
+.admin-portal.light .password-reset-dates,
+.admin-portal.light .password-reset-reason,
+.admin-portal.light .student-row,
+.admin-portal.light .application-meta,
+.admin-portal.light .application-main p,
+.admin-portal.light .room-row-main span,
+.admin-portal.light .student-meta,
+.admin-portal.light .empty-state {
+  color: #cbd5e1;
+  opacity: 1;
+}
+
+.admin-portal.light .campus-total-pill {
+  background: rgba(59, 130, 246, 0.22);
+  border-color: rgba(59, 130, 246, 0.34);
+  color: #93c5fd;
+}
+
+.admin-portal.light .admin-campus-metrics div,
+.admin-portal.light .campus-summary-metrics div {
+  background: rgba(30, 41, 59, 0.96);
+  border-color: rgba(148, 163, 184, 0.34);
+}
+
+.admin-portal.light .room-controls input,
+.admin-portal.light .room-controls select,
+.admin-portal.light .applicant-filters select,
+.admin-portal.light .application-controls input,
+.admin-portal.light .application-controls textarea,
+.admin-portal.light .student-search input,
+.admin-portal.light .student-tools select,
+.admin-portal.light .password-reset-group input,
+.admin-portal.light .student-editor-grid input,
+.admin-portal.light .student-editor-grid select,
+.admin-portal.light .student-picker select {
+  background: rgba(255, 255, 255, 0.82);
+  border-color: rgba(148, 163, 184, 0.3);
+  color: #172033;
+}
+
+.admin-portal.light .status-pill.pending,
+.admin-portal.light .waitlist {
+  background: rgba(254, 243, 199, 0.98);
+  color: #a16207;
+}
+
+.admin-portal.light .status-pill.approved,
+.admin-portal.light .approve {
+  background: rgba(220, 252, 231, 0.98);
+  color: #166534;
+}
+
+.admin-portal.light .status-pill.rejected,
+.admin-portal.light .reject {
+  background: rgba(220, 38, 38, 0.18);
+  color: #7f1d1d;
+}
+
+.admin-portal.light .status-pill.waitlisted {
+  background: rgba(219, 234, 254, 0.98);
+  color: #1d4ed8;
+}
+
+.admin-portal.light .status-pill.used {
+  background: rgba(207, 250, 254, 0.98);
+  color: #0369a1;
+}
+
+.admin-portal.light .payment-pill.pending,
+.admin-portal.light .payment-reject {
+  background: rgba(254, 243, 199, 0.98);
+  color: #a16207;
+}
+
+.admin-portal.light .payment-pill.verified,
+.admin-portal.light .verify {
+  background: rgba(220, 252, 231, 0.98);
+  color: #166534;
+}
+
+.admin-portal.light .payment-pill.rejected {
+  background: rgba(220, 38, 38, 0.18);
+  color: #7f1d1d;
+}
+
+.admin-portal.light .payment-inbox-row,
+.admin-portal.light .permission-badge-card {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(148, 163, 184, 0.24);
+}
+
+.admin-portal.light .password-reset-row,
+.admin-portal.light .password-reset-card,
+.admin-portal.light .payment-inbox-row {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(148, 163, 184, 0.24);
+}
+
+.admin-portal.light .delete-button {
+  background: rgba(220, 38, 38, 0.16);
+  color: #7f1d1d;
+}
+
+.admin-portal.light .empty-state {
+  color: #475569;
+}
+
+.admin-portal.light .admin-image-arrow {
+  background: rgba(255, 255, 255, 0.92);
+  color: #172033;
+  border-color: rgba(148, 163, 184, 0.26);
+}
+
+.admin-portal.light .admin-image-arrow:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(37, 99, 235, 0.28);
+}
+
+.admin-portal.light .admin-image-dots button {
+  background: rgba(148, 163, 184, 0.42);
+}
+
+.admin-portal.light .admin-image-dots button.active {
+  background: linear-gradient(90deg, #2563eb, #4f8cff);
+}
+
+.admin-portal.light .section-heading h2,
+.admin-portal.light .admin-campus-card h2,
+.admin-portal.light .admin-card h2,
+.admin-portal.light .admin-card h3,
+.admin-portal.light .stat-card strong {
+  color: #0f172a;
+}
+
+.admin-flash {
+  margin-bottom: 1.5rem;
+  border-radius: 18px;
+  padding: 1rem 1.2rem;
+  font-weight: 600;
+}
+
+.admin-flash.success {
+  background: rgba(34, 197, 94, 0.14);
+  border: 1px solid rgba(34, 197, 94, 0.24);
+}
+
+.admin-flash.error {
+  background: rgba(248, 113, 113, 0.14);
+  border: 1px solid rgba(248, 113, 113, 0.24);
+}
+
+.admin-stat-grid,
+.admin-report-grid,
+.admin-layout,
+.campus-summary-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.admin-stat-grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin-bottom: 1.5rem;
+}
+
+.admin-report-grid {
+  grid-template-columns: 1.2fr 0.8fr;
+  margin-bottom: 1.5rem;
+}
+
+.admin-layout {
+  grid-template-columns: 0.9fr 1.1fr;
+}
+
+.stat-card {
+  display: grid;
+  gap: 0.5rem;
+  text-align: left;
+}
+
+.stat-icon,
+.section-icon {
+  font-size: 1.35rem;
+  color: #60a5fa;
+}
+
+.stat-card strong {
+  font-size: 1.8rem;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-size: 1.45rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  opacity: 0.75;
+}
+
+.campus-summary-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.campus-summary-card,
+.pipeline-list div,
+.room-row,
+.application-row {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+}
+
+.campus-summary-card {
+  padding: 1rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.campus-summary-card strong {
+  font-size: 1.1rem;
+}
+
+.campus-summary-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.campus-summary-metrics div {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.85rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.campus-summary-metrics span {
+  font-size: 0.8rem;
+  opacity: 0.82;
+}
+
+.campus-summary-metrics strong {
+  font-size: 1.05rem;
+}
+
+.campus-summary-card p {
+  margin: 0;
+  line-height: 1.6;
+  opacity: 0.8;
+}
+
+.pipeline-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.pipeline-list div {
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.room-list,
+.application-list,
+.student-directory-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.payment-inbox-card {
+  margin-bottom: 1.5rem;
+}
+
+.password-reset-card {
+  margin-bottom: 1.5rem;
+}
+
+.payment-inbox-list {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.payment-inbox-row {
+  display: grid;
+  gap: 0.45rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.payment-inbox-row > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.payment-inbox-row span,
+.payment-inbox-row p {
+  margin: 0;
+  opacity: 0.82;
+}
+
+.password-reset-list {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.password-reset-row {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.password-reset-main {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.password-reset-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.password-reset-meta,
+.password-reset-dates {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  opacity: 0.82;
+  font-size: 0.94rem;
+}
+
+.password-reset-reason {
+  margin: 0;
+  opacity: 0.82;
+}
+
+.password-reset-code {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.password-reset-code span {
+  opacity: 0.72;
+  font-size: 0.9rem;
+}
+
+.password-reset-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.student-editor-card {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.student-picker {
+  display: grid;
+  gap: 0.45rem;
+  min-width: 240px;
+}
+
+.student-picker label {
+  font-weight: 600;
+}
+
+.student-picker select {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+}
+
+.student-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.student-editor-grid label {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.student-editor-grid span {
+  font-weight: 600;
+}
+
+.student-editor-grid input,
+.student-editor-grid select {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+}
+
+.permission-badge-card {
+  display: grid;
+  align-content: start;
+  gap: 0.45rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.permission-badge-card span {
+  opacity: 0.75;
+  font-size: 0.92rem;
+}
+
+.student-lock-note {
+  margin-top: 0.25rem;
+}
+
+.student-editor-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.delete-button {
+  border: none;
+  cursor: pointer;
+  border-radius: 14px;
+  padding: 0.85rem 1.05rem;
+  font-weight: 700;
+  background: rgba(220, 38, 38, 0.22);
+  color: #fff;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.room-row,
+.application-row,
+.student-row {
+  padding: 1rem;
+}
+
+.room-row {
+  display: grid;
+  gap: 1rem;
+}
+
+.room-row-main {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.room-row-main span,
+.application-meta,
+.application-main p {
+  opacity: 0.8;
+}
+
+.room-controls,
+.applicant-filters,
+.application-controls,
+.application-actions,
+.student-tools,
+.student-controls {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.room-controls label {
+  display: grid;
+  gap: 0.4rem;
+  flex: 1 1 160px;
+}
+
+.room-controls input,
+.room-controls select,
+.applicant-filters select,
+.application-controls input,
+.application-controls textarea,
+.student-search input,
+.student-tools select,
+.password-reset-group input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+}
+
+.action-button,
+.application-actions button {
+  border: none;
+  cursor: pointer;
+  border-radius: 14px;
+  padding: 0.85rem 1.05rem;
+  font-weight: 700;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.action-button {
+  background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%);
+  color: #fff;
+}
+
+.application-main {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.applicant-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.applicant-profile span {
+  display: block;
+  opacity: 0.78;
+  font-size: 0.92rem;
+  margin-top: 0.15rem;
+}
+
+.applicant-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.applicant-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.application-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.status-pill-stack {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.application-meta {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  font-size: 0.95rem;
+}
+
+.application-main p {
+  margin: 0;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.status-pill.pending,
+.waitlist {
+  background: rgba(250, 204, 21, 0.18);
+  color: #4b5563;
+}
+
+.status-pill.approved,
+.approve {
+  background: rgba(34, 197, 94, 0.16);
+  color: #ecfdf5;
+}
+
+.status-pill.rejected,
+.reject {
+  background: rgba(248, 113, 113, 0.18);
+  color: #fee2e2;
+}
+
+.status-pill.waitlisted {
+  background: rgba(251, 191, 36, 0.18);
+  color: #fef3c7;
+}
+
+.status-pill.used {
+  background: rgba(14, 165, 233, 0.16);
+  color: #e0f2fe;
+}
+
+.payment-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.payment-pill.pending,
+.payment-reject {
+  background: rgba(250, 204, 21, 0.18);
+  color: #fef3c7;
+}
+
+.payment-pill.verified,
+.verify {
+  background: rgba(34, 197, 94, 0.16);
+  color: #ecfdf5;
+}
+
+.payment-pill.rejected {
+  background: rgba(248, 113, 113, 0.18);
+  color: #fee2e2;
+}
+
+.application-actions button {
+  color: inherit;
+}
+
+.payment-summary-grid,
+.student-meta {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  font-size: 0.94rem;
+  opacity: 0.82;
+}
+
+.notes-field {
+  min-height: 94px;
+  resize: vertical;
+}
+
+.payment-actions {
+  padding-top: 0.1rem;
+}
+
+.student-directory-section {
+  margin-top: 1.5rem;
+}
+
+.student-tools {
+  align-items: center;
+}
+
+.student-search {
+  min-width: 260px;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border-radius: 14px;
+  padding: 0 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.student-search svg {
+  opacity: 0.7;
+}
+
+.student-search input {
+  border: none;
+  background: transparent;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.student-search input:focus {
+  outline: none;
+}
+
+.student-row {
+  display: grid;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+}
+
+.student-main {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.student-controls {
+  align-items: end;
+}
+
+.password-reset-group {
+  display: grid;
+  gap: 0.45rem;
+  flex: 1 1 280px;
+}
+
+.password-reset-group span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 600;
+}
+
+.empty-state {
+  border-radius: 18px;
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.76);
+}
+
+.application-actions button:hover,
+.action-button:hover {
+  transform: translateY(-1px);
+  opacity: 0.95;
+}
+
+.application-actions button:disabled,
+.action-button:disabled,
+.delete-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 1100px) {
+  .admin-stat-grid,
+  .admin-report-grid,
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-layout-with-sidebar {
+    grid-template-columns: 1fr;
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .dashboard-sidebar {
+    display: none !important;
+  }
+
+  .hamburger-menu {
+    display: flex;
+  }
+
+  .dashboard-sidebar-mobile.active {
+    display: block;
+  }
+}
+
+@media (max-width: 760px) {
+  .admin-header,
+  .admin-content {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .admin-campus-strip {
+    padding: 0 1rem;
+    grid-template-columns: 1fr;
+  }
+
+  .admin-image-gallery {
+    padding: 0 1rem;
+  }
+
+  .admin-stat-grid,
+  .campus-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-image-slide img {
+    height: min(64vw, 380px);
+  }
+
+  .campus-summary-metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .application-heading {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .status-pill-stack {
+    justify-content: flex-start;
+  }
+
+  .student-search {
+    min-width: 100%;
+  }
+
+  .student-editor-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .password-reset-heading {
+    align-items: flex-start;
+  }
+
+  .admin-campus-card-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-campus-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-image-controls {
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-image-track {
+    transition: none;
+  }
+
+  .admin-image-dots button {
+    transition: none;
+  }
+}

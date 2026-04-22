@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import {
   FaUsers,
   FaBed,
@@ -13,7 +13,7 @@ import {
 } from 'react-icons/fa';
 import './DashboardSidebar.scss';
 
-const DashboardSidebar = ({ activeView, onViewChange, stats, userType = 'admin' }) => {
+const DashboardSidebar = ({ activeView, onViewChange, stats, userType = 'admin', quickLinks = [] }) => {
   const adminCards = [
     {
       id: 'overview',
@@ -83,49 +83,93 @@ const DashboardSidebar = ({ activeView, onViewChange, stats, userType = 'admin' 
   const studentCards = [
     {
       id: 'application-status',
-      label: 'Application',
+      label: 'Applied Hostel',
       icon: FaClipboardList,
       count: stats.totalApplications || 0,
-      description: 'Your applications',
+      description: 'Room requests',
     },
     {
       id: 'payment-status',
-      label: 'Payment',
+      label: 'Paid Student',
       icon: FaCreditCard,
-      count: stats.paymentsPending || 0,
-      description: 'Payment status',
+      count: stats.verifiedPayments || 0,
+      description: 'Verified payments',
     },
     {
       id: 'room-info',
-      label: 'Room Info',
+      label: 'Room Status',
       icon: FaBed,
       count: stats.roomsAvailable || 0,
-      description: 'Available rooms',
+      description: 'Room availability',
     },
     {
       id: 'profile',
-      label: 'Profile',
+      label: 'Registered Student',
       icon: FaUsers,
-      count: 0,
-      description: 'Your profile',
+      count: 1,
+      description: 'Account details',
     },
     {
       id: 'settings',
-      label: 'Settings',
+      label: 'Account Settings',
       icon: FaCog,
       count: 0,
-      description: 'Account & preferences',
+      description: 'Theme and profile',
     },
   ];
 
   const cards = userType === 'admin' ? adminCards : studentCards;
 
+  const handleCardClick = (cardId) => {
+    onViewChange(cardId);
+  };
+
   return (
     <aside className="dashboard-sidebar">
       <div className="sidebar-header">
-        <h3>Quick Navigation</h3>
-        <p className="sidebar-description">Click to view details</p>
+        <span className="sidebar-eyebrow">
+          {userType === 'student' ? 'Student Sidebar' : 'Admin Sidebar'}
+        </span>
+        <div className="sidebar-header-top">
+          <h3>{userType === 'student' ? 'My Portal Menu' : 'Portal Menu'}</h3>
+        </div>
+        <p className="sidebar-description">
+          Use the left rail to jump between sections without losing your place.
+        </p>
       </div>
+
+      {quickLinks.length > 0 && (
+        <section className="sidebar-quick-links" aria-label="Quick links">
+          <div className="sidebar-section-title">Quick Links</div>
+          <div className="sidebar-quick-link-grid">
+            {quickLinks.map((link) => {
+              const IconComponent = link.icon;
+
+              return (
+                <button
+                  key={link.id}
+                  type="button"
+                  className="quick-link-card"
+                  onClick={link.onClick}
+                  aria-label={`${link.label}. ${link.description}`}
+                  title={link.label}
+                >
+                  <div className="quick-link-icon">
+                    <IconComponent />
+                  </div>
+                  <div className="quick-link-copy">
+                    <strong>{link.label}</strong>
+                    <span>{link.description}</span>
+                  </div>
+                  <span className="sr-only">
+                    {link.label}. {link.description}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       <nav className="sidebar-nav-grid">
         {cards.map((card) => {
@@ -136,7 +180,7 @@ const DashboardSidebar = ({ activeView, onViewChange, stats, userType = 'admin' 
             <button
               key={card.id}
               className={`nav-card ${isActive ? 'active' : ''}`}
-              onClick={() => onViewChange(card.id)}
+              onClick={() => handleCardClick(card.id)}
               aria-pressed={isActive}
             >
               <div className="nav-card-icon">
