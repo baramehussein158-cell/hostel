@@ -486,8 +486,9 @@
 .admin-portal.light .application-row,
 .admin-portal.light .student-row,
 .admin-portal.light .empty-state {
-  background: rgba(30, 41, 59, 0.76);
-  border-color: rgba(148, 163, 184, 0.34);
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(148, 163, 184, 0.24);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
 }
 
 .admin-portal.light .admin-card,
@@ -503,7 +504,7 @@
 .admin-portal.light .permission-badge-card,
 .admin-portal.light .password-reset-row,
 .admin-portal.light .password-reset-card {
-  color: #e8ecf1;
+  color: #0f172a;
 }
 
 .admin-portal.light .admin-copy,
@@ -520,7 +521,7 @@
 .admin-portal.light .room-row-main span,
 .admin-portal.light .student-meta,
 .admin-portal.light .empty-state {
-  color: #cbd5e1;
+  color: #475569;
   opacity: 1;
 }
 
@@ -532,8 +533,15 @@
 
 .admin-portal.light .admin-campus-metrics div,
 .admin-portal.light .campus-summary-metrics div {
-  background: rgba(30, 41, 59, 0.96);
-  border-color: rgba(148, 163, 184, 0.34);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 248, 255, 0.98));
+  border-color: rgba(148, 163, 184, 0.22);
+  color: #0f172a;
+}
+
+.admin-portal.light .admin-campus-card strong,
+.admin-portal.light .campus-summary-card strong,
+.admin-portal.light .admin-card strong {
+  color: #0f172a;
 }
 
 .admin-portal.light .room-controls input,
