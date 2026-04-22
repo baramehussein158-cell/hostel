@@ -816,6 +816,24 @@ const AdminPortal = ({
         )}
         {activeView === 'overview' && (
           <>
+      {pendingPasswordResetRequests > 0 && (
+        <section className="admin-card admin-notice-card">
+          <div>
+            <p className="eyebrow">Notification</p>
+            <h2>
+              {pendingPasswordResetRequests} password reset request{pendingPasswordResetRequests > 1 ? 's' : ''} waiting for approval
+            </h2>
+            <p>
+              Students have already submitted their reset requests. Review them in the password reset panel so you
+              can approve and issue a one-time code.
+            </p>
+          </div>
+          <button type="button" className="action-button" onClick={() => setActiveView('password-reset')}>
+            Review Requests
+          </button>
+        </section>
+      )}
+
       <section className="admin-campus-strip" aria-label="Campus room summary">
         {visibleCampusSummaries.map((summary) => (
           <article key={summary.campus} className="admin-campus-card">

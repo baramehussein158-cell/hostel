@@ -585,7 +585,10 @@ const Login = ({
             <div className="reset-mode">
               <form onSubmit={handlePasswordResetRequestSubmit} className="reset-card">
                 <h3>Request one-time code</h3>
-                <p>Send a password reset request to the admin. Gender is required so the admin can identify you.</p>
+                <p>
+                  Send a password reset request to the admin. The admin must approve it before you can reset your
+                  password.
+                </p>
 
                 <div className="form-group">
                   <label htmlFor="reset-request-email">Email</label>
@@ -673,7 +676,9 @@ const Login = ({
 
               <form onSubmit={handlePasswordResetConfirmSubmit} className="reset-card">
                 <h3>Use reset code</h3>
-                <p>After the admin approves your request, enter the code once and set a new strong password.</p>
+                <p>
+                  After the admin approves your request and shares the code, enter it here to create a new password.
+                </p>
 
                 <div className="form-group">
                   <label htmlFor="reset-confirm-email">Email</label>
