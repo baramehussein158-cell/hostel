@@ -16,12 +16,13 @@ import './StudentLogin.scss';
 const StudentLogin = ({
   onStudentLogin,
   onRegister,
+  onPasswordResetRequest,
+  onPasswordResetConfirm,
   onBack,
-  registeredUsersCount,
   isSyncing,
 }) => {
   const { theme } = useTheme();
-  const [isLoginMode, setIsLoginMode] = useState(true);
+  const [mode, setMode] = useState('login');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -44,6 +45,24 @@ const StudentLogin = ({
     name: '',
     confirmPassword: '',
     allowAdminUpdates: false,
+  });
+
+  const [resetRequestData, setResetRequestData] = useState({
+    email: '',
+    regNumber: '',
+    campus: '',
+    gender: '',
+    reason: '',
+  });
+
+  const [resetCodeData, setResetCodeData] = useState({
+    email: '',
+    regNumber: '',
+    campus: '',
+    gender: '',
+    resetCode: '',
+    newPassword: '',
+    confirm: '',
   });
 
   const handleInputChange = (e) => {
@@ -122,7 +141,7 @@ const StudentLogin = ({
       if (result.success) {
         setMessage(result.message || 'Registration successful! Please log in.');
         setMessageType('success');
-        setTimeout(() => setIsLoginMode(true), 2000);
+        setTimeout(() => setMode('login'), 2000);
       } else {
         setMessage(result.message || 'Registration failed');
         setMessageType('error');
@@ -135,19 +154,145 @@ const StudentLogin = ({
     }
   };
 
+  const handlePasswordResetRequestSubmit = async (event) => {
+    event.preventDefault();
+    setMessage('');
+
+    if (!onPasswordResetRequest) {
+      setMessage('Password reset is not available right now.');
+      setMessageType('error');
+      return;
+    }
+
+    if (
+      !resetRequestData.email ||
+      !resetRequestData.regNumber ||
+      !resetRequestData.campus ||
+      !resetRequestData.gender
+    ) {
+      setMessage('Email, registration number, campus, and gender are required.');
+      setMessageType('error');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await onPasswordResetRequest(resetRequestData);
+      if (result.success) {
+        setMessage(
+          result.message ||
+            'Reset request sent. After admin approval, use the code to set a new password.'
+        );
+        setMessageType('success');
+        setResetCodeData({
+          email: resetRequestData.email,
+          regNumber: resetRequestData.regNumber,
+          campus: resetRequestData.campus,
+          gender: resetRequestData.gender,
+          resetCode: '',
+          newPassword: '',
+          confirm: '',
+        });
+        setMode('reset');
+      } else {
+        setMessage(result.message || 'Reset request failed.');
+        setMessageType('error');
+      }
+    } catch (error) {
+      setMessage('An error occurred while sending the reset request.');
+      setMessageType('error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePasswordResetConfirmSubmit = async (event) => {
+    event.preventDefault();
+    setMessage('');
+
+    if (!onPasswordResetConfirm) {
+      setMessage('Password reset confirmation is not available right now.');
+      setMessageType('error');
+      return;
+    }
+
+    if (
+      !resetCodeData.email ||
+      !resetCodeData.regNumber ||
+      !resetCodeData.campus ||
+      !resetCodeData.gender ||
+      !resetCodeData.resetCode ||
+      !resetCodeData.newPassword ||
+      !resetCodeData.confirm
+    ) {
+      setMessage('All reset fields are required.');
+      setMessageType('error');
+      return;
+    }
+
+    if (resetCodeData.newPassword !== resetCodeData.confirm) {
+      setMessage('New passwords do not match.');
+      setMessageType('error');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await onPasswordResetConfirm(resetCodeData);
+      if (result.success) {
+        setMessage(result.message || 'Password updated successfully.');
+        setMessageType('success');
+        setMode('login');
+        setResetRequestData({
+          email: '',
+          regNumber: '',
+          campus: '',
+          gender: '',
+          reason: '',
+        });
+        setResetCodeData({
+          email: '',
+          regNumber: '',
+          campus: '',
+          gender: '',
+          resetCode: '',
+          newPassword: '',
+          confirm: '',
+        });
+        setFormData({
+          email: '',
+          password: '',
+          regNumber: '',
+          campus: '',
+          gender: '',
+          name: '',
+          confirmPassword: '',
+          allowAdminUpdates: false,
+        });
+      } else {
+        setMessage(result.message || 'Password update failed.');
+        setMessageType('error');
+      }
+    } catch (error) {
+      setMessage('An error occurred while updating the password.');
+      setMessageType('error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const studyCampuses = STUDY_CAMPUSES[formData.campus] || [];
 
   return (
     <div className={`student-login-container ${theme}`}>
-      <div className="login-card">
+      <div className={`login-card ${mode === 'reset' ? 'reset-layout' : ''}`}>
         <div className="login-header">
           <button className="back-button" onClick={onBack} title="Back to portal selection">
             <FaArrowLeft />
           </button>
-          <h2>{isLoginMode ? 'Student Login' : 'Student Registration'}</h2>
-          <div className="header-stats">
-            <span className="stat">{registeredUsersCount} Students</span>
-          </div>
+          <h2>
+            {mode === 'login' ? 'Student Login' : mode === 'register' ? 'Student Registration' : 'Reset Password'}
+          </h2>
         </div>
 
         {message && (
@@ -157,7 +302,7 @@ const StudentLogin = ({
         )}
 
         <div className="login-form">
-          {isLoginMode ? (
+          {mode === 'login' ? (
             // LOGIN FORM
             <>
               <div className="form-group">
@@ -269,7 +414,7 @@ const StudentLogin = ({
                   type="button"
                   className="link-button"
                   onClick={() => {
-                    setIsLoginMode(false);
+                    setMode('register');
                     setMessage('');
                     setFormData({
                       email: '',
@@ -285,9 +430,22 @@ const StudentLogin = ({
                 >
                   Register here
                 </button></p>
+                <p>
+                  Forgot your password?{' '}
+                  <button
+                    type="button"
+                    className="link-button"
+                    onClick={() => {
+                      setMode('reset');
+                      setMessage('');
+                    }}
+                  >
+                    Reset it here
+                  </button>
+                </p>
               </div>
             </>
-          ) : (
+          ) : mode === 'register' ? (
             // REGISTRATION FORM
             <>
               <div className="form-group">
@@ -455,14 +613,305 @@ const StudentLogin = ({
                   type="button"
                   className="link-button"
                   onClick={() => {
-                    setIsLoginMode(true);
+                    setMode('login');
                     setMessage('');
                   }}
                 >
                   Login here
                 </button></p>
+                <p>
+                  Forgot your password?{' '}
+                  <button
+                    type="button"
+                    className="link-button"
+                    onClick={() => {
+                      setMode('reset');
+                      setMessage('');
+                    }}
+                  >
+                    Reset it here
+                  </button>
+                </p>
               </div>
             </>
+          ) : (
+            <div className="reset-mode">
+              <form className="reset-card" onSubmit={handlePasswordResetRequestSubmit}>
+                <h3>Request password reset</h3>
+                <p>Use the same email and registration number you registered with. The admin will review and issue a reset code.</p>
+
+                <div className="form-group">
+                  <label htmlFor="reset-email">
+                    <FaEnvelope className="icon" />
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    id="reset-email"
+                    value={resetRequestData.email}
+                    onChange={(event) =>
+                      setResetRequestData({ ...resetRequestData, email: event.target.value })
+                    }
+                    placeholder="student@university.edu"
+                    disabled={isSyncing || isLoading}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="reset-regnumber">
+                    <FaIdCard className="icon" />
+                    Registration Number
+                  </label>
+                  <input
+                    type="text"
+                    id="reset-regnumber"
+                    value={resetRequestData.regNumber}
+                    onChange={(event) =>
+                      setResetRequestData({ ...resetRequestData, regNumber: event.target.value })
+                    }
+                    placeholder="Enter your reg number"
+                    disabled={isSyncing || isLoading}
+                  />
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="reset-campus">
+                      <FaMapMarkerAlt className="icon" />
+                      Campus
+                    </label>
+                    <select
+                      id="reset-campus"
+                      value={resetRequestData.campus}
+                      onChange={(event) =>
+                        setResetRequestData({ ...resetRequestData, campus: event.target.value })
+                      }
+                      disabled={isSyncing || isLoading}
+                    >
+                      <option value="">Select Campus</option>
+                      <option value="UR">University of Rwanda</option>
+                      <option value="RP">Rwanda Polytechnic</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="reset-gender">
+                      <FaVenusMars className="icon" />
+                      Gender
+                    </label>
+                    <select
+                      id="reset-gender"
+                      value={resetRequestData.gender}
+                      onChange={(event) =>
+                        setResetRequestData({ ...resetRequestData, gender: event.target.value })
+                      }
+                      disabled={isSyncing || isLoading}
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="M">Male</option>
+                      <option value="F">Female</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="reset-reason">Reason</label>
+                  <textarea
+                    id="reset-reason"
+                    value={resetRequestData.reason}
+                    onChange={(event) =>
+                      setResetRequestData({ ...resetRequestData, reason: event.target.value })
+                    }
+                    placeholder="Optional note for the admin"
+                    disabled={isSyncing || isLoading}
+                  />
+                </div>
+
+                <button className="login-button" type="submit" disabled={isSyncing || isLoading}>
+                  {isLoading ? 'Sending...' : 'Send Reset Request'}
+                </button>
+
+                <div className="reset-switch-row">
+                  <button
+                    type="button"
+                    className="reset-switch"
+                    onClick={() => {
+                      setMode('login');
+                      setMessage('');
+                    }}
+                  >
+                    Back to login
+                  </button>
+                </div>
+              </form>
+
+              <form className="reset-card" onSubmit={handlePasswordResetConfirmSubmit}>
+                <h3>Set new password</h3>
+                <p>After the admin approves your request and gives you a code, enter it here to finish the reset.</p>
+
+                <div className="form-group">
+                  <label htmlFor="reset-confirm-email">
+                    <FaEnvelope className="icon" />
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    id="reset-confirm-email"
+                    value={resetCodeData.email}
+                    onChange={(event) =>
+                      setResetCodeData({ ...resetCodeData, email: event.target.value })
+                    }
+                    placeholder="student@university.edu"
+                    disabled={isSyncing || isLoading}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="reset-confirm-regnumber">
+                    <FaIdCard className="icon" />
+                    Registration Number
+                  </label>
+                  <input
+                    type="text"
+                    id="reset-confirm-regnumber"
+                    value={resetCodeData.regNumber}
+                    onChange={(event) =>
+                      setResetCodeData({ ...resetCodeData, regNumber: event.target.value })
+                    }
+                    placeholder="Enter your reg number"
+                    disabled={isSyncing || isLoading}
+                  />
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="reset-confirm-campus">
+                      <FaMapMarkerAlt className="icon" />
+                      Campus
+                    </label>
+                    <select
+                      id="reset-confirm-campus"
+                      value={resetCodeData.campus}
+                      onChange={(event) =>
+                        setResetCodeData({ ...resetCodeData, campus: event.target.value })
+                      }
+                      disabled={isSyncing || isLoading}
+                    >
+                      <option value="">Select Campus</option>
+                      <option value="UR">University of Rwanda</option>
+                      <option value="RP">Rwanda Polytechnic</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="reset-confirm-gender">
+                      <FaVenusMars className="icon" />
+                      Gender
+                    </label>
+                    <select
+                      id="reset-confirm-gender"
+                      value={resetCodeData.gender}
+                      onChange={(event) =>
+                        setResetCodeData({ ...resetCodeData, gender: event.target.value })
+                      }
+                      disabled={isSyncing || isLoading}
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="M">Male</option>
+                      <option value="F">Female</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="reset-code">
+                    <FaLock className="icon" />
+                    Reset Code
+                  </label>
+                  <input
+                    type="text"
+                    id="reset-code"
+                    value={resetCodeData.resetCode}
+                    onChange={(event) =>
+                      setResetCodeData({ ...resetCodeData, resetCode: event.target.value })
+                    }
+                    placeholder="Enter code from admin"
+                    disabled={isSyncing || isLoading}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="reset-new-password">
+                    <FaLock className="icon" />
+                    New Password
+                  </label>
+                  <div className="password-input">
+                    <input
+                      type={isPasswordVisible ? 'text' : 'password'}
+                      id="reset-new-password"
+                      value={resetCodeData.newPassword}
+                      onChange={(event) =>
+                        setResetCodeData({ ...resetCodeData, newPassword: event.target.value })
+                      }
+                      placeholder="Create a new password"
+                      disabled={isSyncing || isLoading}
+                    />
+                    <button
+                      type="button"
+                      className="visibility-toggle"
+                      onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                      disabled={isSyncing || isLoading}
+                    >
+                      {isPasswordVisible ? <FaEyeSlash /> : <FaEye />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="reset-confirm-password">
+                    <FaLock className="icon" />
+                    Confirm Password
+                  </label>
+                  <div className="password-input">
+                    <input
+                      type={isConfirmPasswordVisible ? 'text' : 'password'}
+                      id="reset-confirm-password"
+                      value={resetCodeData.confirm}
+                      onChange={(event) =>
+                        setResetCodeData({ ...resetCodeData, confirm: event.target.value })
+                      }
+                      placeholder="Confirm new password"
+                      disabled={isSyncing || isLoading}
+                    />
+                    <button
+                      type="button"
+                      className="visibility-toggle"
+                      onClick={() => setIsConfirmPasswordVisible(!isConfirmPasswordVisible)}
+                      disabled={isSyncing || isLoading}
+                    >
+                      {isConfirmPasswordVisible ? <FaEyeSlash /> : <FaEye />}
+                    </button>
+                  </div>
+                </div>
+
+                <button className="login-button" type="submit" disabled={isSyncing || isLoading}>
+                  {isLoading ? 'Updating...' : 'Set New Password'}
+                </button>
+
+                <div className="reset-switch-row">
+                  <button
+                    type="button"
+                    className="reset-switch"
+                    onClick={() => {
+                      setMode('login');
+                      setMessage('');
+                    }}
+                  >
+                    Back to login
+                  </button>
+                </div>
+              </form>
+            </div>
           )}
         </div>
       </div>

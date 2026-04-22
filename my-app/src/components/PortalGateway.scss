@@ -73,7 +73,7 @@
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
   width: 100%;
-  max-width: 900px;
+  max-width: 980px;
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
@@ -87,9 +87,11 @@
 
 .portal-card {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  padding: 2rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.65rem 1.75rem;
   border-radius: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -145,19 +147,25 @@
 }
 
 .card-icon {
-  font-size: 4rem;
-  margin-bottom: 1.5rem;
+  width: 4.75rem;
+  height: 4.75rem;
+  display: grid;
+  place-items: center;
+  border-radius: 1.25rem;
+  font-size: 2.5rem;
   opacity: 0.8;
   transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.08);
 
   .portal-card.hovered & {
-    font-size: 4.5rem;
     opacity: 1;
+    transform: scale(1.04);
   }
 
   @media (max-width: 480px) {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    font-size: 2rem;
   }
 }
 
@@ -184,7 +192,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0;
 }
 
 .feature-tag {
@@ -209,9 +217,9 @@
 .card-action {
   position: relative;
   z-index: 1;
-  margin-top: 1.5rem;
   opacity: 0.6;
   transition: all 0.3s ease;
+  justify-self: end;
 
   .portal-card.hovered & {
     opacity: 1;
@@ -278,6 +286,9 @@
   }
 
   .portal-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
     padding: 1.25rem;
     border-radius: 0.75rem;
 
@@ -287,12 +298,7 @@
   }
 
   .card-icon {
-    font-size: 2.5rem;
     margin-bottom: 0.75rem;
-
-    .portal-card.hovered & {
-      font-size: 2.75rem;
-    }
   }
 
   .card-content h2 {
@@ -311,7 +317,7 @@
   }
 
   .card-action {
-    margin-top: 1rem;
+    margin-top: 0.5rem;
 
     .arrow-icon {
       font-size: 1.25rem;

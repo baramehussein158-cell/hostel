@@ -40,6 +40,10 @@
   }
 }
 
+.login-card.reset-layout {
+  max-width: 920px;
+}
+
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -158,6 +162,18 @@
   gap: 1.5rem;
 }
 
+.student-login-container.light .reset-card {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(148, 163, 184, 0.24);
+  color: #172033;
+}
+
+.student-login-container.dark .reset-card {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(96, 165, 250, 0.18);
+  color: #e8ecf1;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -181,7 +197,8 @@
   }
 
   input,
-  select {
+  select,
+  textarea {
     padding: 0.75rem;
     border: 1px solid rgba(0, 0, 0, 0.2);
     border-radius: 0.5rem;
@@ -213,6 +230,11 @@
       color: #e8ecf1;
     }
   }
+}
+
+.form-group textarea {
+  min-height: 110px;
+  resize: vertical;
 }
 
 .form-row {
@@ -356,6 +378,50 @@
   }
 }
 
+.reset-mode {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.reset-card {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(59, 130, 246, 0.14);
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.reset-card h3,
+.reset-card p {
+  margin: 0;
+}
+
+.reset-card p {
+  line-height: 1.6;
+  opacity: 0.88;
+}
+
+.reset-switch-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.reset-switch {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.reset-switch:hover {
+  opacity: 0.85;
+}
+
 /* Small phone adjustments */
 @media (max-width: 380px) {
   .login-card {
@@ -397,6 +463,10 @@
   .login-form {
     gap: 1.25rem;
   }
+
+  .reset-mode {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Tablet optimization */
@@ -407,5 +477,11 @@
 
   .login-form {
     gap: 1.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .reset-mode {
+    grid-template-columns: 1fr;
   }
 }

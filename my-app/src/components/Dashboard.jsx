@@ -21,11 +21,10 @@ import {
   GENDER_OPTIONS,
   ROOM_TYPE_LABELS,
   STUDY_CAMPUSES,
-  buildProfileImageSrc,
   formatCurrency,
 } from '../data/portalData';
 import { PORTAL_IMAGES } from '../data/siteImages';
-import { getInitials, getLocalTimeLabel, getTimeGreeting } from '../utils/display';
+import { getLocalTimeLabel, getTimeGreeting } from '../utils/display';
 import CampusCarousel from './CampusCarousel';
 import HighlightText from './HighlightText';
 import DashboardSidebar from './DashboardSidebar';
@@ -101,10 +100,6 @@ const Dashboard = ({
   const displayName = student.name || session?.name || 'Student';
   const timeGreeting = getTimeGreeting();
   const currentTimeLabel = getLocalTimeLabel();
-  const studentInitials = getInitials(displayName, 'ST');
-  const studentAvatarSrc = student.profileImageUrl
-    ? buildProfileImageSrc(student.profileImageUrl, student.profileImageUpdatedAt)
-    : '';
   const occupancyRate = totalRooms > 0 ? Math.round((occupiedRooms / totalRooms) * 100) : 0;
   const applicationStatus = latestApplication?.status ?? 'ready';
   const paymentStatus = latestApplication?.paymentStatus ?? 'pending';
@@ -349,22 +344,6 @@ const Dashboard = ({
             >
               {theme === 'light' ? <FaMoon /> : <FaSun />}
             </button>
-
-            <div className="header-user-block">
-              <button
-                type="button"
-                className="user-chip"
-                aria-label={`${displayName} profile settings`}
-                onClick={() => {
-                  setActiveView('settings');
-                  setShowForm(false);
-                  setViewMode('status');
-                }}
-              >
-                {studentAvatarSrc ? <img src={studentAvatarSrc} alt="" /> : <span>{studentInitials}</span>}
-              </button>
-              <span className="header-user-subtitle">Signed in as {displayName}</span>
-            </div>
           </div>
         </div>
 
@@ -378,19 +357,6 @@ const Dashboard = ({
             <p className="time-note">Local time: {currentTimeLabel}</p>
             <div className="campus-intro">
               <span className="campus-label">{campusName}</span>
-            </div>
-          </div>
-
-          <div className="profile-block">
-            <div className="avatar">
-              {studentAvatarSrc ? <img src={studentAvatarSrc} alt="" /> : studentInitials}
-            </div>
-              <div className="profile-info">
-              <strong>{displayName}</strong>
-              <span>{student.email}</span>
-              <span>{student.regNumber}</span>
-              <span>Gender: {profileGenderLabel}</span>
-              <span>Admin update access: {profileAccessLabel}</span>
             </div>
           </div>
         </div>

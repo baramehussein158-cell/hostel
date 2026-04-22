@@ -1238,6 +1238,8 @@ function AppContent() {
           <StudentLogin
             onStudentLogin={handleStudentLogin}
             onRegister={handleRegister}
+            onPasswordResetRequest={handlePasswordResetRequest}
+            onPasswordResetConfirm={handlePasswordResetConfirm}
             onBack={handleBackFromPortal}
             registeredUsersCount={users.length}
             isSyncing={isSyncing}
@@ -1264,6 +1266,8 @@ function AppContent() {
           <StudentLogin
             onStudentLogin={handleStudentLogin}
             onRegister={handleRegister}
+            onPasswordResetRequest={handlePasswordResetRequest}
+            onPasswordResetConfirm={handlePasswordResetConfirm}
             onBack={handleBackFromPortal}
             registeredUsersCount={users.length}
             isSyncing={isSyncing}

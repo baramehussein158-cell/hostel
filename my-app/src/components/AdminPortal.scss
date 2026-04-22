@@ -230,12 +230,12 @@
 /* Final override so later legacy rules do not flatten the admin header styling */
 .admin-portal.light .admin-header {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(236, 253, 245, 0.92)) !important;
-  border-bottom: 1px solid rgba(96, 165, 250, 0.18) !important;
+  border-bottom: none !important;
 }
 
 .admin-portal.dark .admin-header {
   background: linear-gradient(135deg, rgba(8, 20, 38, 0.98), rgba(16, 58, 94, 0.94)) !important;
-  border-bottom: 1px solid rgba(109, 242, 162, 0.18) !important;
+  border-bottom: none !important;
 }
 
 .admin-portal.light .admin-header h1 {
@@ -2082,12 +2082,12 @@
 
 .admin-portal.light .admin-header {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(236, 253, 245, 0.92)) !important;
-  border-bottom: 1px solid rgba(96, 165, 250, 0.18) !important;
+  border-bottom: none !important;
 }
 
 .admin-portal.dark .admin-header {
   background: linear-gradient(135deg, rgba(8, 20, 38, 0.98), rgba(16, 58, 94, 0.94)) !important;
-  border-bottom: 1px solid rgba(109, 242, 162, 0.18) !important;
+  border-bottom: none !important;
 }
 
 .admin-portal.light .admin-header h1 {
@@ -2110,4 +2110,16 @@
 
 .admin-portal.dark .admin-header .eyebrow {
   color: #93c5fd !important;
+}
+
+.admin-portal.dark .pipeline-list div {
+  background: rgba(15, 23, 42, 0.94) !important;
+  border: 1px solid rgba(96, 165, 250, 0.22) !important;
+  color: #eef5ff !important;
+  box-shadow: 0 14px 28px rgba(2, 6, 23, 0.22);
+}
+
+.admin-portal.dark .pipeline-list span,
+.admin-portal.dark .pipeline-list strong {
+  color: #eef5ff !important;
 }
