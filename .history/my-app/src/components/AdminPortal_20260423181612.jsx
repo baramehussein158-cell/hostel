@@ -869,24 +869,6 @@ const AdminPortal = ({
               </div>
             </div>
 
-            <div className="campus-room-breakdown">
-              <h4>Room Availability by Type</h4>
-              {roomInventory
-                .filter((room) => room.campus === summary.campus)
-                .map((room) => {
-                  const occupied = getOccupiedCountForRoom(room);
-                  const available = Math.max(room.total - occupied, 0);
-                  return (
-                    <div key={room.id} className="room-breakdown-item">
-                      <span className="room-type-name">{room.label}</span>
-                      <span className={`room-availability-count ${available > 0 ? 'available' : 'full'}`}>
-                        {available}/{room.total} available
-                      </span>
-                    </div>
-                  );
-                })}
-            </div>
-
             <p>
               {summary.waitingApplications} waiting application(s) and {summary.verifiedPayments} verified payment(s)
               are linked to this campus.

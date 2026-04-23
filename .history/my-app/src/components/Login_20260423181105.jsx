@@ -68,11 +68,8 @@ const Login = ({
     [passwordResetRequests, resetCodeData]
   );
   const canUseResetForm = latestResetRequest?.status === 'approved' && Boolean(latestResetRequest.resetCode);
-  const isCodeAutoFilled = resetCodeData.resetCode && canUseResetForm;
   const resetGateMessage = canUseResetForm
-    ? isCodeAutoFilled
-      ? 'Your request is approved and code is ready! Set your new password below.'
-      : 'Your request is approved. Enter the code from the admin to set a new password.'
+    ? 'Your request is approved. Enter the code from the admin to set a new password.'
     : latestResetRequest
       ? 'Your request is still waiting for admin approval. The new password form is locked.'
       : 'Submit a reset request first. The new password form unlocks only after admin approval.';

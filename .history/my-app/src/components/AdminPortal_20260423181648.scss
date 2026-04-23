@@ -332,49 +332,6 @@
   font-size: 1.05rem;
 }
 
-.campus-room-breakdown {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.campus-room-breakdown h4 {
-  margin: 0 0 0.75rem 0;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--theme-text);
-  opacity: 0.9;
-}
-
-.room-breakdown-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.4rem 0.6rem;
-  margin-bottom: 0.4rem;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
-  font-size: 0.85rem;
-}
-
-.room-type-name {
-  font-weight: 500;
-  color: var(--theme-text);
-}
-
-.room-availability-count {
-  font-weight: 600;
-  font-size: 0.8rem;
-}
-
-.room-availability-count.available {
-  color: #10b981;
-}
-
-.room-availability-count.full {
-  color: #ef4444;
-}
-
 .admin-campus-card p {
   margin: 0;
   line-height: 1.6;

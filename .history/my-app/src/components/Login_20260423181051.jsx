@@ -68,11 +68,8 @@ const Login = ({
     [passwordResetRequests, resetCodeData]
   );
   const canUseResetForm = latestResetRequest?.status === 'approved' && Boolean(latestResetRequest.resetCode);
-  const isCodeAutoFilled = resetCodeData.resetCode && canUseResetForm;
   const resetGateMessage = canUseResetForm
-    ? isCodeAutoFilled
-      ? 'Your request is approved and code is ready! Set your new password below.'
-      : 'Your request is approved. Enter the code from the admin to set a new password.'
+    ? 'Your request is approved. Enter the code from the admin to set a new password.'
     : latestResetRequest
       ? 'Your request is still waiting for admin approval. The new password form is locked.'
       : 'Submit a reset request first. The new password form unlocks only after admin approval.';
@@ -914,20 +911,14 @@ const Login = ({
                   </select>
                 </div>
                 <div className="form-group">
-                  <label htmlFor="reset-code">
-                    One-time Code
-                    {resetCodeData.resetCode && canUseResetForm && (
-                      <span className="code-status"> ✓ Code auto-filled from your approved request</span>
-                    )}
-                  </label>
+                  <label htmlFor="reset-code">One-time Code</label>
                   <input
                     type="text"
                     id="reset-code"
                     value={resetCodeData.resetCode}
                     onChange={(event) => setResetCodeData({ ...resetCodeData, resetCode: event.target.value })}
-                    placeholder={canUseResetForm ? "Code is ready - check status above" : "Enter code from admin"}
+                    placeholder="Enter code from admin"
                     disabled={isSubmitting || isSyncing || !canUseResetForm}
-                    className={resetCodeData.resetCode && canUseResetForm ? "code-filled" : ""}
                   />
                 </div>
                 <div className="form-row">
