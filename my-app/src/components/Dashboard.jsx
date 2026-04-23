@@ -852,7 +852,7 @@ const Dashboard = ({
                               <div className="password-reset-status-card">
                                 <div>
                                   <p className="eyebrow">Password reset</p>
-                                  <h4>{PASSWORD_RESET_REQUEST_STATUS_LABELS[passwordResetStatus] || 'Pending'}</h4>
+                                  <h4>{PASSWORD_RESET_REQUEST_STATUS_LABELS[passwordResetStatus] || 'Pending approval'}</h4>
                                   <p>
                                     {passwordResetStatus === 'approved'
                                       ? 'The admin issued a one-time code. Use it from the login reset section to set a new password.'
@@ -864,7 +864,7 @@ const Dashboard = ({
                                   </p>
                                 </div>
                                 <strong className={`password-reset-pill ${passwordResetStatus}`}>
-                                  {PASSWORD_RESET_REQUEST_STATUS_LABELS[passwordResetStatus] || 'Pending'}
+                                  {PASSWORD_RESET_REQUEST_STATUS_LABELS[passwordResetStatus] || 'Pending approval'}
                                 </strong>
                               </div>
                             )}

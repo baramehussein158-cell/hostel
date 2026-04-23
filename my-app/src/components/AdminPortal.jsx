@@ -441,7 +441,7 @@ const AdminPortal = ({
         id: `reset-${request.id}`,
         title: request.name,
         description: `${request.regNumber} | ${request.campus}`,
-        detail: PASSWORD_RESET_REQUEST_STATUS_LABELS[request.status] || 'Pending',
+        detail: PASSWORD_RESET_REQUEST_STATUS_LABELS[request.status] || 'Pending approval',
         keywords: [request.email, request.gender, request.reason, request.status, request.resetCode].filter(Boolean).join(' '),
         onClick: () => setActiveView('password-reset'),
       })),
@@ -991,7 +991,7 @@ const AdminPortal = ({
           ) : (
             <div className="password-reset-list">
               {filteredPasswordResetRequests.map((request) => {
-                const statusLabel = PASSWORD_RESET_REQUEST_STATUS_LABELS[request.status] || 'Pending';
+                const statusLabel = PASSWORD_RESET_REQUEST_STATUS_LABELS[request.status] || 'Pending approval';
 
                 return (
                   <div key={request.id} className="password-reset-row">

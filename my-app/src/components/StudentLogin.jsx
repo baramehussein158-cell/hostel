@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   FaEye,
   FaEyeSlash,
@@ -10,7 +10,13 @@ import {
   FaMapMarkerAlt,
   FaVenusMars,
 } from 'react-icons/fa';
-import { GENDER_OPTIONS, normalizeCampusKey, normalizeGenderKey, normalizeIdentityValue } from '../data/portalData';
+import {
+  GENDER_OPTIONS,
+  findLatestPasswordResetRequestForIdentity,
+  normalizeCampusKey,
+  normalizeGenderKey,
+  normalizeIdentityValue,
+} from '../data/portalData';
 import { useTheme } from '../contexts/ThemeContext';
 import './StudentLogin.scss';
 
@@ -19,6 +25,7 @@ const StudentLogin = ({
   onRegister,
   onPasswordResetRequest,
   onPasswordResetConfirm,
+  passwordResetRequests = [],
   onBack,
   isSyncing,
 }) => {
@@ -60,6 +67,16 @@ const StudentLogin = ({
     newPassword: '',
     confirm: '',
   });
+  const latestResetRequest = useMemo(
+    () => findLatestPasswordResetRequestForIdentity(passwordResetRequests, resetCodeData),
+    [passwordResetRequests, resetCodeData]
+  );
+  const canUseResetForm = latestResetRequest?.status === 'approved' && Boolean(latestResetRequest.resetCode);
+  const resetGateMessage = canUseResetForm
+    ? 'Your request is approved. Enter the code from the admin to set a new password.'
+    : latestResetRequest
+      ? 'Your request is still waiting for admin approval. The new password form is locked.'
+      : 'Submit a reset request first. The new password form unlocks only after admin approval.';
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -183,7 +200,7 @@ const StudentLogin = ({
       if (result.success) {
         setMessage(
           result.message ||
-            'Reset request sent. After admin approval, use the code to set a new password.'
+            'Reset request submitted. Wait for admin approval before the new password form unlocks.'
         );
         setMessageType('success');
         setResetCodeData({
@@ -214,6 +231,12 @@ const StudentLogin = ({
 
     if (!onPasswordResetConfirm) {
       setMessage('Password reset confirmation is not available right now.');
+      setMessageType('error');
+      return;
+    }
+
+    if (!canUseResetForm) {
+      setMessage('Wait for admin approval before entering a new password.');
       setMessageType('error');
       return;
     }
@@ -762,7 +785,7 @@ const StudentLogin = ({
 
               <form className="reset-card" onSubmit={handlePasswordResetConfirmSubmit}>
                 <h3>Set new password</h3>
-                <p>After the admin approves your request and gives you a code, enter it here to finish the reset. You only need the email, registration number, campus, and code.</p>
+                <p>{resetGateMessage}</p>
 
                 <div className="form-group">
                   <label htmlFor="reset-confirm-email">
@@ -777,7 +800,7 @@ const StudentLogin = ({
                       setResetCodeData({ ...resetCodeData, email: event.target.value })
                     }
                     placeholder="student@university.edu"
-                    disabled={isSyncing || isLoading}
+                    disabled={isSyncing || isLoading || !canUseResetForm}
                   />
                 </div>
 
@@ -794,7 +817,7 @@ const StudentLogin = ({
                       setResetCodeData({ ...resetCodeData, regNumber: event.target.value })
                     }
                     placeholder="Enter your reg number"
-                    disabled={isSyncing || isLoading}
+                    disabled={isSyncing || isLoading || !canUseResetForm}
                   />
                 </div>
 
@@ -810,7 +833,7 @@ const StudentLogin = ({
                       onChange={(event) =>
                         setResetCodeData({ ...resetCodeData, campus: event.target.value })
                       }
-                      disabled={isSyncing || isLoading}
+                      disabled={isSyncing || isLoading || !canUseResetForm}
                     >
                       <option value="">Select Campus</option>
                       <option value="UR">University of Rwanda</option>
@@ -829,7 +852,7 @@ const StudentLogin = ({
                     onChange={(event) =>
                       setResetCodeData({ ...resetCodeData, gender: event.target.value })
                       }
-                      disabled={isSyncing || isLoading}
+                      disabled={isSyncing || isLoading || !canUseResetForm}
                   >
                     <option value="">Select Gender</option>
                     {GENDER_OPTIONS.map((genderOption) => (
@@ -872,13 +895,13 @@ const StudentLogin = ({
                         setResetCodeData({ ...resetCodeData, newPassword: event.target.value })
                       }
                       placeholder="Create a new password"
-                      disabled={isSyncing || isLoading}
+                      disabled={isSyncing || isLoading || !canUseResetForm}
                     />
                     <button
                       type="button"
                       className="visibility-toggle"
                       onClick={() => setIsPasswordVisible(!isPasswordVisible)}
-                      disabled={isSyncing || isLoading}
+                      disabled={isSyncing || isLoading || !canUseResetForm}
                     >
                       {isPasswordVisible ? <FaEyeSlash /> : <FaEye />}
                     </button>
@@ -899,21 +922,21 @@ const StudentLogin = ({
                         setResetCodeData({ ...resetCodeData, confirm: event.target.value })
                       }
                       placeholder="Confirm new password"
-                      disabled={isSyncing || isLoading}
+                      disabled={isSyncing || isLoading || !canUseResetForm}
                     />
                     <button
                       type="button"
                       className="visibility-toggle"
                       onClick={() => setIsConfirmPasswordVisible(!isConfirmPasswordVisible)}
-                      disabled={isSyncing || isLoading}
+                      disabled={isSyncing || isLoading || !canUseResetForm}
                     >
                       {isConfirmPasswordVisible ? <FaEyeSlash /> : <FaEye />}
                     </button>
                   </div>
                 </div>
 
-                <button className="login-button" type="submit" disabled={isSyncing || isLoading}>
-                  {isLoading ? 'Updating...' : 'Set New Password'}
+                <button className="login-button" type="submit" disabled={isSyncing || isLoading || !canUseResetForm}>
+                  {isLoading ? 'Updating...' : canUseResetForm ? 'Set New Password' : 'Waiting for Approval'}
                 </button>
 
                 <div className="reset-switch-row">

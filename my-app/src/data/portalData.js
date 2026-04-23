@@ -34,9 +34,9 @@ export const PAYMENT_STATUS_LABELS = {
 };
 
 export const PASSWORD_RESET_REQUEST_STATUS_LABELS = {
-  pending: 'Pending',
-  approved: 'Code Issued',
-  used: 'Completed',
+  pending: 'Pending approval',
+  approved: 'Approved',
+  used: 'Unlocked',
   rejected: 'Rejected',
 };
 
@@ -147,6 +147,39 @@ export const getUserAccountKey = (user) => {
   const regNumber = user.regNumber?.trim().toLowerCase() ?? '';
   const campus = normalizeCampusKey(user.campus);
   return `${campus}::${regNumber}::${email}`;
+};
+
+export const findLatestPasswordResetRequestForIdentity = (requests, identity) => {
+  const normalizedEmail = normalizeIdentityValue(identity?.email);
+  const normalizedRegNumber = normalizeIdentityValue(identity?.regNumber);
+  const normalizedCampus = normalizeCampusKey(identity?.campus);
+  const normalizedGender = normalizeGenderKey(identity?.gender);
+
+  if (!normalizedEmail || !normalizedRegNumber || !normalizedCampus) {
+    return null;
+  }
+
+  return (
+    [...(requests ?? [])]
+      .filter((request) => {
+        const requestAccountKey =
+          request.studentAccountKey ||
+          getUserAccountKey({
+            campus: request.campus,
+            regNumber: request.regNumber,
+            email: request.email,
+          });
+
+        return (
+          normalizeIdentityValue(request.email) === normalizedEmail &&
+          normalizeIdentityValue(request.regNumber) === normalizedRegNumber &&
+          normalizeCampusKey(request.campus) === normalizedCampus &&
+          (!normalizedGender || !normalizeGenderKey(request.gender) || normalizeGenderKey(request.gender) === normalizedGender) &&
+          requestAccountKey
+        );
+      })
+      .sort((left, right) => new Date(right.requestedAt ?? right.reviewedAt ?? 0) - new Date(left.requestedAt ?? left.reviewedAt ?? 0))[0] ?? null
+  );
 };
 
 export const getUserRecencyScore = (user) =>

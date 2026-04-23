@@ -300,40 +300,6 @@ const Login = ({
     setFeedback({ type: 'success', text: result.message });
   };
 
-  const handleCheckResetStatus = () => {
-    resetFeedback();
-
-    if (!resetStatusData.email || !resetStatusData.regNumber || !resetStatusData.campus) {
-      setFeedback({ type: 'error', text: 'Email, registration number, and campus are required to check status.' });
-      return;
-    }
-
-    const request = findLatestPasswordResetRequestForIdentity(passwordResetRequests, {
-      email: normalizeIdentityValue(resetStatusData.email),
-      regNumber: normalizeIdentityValue(resetStatusData.regNumber),
-      campus: normalizeCampusKey(resetStatusData.campus),
-      gender: normalizeGenderKey(resetStatusData.gender),
-    });
-
-    if (!request) {
-      setFeedback({ type: 'error', text: 'No password reset request found for these details.' });
-      return;
-    }
-
-    if (request.status === 'pending') {
-      setFeedback({ type: 'info', text: 'Your request is still waiting for admin approval.' });
-    } else if (request.status === 'approved') {
-      setFeedback({
-        type: 'success',
-        text: `Your request was approved! Your one-time reset code is: ${request.resetCode}`,
-      });
-    } else if (request.status === 'rejected') {
-      setFeedback({ type: 'error', text: 'Your password reset request was rejected by the admin.' });
-    } else if (request.status === 'used') {
-      setFeedback({ type: 'info', text: 'Your reset code has already been used.' });
-    }
-  };
-
   return (
     <div className={`login-container ${theme}`}>
       <div className="portal-grid">
@@ -751,83 +717,6 @@ const Login = ({
                   {isSubmitting ? 'Sending...' : 'Send Request'}
                 </button>
               </form>
-
-              <div className="reset-card">
-                <h3>Check Request Status</h3>
-                <p>
-                  Check if your password reset request has been approved and get your reset code.
-                </p>
-
-                <div className="form-group">
-                  <label htmlFor="reset-status-email">Email</label>
-                  <input
-                    type="email"
-                    id="reset-status-email"
-                    value={resetStatusData.email}
-                    onChange={(event) => setResetStatusData({ ...resetStatusData, email: event.target.value })}
-                    placeholder="student@university.edu"
-                    disabled={isSubmitting || isSyncing}
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="reset-status-regNumber">Registration Number</label>
-                  <input
-                    type="text"
-                    id="reset-status-regNumber"
-                    value={resetStatusData.regNumber}
-                    onChange={(event) => setResetStatusData({ ...resetStatusData, regNumber: event.target.value })}
-                    placeholder="Enter your reg number"
-                    disabled={isSubmitting || isSyncing}
-                  />
-                </div>
-                <div className="form-group campus-choice">
-                  <label>Campus</label>
-                  <div className="campus-options">
-                    <label>
-                      <input
-                        type="radio"
-                        name="resetStatusCampus"
-                        value="UR"
-                        checked={resetStatusData.campus === 'UR'}
-                        onChange={(event) => setResetStatusData({ ...resetStatusData, campus: event.target.value })}
-                        disabled={isSubmitting || isSyncing}
-                      />
-                      UR
-                    </label>
-                    <label>
-                      <input
-                        type="radio"
-                        name="resetStatusCampus"
-                        value="RP"
-                        checked={resetStatusData.campus === 'RP'}
-                        onChange={(event) => setResetStatusData({ ...resetStatusData, campus: event.target.value })}
-                        disabled={isSubmitting || isSyncing}
-                      />
-                      RP
-                    </label>
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label htmlFor="reset-status-gender">Gender <span className="optional-note">(optional)</span></label>
-                  <select
-                    id="reset-status-gender"
-                    value={resetStatusData.gender}
-                    onChange={(event) => setResetStatusData({ ...resetStatusData, gender: event.target.value })}
-                    disabled={isSubmitting || isSyncing}
-                  >
-                    <option value="">Select your gender</option>
-                    {GENDER_OPTIONS.map((genderOption) => (
-                      <option key={genderOption.value} value={genderOption.value}>
-                        {genderOption.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <button type="button" className="login-btn secondary" onClick={handleCheckResetStatus} disabled={isSubmitting || isSyncing}>
-                  Check Status
-                </button>
-              </div>
 
               <form onSubmit={handlePasswordResetConfirmSubmit} className="reset-card">
                 <h3>Use reset code</h3>

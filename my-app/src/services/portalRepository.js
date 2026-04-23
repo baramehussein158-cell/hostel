@@ -40,6 +40,22 @@ const mapSnapshotDocs = (snapshot) =>
     ...snapshotDoc.data(),
   }));
 
+const cleanFirestoreData = (value) => {
+  if (Array.isArray(value)) {
+    return value.map(cleanFirestoreData).filter((item) => item !== undefined);
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value)
+        .map(([key, entryValue]) => [key, cleanFirestoreData(entryValue)])
+        .filter(([, entryValue]) => entryValue !== undefined)
+    );
+  }
+
+  return value === undefined ? undefined : value;
+};
+
 export const ensureRoomInventorySeeded = async () => {
   const roomsCollection = collection(db, collections.rooms);
   const snapshot = await getDocs(roomsCollection);
@@ -105,7 +121,7 @@ export const subscribeToRooms = (onData, onError) =>
 
 export const createUser = async (user) => {
   const userPayload = {
-    ...user,
+    ...cleanFirestoreData(user),
     createdAt: new Date().toISOString(),
     profileImageUrl: '',
     profileImagePath: '',
@@ -117,7 +133,7 @@ export const createUser = async (user) => {
 
 export const createApplication = async (application) => {
   const applicationPayload = {
-    ...application,
+    ...cleanFirestoreData(application),
     submittedAt: new Date().toISOString(),
   };
   const documentRef = await addDoc(collection(db, collections.applications), applicationPayload);
@@ -126,7 +142,7 @@ export const createApplication = async (application) => {
 
 export const createPasswordResetRequest = async (request) => {
   const requestPayload = {
-    ...request,
+    ...cleanFirestoreData(request),
     requestedAt: new Date().toISOString(),
   };
   const documentRef = await addDoc(collection(db, collections.passwordResetRequests), requestPayload);

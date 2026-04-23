@@ -11,6 +11,7 @@ import {
   HOSTEL_RENT_BY_ROOM_TYPE,
   STORAGE_KEYS,
   createId,
+  findLatestPasswordResetRequestForIdentity,
   getUserAccountKey,
   getUserRecencyScore,
   normalizeGenderKey,
@@ -637,34 +638,39 @@ function AppContent() {
       );
     });
 
-    if (existingOpenRequest) {
-      return {
-        success: false,
-        message: 'A password reset request already exists for this account. Wait for the admin to review it.',
-      };
-    }
+    const requestPayload = {
+      studentId: matchedStudent.id,
+      studentAccountKey: getUserAccountKey(matchedStudent),
+      name: matchedStudent.name,
+      email: matchedStudent.email,
+      regNumber: matchedStudent.regNumber,
+      campus: matchedStudent.campus,
+      gender: matchedStudent.gender,
+      reason: data.reason?.trim() || '',
+      status: 'pending',
+      resetCode: '',
+      resetCodeIssuedAt: '',
+      resetCodeExpiresAt: '',
+      resetCodeUsedAt: '',
+      adminReviewedBy: '',
+    };
 
     try {
-      await createPasswordResetRequest({
-        studentId: matchedStudent.id,
-        studentAccountKey: getUserAccountKey(matchedStudent),
-        name: matchedStudent.name,
-        email: matchedStudent.email,
-        regNumber: matchedStudent.regNumber,
-        campus: matchedStudent.campus,
-        gender: matchedStudent.gender,
-        reason: data.reason?.trim() || '',
-        status: 'pending',
-        resetCode: '',
-        resetCodeIssuedAt: '',
-        resetCodeExpiresAt: '',
-        resetCodeUsedAt: '',
-        adminReviewedBy: '',
-      });
+      if (existingOpenRequest) {
+        await updatePasswordResetRequest(existingOpenRequest.id, {
+          ...requestPayload,
+          requestedAt: new Date().toISOString(),
+          reviewedAt: '',
+        });
+      } else {
+        await createPasswordResetRequest(requestPayload);
+      }
 
       return {
         success: true,
-        message: 'Password reset request sent to the admin. Wait for a one-time code to be issued.',
+        message: existingOpenRequest
+          ? 'Password reset request refreshed. The admin will review your latest request next.'
+          : 'Password reset request submitted. The admin will review it and issue a one-time code.',
       };
     } catch (error) {
       console.error('Failed to create password reset request:', error);
@@ -737,29 +743,26 @@ function AppContent() {
       };
     }
 
-    const request = passwordResetRequests.find((entry) => {
-      const requestAccountKey =
-        entry.studentAccountKey ||
-        getStudentAccountKeyFromIdentity({
-          campus: entry.campus,
-          regNumber: entry.regNumber,
-          email: entry.email,
-        });
-
-      return (
-        entry.status === 'approved' &&
-        entry.resetCode === data.resetCode?.trim() &&
-        (entry.studentId === matchedStudent.id ||
-          requestAccountKey === getUserAccountKey(matchedStudent) ||
-          normalizeIdentityValue(entry.regNumber) === normalizeIdentityValue(matchedStudent.regNumber) ||
-          normalizeIdentityValue(entry.email) === normalizeIdentityValue(matchedStudent.email))
-      );
-    });
+    const request = findLatestPasswordResetRequestForIdentity(passwordResetRequests, matchedStudent);
 
     if (!request) {
       return {
         success: false,
-        message: 'That reset code is not valid, has already been used, or has not been approved yet.',
+        message: 'We could not find a password reset request for that account. Please submit one first.',
+      };
+    }
+
+    if (request.status !== 'approved') {
+      return {
+        success: false,
+        message: 'Your reset request is still waiting for admin approval. You cannot set a new password yet.',
+      };
+    }
+
+    if (request.resetCode !== data.resetCode?.trim()) {
+      return {
+        success: false,
+        message: 'That reset code is not valid or has already been used.',
       };
     }
 
@@ -1252,6 +1255,7 @@ function AppContent() {
             onRegister={handleRegister}
             onPasswordResetRequest={handlePasswordResetRequest}
             onPasswordResetConfirm={handlePasswordResetConfirm}
+            passwordResetRequests={passwordResetRequests}
             onBack={handleBackFromPortal}
             registeredUsersCount={users.length}
             isSyncing={isSyncing}
@@ -1280,6 +1284,7 @@ function AppContent() {
             onRegister={handleRegister}
             onPasswordResetRequest={handlePasswordResetRequest}
             onPasswordResetConfirm={handlePasswordResetConfirm}
+            passwordResetRequests={passwordResetRequests}
             onBack={handleBackFromPortal}
             registeredUsersCount={users.length}
             isSyncing={isSyncing}
@@ -1293,6 +1298,7 @@ function AppContent() {
             onRegister={handleRegister}
             onPasswordResetRequest={handlePasswordResetRequest}
             onPasswordResetConfirm={handlePasswordResetConfirm}
+            passwordResetRequests={passwordResetRequests}
             registeredUsersCount={users.length}
             isSyncing={isSyncing}
             isAdminMode={true}
@@ -1331,6 +1337,7 @@ function AppContent() {
             onRegister={handleRegister}
             onPasswordResetRequest={handlePasswordResetRequest}
             onPasswordResetConfirm={handlePasswordResetConfirm}
+            passwordResetRequests={passwordResetRequests}
             registeredUsersCount={users.length}
             isSyncing={isSyncing}
             isAdminMode={true}
@@ -1344,6 +1351,7 @@ function AppContent() {
           onRegister={handleRegister}
           onPasswordResetRequest={handlePasswordResetRequest}
           onPasswordResetConfirm={handlePasswordResetConfirm}
+          passwordResetRequests={passwordResetRequests}
           registeredUsersCount={users.length}
           isSyncing={isSyncing}
         />
