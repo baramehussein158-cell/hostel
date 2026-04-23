@@ -13,6 +13,8 @@ import {
   createId,
   getUserAccountKey,
   getUserRecencyScore,
+  normalizeGenderKey,
+  normalizeIdentityValue,
   readStoredValue,
   normalizeCampusKey,
   STUDY_CAMPUSES,
@@ -126,8 +128,6 @@ const getStudentAccountKeyFromIdentity = ({ campus, regNumber, email }) =>
     regNumber,
     email,
   });
-
-const normalizeIdentityValue = (value) => value?.trim().toLowerCase() ?? '';
 
 const generateResetCode = () => `${Math.floor(100000 + Math.random() * 900000)}`;
 
@@ -344,6 +344,7 @@ function AppContent() {
     const normalizedEmail = normalizeIdentityValue(identity.email);
     const normalizedRegNumber = normalizeIdentityValue(identity.regNumber);
     const normalizedCampus = normalizeCampusKey(identity.campus);
+    const normalizedGender = normalizeGenderKey(identity.gender);
 
     if (!normalizedEmail || !normalizedRegNumber || !normalizedCampus) {
       return null;
@@ -354,7 +355,10 @@ function AppContent() {
         (user) =>
           normalizeIdentityValue(user.email) === normalizedEmail &&
           normalizeIdentityValue(user.regNumber) === normalizedRegNumber &&
-          normalizeCampusKey(user.campus) === normalizedCampus
+          normalizeCampusKey(user.campus) === normalizedCampus &&
+          (!normalizedGender ||
+            !normalizeGenderKey(user.gender) ||
+            normalizeGenderKey(user.gender) === normalizedGender)
       ) ?? null
     );
   }
@@ -379,8 +383,8 @@ function AppContent() {
           return (
             request.studentId === student.id ||
             (studentAccountKey && requestAccountKey === studentAccountKey) ||
-            request.regNumber?.toLowerCase() === student.regNumber?.toLowerCase() ||
-            request.email?.toLowerCase() === student.email?.toLowerCase()
+            normalizeIdentityValue(request.regNumber) === normalizeIdentityValue(student.regNumber) ||
+            normalizeIdentityValue(request.email) === normalizeIdentityValue(student.email)
           );
         })
         .sort((left, right) => new Date(right.requestedAt ?? 0) - new Date(left.requestedAt ?? 0))[0] ?? null
@@ -406,13 +410,20 @@ function AppContent() {
       return { success: false, message: 'Database data is still loading. Please wait a moment and try again.' };
     }
 
+    const normalizedEmail = normalizeIdentityValue(credentials.email);
+    const normalizedRegNumber = normalizeIdentityValue(credentials.regNumber);
+    const normalizedCampus = normalizeCampusKey(credentials.campus);
+    const normalizedGender = normalizeGenderKey(credentials.gender);
+
     const matchedUser = users.find(
       (user) =>
-        credentials.email.toLowerCase() === user.email.toLowerCase() &&
+        normalizedEmail === normalizeIdentityValue(user.email) &&
         credentials.password === user.password &&
-        credentials.regNumber.toLowerCase() === user.regNumber.toLowerCase() &&
-        credentials.campus === user.campus &&
-        (!credentials.gender || !user.gender || credentials.gender === user.gender)
+        normalizedRegNumber === normalizeIdentityValue(user.regNumber) &&
+        normalizedCampus === normalizeCampusKey(user.campus) &&
+        (!normalizedGender ||
+          !normalizeGenderKey(user.gender) ||
+          normalizedGender === normalizeGenderKey(user.gender))
     );
 
     if (!matchedUser) {
@@ -621,8 +632,8 @@ function AppContent() {
         request.status !== 'rejected' &&
         (request.studentId === matchedStudent.id ||
           requestAccountKey === getUserAccountKey(matchedStudent) ||
-          request.regNumber?.toLowerCase() === matchedStudent.regNumber?.toLowerCase() ||
-          request.email?.toLowerCase() === matchedStudent.email?.toLowerCase())
+          normalizeIdentityValue(request.regNumber) === normalizeIdentityValue(matchedStudent.regNumber) ||
+          normalizeIdentityValue(request.email) === normalizeIdentityValue(matchedStudent.email))
       );
     });
 
@@ -740,8 +751,8 @@ function AppContent() {
         entry.resetCode === data.resetCode?.trim() &&
         (entry.studentId === matchedStudent.id ||
           requestAccountKey === getUserAccountKey(matchedStudent) ||
-          entry.regNumber?.toLowerCase() === matchedStudent.regNumber?.toLowerCase() ||
-          entry.email?.toLowerCase() === matchedStudent.email?.toLowerCase())
+          normalizeIdentityValue(entry.regNumber) === normalizeIdentityValue(matchedStudent.regNumber) ||
+          normalizeIdentityValue(entry.email) === normalizeIdentityValue(matchedStudent.email))
       );
     });
 

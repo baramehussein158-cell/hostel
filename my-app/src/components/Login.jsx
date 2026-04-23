@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { FaArrowLeft, FaChartLine, FaGraduationCap, FaShieldAlt } from 'react-icons/fa';
-import { GENDER_OPTIONS } from '../data/portalData';
+import {
+  GENDER_OPTIONS,
+  normalizeCampusKey,
+  normalizeGenderKey,
+  normalizeIdentityValue,
+} from '../data/portalData';
 import { LOGIN_HERO_IMAGES } from '../data/siteImages';
 import { useTheme } from '../contexts/ThemeContext';
 import CampusCarousel from './CampusCarousel';
@@ -66,7 +71,13 @@ const Login = ({
     }
 
     setIsSubmitting(true);
-    const result = await onStudentLogin(loginData);
+    const result = await onStudentLogin({
+      ...loginData,
+      email: normalizeIdentityValue(loginData.email),
+      regNumber: normalizeIdentityValue(loginData.regNumber),
+      campus: normalizeCampusKey(loginData.campus),
+      gender: normalizeGenderKey(loginData.gender),
+    });
     setIsSubmitting(false);
     if (!result.success) {
       setFeedback({ type: 'error', text: result.message });
@@ -132,12 +143,12 @@ const Login = ({
 
     setIsSubmitting(true);
     const result = await onRegister({
-      name: registerData.name,
-      email: registerData.email,
-      regNumber: registerData.regNumber,
+      name: registerData.name.trim(),
+      email: normalizeIdentityValue(registerData.email),
+      regNumber: normalizeIdentityValue(registerData.regNumber),
       password: registerData.password,
-      campus: registerData.campus,
-      gender: registerData.gender,
+      campus: normalizeCampusKey(registerData.campus),
+      gender: normalizeGenderKey(registerData.gender),
       allowAdminUpdates: registerData.allowAdminUpdates,
     });
     setIsSubmitting(false);
@@ -182,7 +193,14 @@ const Login = ({
     }
 
     setIsSubmitting(true);
-    const result = await onPasswordResetRequest(resetRequestData);
+    const result = await onPasswordResetRequest({
+      ...resetRequestData,
+      email: normalizeIdentityValue(resetRequestData.email),
+      regNumber: normalizeIdentityValue(resetRequestData.regNumber),
+      campus: normalizeCampusKey(resetRequestData.campus),
+      gender: normalizeGenderKey(resetRequestData.gender),
+      reason: resetRequestData.reason.trim(),
+    });
     setIsSubmitting(false);
 
     if (!result.success) {
@@ -231,7 +249,14 @@ const Login = ({
     }
 
     setIsSubmitting(true);
-    const result = await onPasswordResetConfirm(resetCodeData);
+    const result = await onPasswordResetConfirm({
+      ...resetCodeData,
+      email: normalizeIdentityValue(resetCodeData.email),
+      regNumber: normalizeIdentityValue(resetCodeData.regNumber),
+      campus: normalizeCampusKey(resetCodeData.campus),
+      gender: normalizeGenderKey(resetCodeData.gender),
+      resetCode: resetCodeData.resetCode.trim(),
+    });
     setIsSubmitting(false);
 
     if (!result.success) {

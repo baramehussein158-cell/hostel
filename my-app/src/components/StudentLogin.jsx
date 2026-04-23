@@ -10,6 +10,7 @@ import {
   FaMapMarkerAlt,
   FaVenusMars,
 } from 'react-icons/fa';
+import { GENDER_OPTIONS, normalizeCampusKey, normalizeGenderKey, normalizeIdentityValue } from '../data/portalData';
 import { useTheme } from '../contexts/ThemeContext';
 import './StudentLogin.scss';
 
@@ -28,11 +29,6 @@ const StudentLogin = ({
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
-
-  const STUDY_CAMPUSES = {
-    UR: ['College of Business and Economics', 'College of Science and Technology', 'College of Medicine and Health Sciences'],
-    RP: ['Engineering', 'Business', 'Information Technology'],
-  };
 
   const [formData, setFormData] = useState({
     // Login fields
@@ -84,11 +80,11 @@ const StudentLogin = ({
     setIsLoading(true);
     try {
       const result = await onStudentLogin({
-        email: formData.email,
+        email: normalizeIdentityValue(formData.email),
         password: formData.password,
-        regNumber: formData.regNumber,
-        campus: formData.campus,
-        gender: formData.gender,
+        regNumber: normalizeIdentityValue(formData.regNumber),
+        campus: normalizeCampusKey(formData.campus),
+        gender: normalizeGenderKey(formData.gender),
       });
 
       if (result.success) {
@@ -98,7 +94,7 @@ const StudentLogin = ({
         setMessage(result.message || 'Login failed');
         setMessageType('error');
       }
-    } catch (error) {
+    } catch {
       setMessage('An error occurred during login');
       setMessageType('error');
     } finally {
@@ -129,12 +125,12 @@ const StudentLogin = ({
     setIsLoading(true);
     try {
       const result = await onRegister({
-        name: formData.name,
-        email: formData.email,
+        name: formData.name.trim(),
+        email: normalizeIdentityValue(formData.email),
         password: formData.password,
-        regNumber: formData.regNumber,
-        campus: formData.campus,
-        gender: formData.gender,
+        regNumber: normalizeIdentityValue(formData.regNumber),
+        campus: normalizeCampusKey(formData.campus),
+        gender: normalizeGenderKey(formData.gender),
         allowAdminUpdates: formData.allowAdminUpdates,
       });
 
@@ -146,7 +142,7 @@ const StudentLogin = ({
         setMessage(result.message || 'Registration failed');
         setMessageType('error');
       }
-    } catch (error) {
+    } catch {
       setMessage('An error occurred during registration');
       setMessageType('error');
     } finally {
@@ -176,7 +172,14 @@ const StudentLogin = ({
 
     setIsLoading(true);
     try {
-      const result = await onPasswordResetRequest(resetRequestData);
+      const result = await onPasswordResetRequest({
+        ...resetRequestData,
+        email: normalizeIdentityValue(resetRequestData.email),
+        regNumber: normalizeIdentityValue(resetRequestData.regNumber),
+        campus: normalizeCampusKey(resetRequestData.campus),
+        gender: normalizeGenderKey(resetRequestData.gender),
+        reason: resetRequestData.reason.trim(),
+      });
       if (result.success) {
         setMessage(
           result.message ||
@@ -184,10 +187,10 @@ const StudentLogin = ({
         );
         setMessageType('success');
         setResetCodeData({
-          email: resetRequestData.email,
-          regNumber: resetRequestData.regNumber,
-          campus: resetRequestData.campus,
-          gender: resetRequestData.gender,
+          email: normalizeIdentityValue(resetRequestData.email),
+          regNumber: normalizeIdentityValue(resetRequestData.regNumber),
+          campus: normalizeCampusKey(resetRequestData.campus),
+          gender: normalizeGenderKey(resetRequestData.gender),
           resetCode: '',
           newPassword: '',
           confirm: '',
@@ -197,7 +200,7 @@ const StudentLogin = ({
         setMessage(result.message || 'Reset request failed.');
         setMessageType('error');
       }
-    } catch (error) {
+    } catch {
       setMessage('An error occurred while sending the reset request.');
       setMessageType('error');
     } finally {
@@ -236,7 +239,14 @@ const StudentLogin = ({
 
     setIsLoading(true);
     try {
-      const result = await onPasswordResetConfirm(resetCodeData);
+      const result = await onPasswordResetConfirm({
+        ...resetCodeData,
+        email: normalizeIdentityValue(resetCodeData.email),
+        regNumber: normalizeIdentityValue(resetCodeData.regNumber),
+        campus: normalizeCampusKey(resetCodeData.campus),
+        gender: normalizeGenderKey(resetCodeData.gender),
+        resetCode: resetCodeData.resetCode.trim(),
+      });
       if (result.success) {
         setMessage(result.message || 'Password updated successfully.');
         setMessageType('success');
@@ -271,15 +281,13 @@ const StudentLogin = ({
         setMessage(result.message || 'Password update failed.');
         setMessageType('error');
       }
-    } catch (error) {
+    } catch {
       setMessage('An error occurred while updating the password.');
       setMessageType('error');
     } finally {
       setIsLoading(false);
     }
   };
-
-  const studyCampuses = STUDY_CAMPUSES[formData.campus] || [];
 
   return (
     <div className={`student-login-container ${theme}`}>
@@ -367,8 +375,11 @@ const StudentLogin = ({
                     disabled={isSyncing || isLoading}
                   >
                     <option value="">Select Gender</option>
-                    <option value="M">Male</option>
-                    <option value="F">Female</option>
+                    {GENDER_OPTIONS.map((genderOption) => (
+                      <option key={genderOption.value} value={genderOption.value}>
+                        {genderOption.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -526,8 +537,11 @@ const StudentLogin = ({
                     disabled={isSyncing || isLoading}
                   >
                     <option value="">Select Gender</option>
-                    <option value="M">Male</option>
-                    <option value="F">Female</option>
+                    {GENDER_OPTIONS.map((genderOption) => (
+                      <option key={genderOption.value} value={genderOption.value}>
+                        {genderOption.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -697,19 +711,22 @@ const StudentLogin = ({
                       <FaVenusMars className="icon" />
                       Gender <span className="optional-note">(optional)</span>
                     </label>
-                    <select
-                      id="reset-gender"
-                      value={resetRequestData.gender}
-                      onChange={(event) =>
-                        setResetRequestData({ ...resetRequestData, gender: event.target.value })
+                  <select
+                    id="reset-gender"
+                    value={resetRequestData.gender}
+                    onChange={(event) =>
+                      setResetRequestData({ ...resetRequestData, gender: event.target.value })
                       }
                       disabled={isSyncing || isLoading}
-                    >
-                      <option value="">Select Gender</option>
-                      <option value="M">Male</option>
-                      <option value="F">Female</option>
-                    </select>
-                  </div>
+                  >
+                    <option value="">Select Gender</option>
+                    {GENDER_OPTIONS.map((genderOption) => (
+                      <option key={genderOption.value} value={genderOption.value}>
+                        {genderOption.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 </div>
 
                 <div className="form-group">
@@ -806,19 +823,22 @@ const StudentLogin = ({
                       <FaVenusMars className="icon" />
                       Gender <span className="optional-note">(optional)</span>
                     </label>
-                    <select
-                      id="reset-confirm-gender"
-                      value={resetCodeData.gender}
-                      onChange={(event) =>
-                        setResetCodeData({ ...resetCodeData, gender: event.target.value })
+                  <select
+                    id="reset-confirm-gender"
+                    value={resetCodeData.gender}
+                    onChange={(event) =>
+                      setResetCodeData({ ...resetCodeData, gender: event.target.value })
                       }
                       disabled={isSyncing || isLoading}
-                    >
-                      <option value="">Select Gender</option>
-                      <option value="M">Male</option>
-                      <option value="F">Female</option>
-                    </select>
-                  </div>
+                  >
+                    <option value="">Select Gender</option>
+                    {GENDER_OPTIONS.map((genderOption) => (
+                      <option key={genderOption.value} value={genderOption.value}>
+                        {genderOption.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 </div>
 
                 <div className="form-group">

@@ -108,6 +108,34 @@ export const normalizeCampusKey = (campus) => {
   return campusValue;
 };
 
+export const normalizeIdentityValue = (value) => value?.trim().toLowerCase() ?? '';
+
+export const normalizeGenderKey = (gender) => {
+  const normalizedGender = normalizeIdentityValue(gender).replace(/[^a-z]/g, '');
+
+  if (!normalizedGender) {
+    return '';
+  }
+
+  if (normalizedGender === 'm' || normalizedGender === 'male') {
+    return 'male';
+  }
+
+  if (normalizedGender === 'f' || normalizedGender === 'female') {
+    return 'female';
+  }
+
+  if (normalizedGender === 'nonbinary' || normalizedGender === 'nonbin') {
+    return 'non_binary';
+  }
+
+  if (normalizedGender === 'prefernottosay') {
+    return 'prefer_not_to_say';
+  }
+
+  return normalizedGender;
+};
+
 export const createId = (prefix) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 export const getUserAccountKey = (user) => {

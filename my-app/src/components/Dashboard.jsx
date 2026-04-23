@@ -1,4 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
 import {
   FaBed,
   FaCalendarAlt,
@@ -283,6 +288,33 @@ const Dashboard = ({
     roomsAvailable: remainingRooms,
   };
 
+  const studentMetrics = [
+    {
+      id: 'applications-sent',
+      label: 'Applications sent',
+      value: studentApplications.length,
+      icon: FaClipboardList,
+    },
+    {
+      id: 'rooms-remaining',
+      label: 'Rooms remaining',
+      value: remainingRooms,
+      icon: FaBed,
+    },
+    {
+      id: 'latest-status',
+      label: 'Latest status',
+      value: hasApplication ? APPLICATION_STATUS_LABELS[latestApplication.status] : 'Ready',
+      icon: FaCalendarAlt,
+    },
+    {
+      id: 'payment-status',
+      label: 'Payment',
+      value: hasApplication ? PAYMENT_STATUS_LABELS[paymentStatus] : 'Not started',
+      icon: FaCreditCard,
+    },
+  ];
+
   useEffect(() => {
     if (showForm && formRef.current) {
       formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -322,7 +354,7 @@ const Dashboard = ({
   };
 
   return (
-    <div className={`dashboard ${theme} campus-${campus.toLowerCase()}`}>
+    <Box className={`dashboard ${theme} campus-${campus.toLowerCase()} student-dashboard`}>
       <header className="dashboard-header">
         <div className="dashboard-toolbar">
           <label className="portal-search">
@@ -362,538 +394,554 @@ const Dashboard = ({
         </div>
       </header>
 
-      <section className="dashboard-campuses">
-        <CampusCarousel
-          slides={PORTAL_IMAGES}
-          title="Campus highlights"
-          description="A rotating visual tour of the same UR and RP images used on the landing page."
-          variant="compact"
-          className="dashboard-campus-carousel"
-        />
-      </section>
-
-      <div className="dashboard-layout-with-sidebar">
-        <DashboardSidebar 
-          activeView={activeView} 
-          onViewChange={handleViewChange} 
-          stats={studentSidebarStats}
-          userType="student"
-          quickLinks={studentQuickLinks}
-          searchQuery={topSearch}
-          onLogout={onLogout}
-        />
-
-        <div className="dashboard-content">
-        {notification && (
-          <div className="toast-notification">
-            <FaCheckCircle className="toast-icon" />
-            <span>{notification}</span>
-          </div>
-        )}
-
-        {topSearch.trim() && (
-          <section className="search-results-panel">
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">Search results</p>
-                <h2>Matches for "{topSearch.trim()}"</h2>
-              </div>
-              <span className="search-results-count">{dashboardSearchResults.length} result(s)</span>
-            </div>
-
-            {dashboardSearchResults.length === 0 ? (
-              <div className="empty-state">No dashboard matches found. Try a different word like payment, room, or profile.</div>
-            ) : (
-              <div className="search-results-grid">
-                {dashboardSearchResults.map((result) => (
-                  <button
-                    key={result.id}
-                    type="button"
-                    className="search-result-card"
-                    onClick={result.onClick}
-                  >
-                    <span className="search-result-title">
-                      <HighlightText text={result.title} query={topSearch} />
-                    </span>
-                    <span className="search-result-description">
-                      <HighlightText text={result.description} query={topSearch} />
-                    </span>
-                    <span className="search-result-detail">
-                      <HighlightText text={result.detail} query={topSearch} />
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </section>
-        )}
-
-        {activeView === 'profile' ? (
-          <section className="profile-panel">
-            <div className="profile-summary-card">
-              <div className="profile-summary-header">
-                <div className="avatar-large">{student.name?.charAt(0).toUpperCase()}</div>
-                <div>
-                  <p className="eyebrow">Student Profile</p>
-                  <h2>{student.name}</h2>
-                  <p>Manage your personal details and account information.</p>
-                </div>
-              </div>
-
-              <div className="profile-details-grid">
-                <div>
-                  <span>Name</span>
-                  <strong>{student.name}</strong>
-                </div>
-                <div>
-                  <span>Email</span>
-                  <strong>{student.email}</strong>
-                </div>
-                <div>
-                  <span>Registration</span>
-                  <strong>{student.regNumber || 'Not set'}</strong>
-                </div>
-                <div>
-                  <span>Campus</span>
-                  <strong>{student.campus || 'Not set'}</strong>
-                </div>
-                <div>
-                  <span>Gender</span>
-                  <strong>{profileGenderLabel}</strong>
-                </div>
-                <div>
-                  <span>Reset support</span>
-                  <strong>Request reset code, then enter it in the login reset flow.</strong>
-                </div>
-              </div>
-            </div>
-          </section>
-        ) : activeView === 'payment-status' ? (
-          <section className="main-grid">
-            <div className="overview-card">
-              <div className="card-header">
-                <div>
-                  <p className="eyebrow">Payment view</p>
-                  <h3>{paymentCopy.title}</h3>
-                </div>
-                <span className={`payment-status-badge ${paymentStatus}`}>
-                  {hasApplication ? PAYMENT_STATUS_LABELS[paymentStatus] : 'Not started'}
-                </span>
-              </div>
-
-              <div className="status-summary">
-                <div>
-                  <strong>{hasApplication ? formatCurrency(latestApplication.amountPaid) : 'No payment yet'}</strong>
-                  <p>{hasApplication ? 'Hostel rent entered for the latest application.' : 'Submit an application to add payment details.'}</p>
-                </div>
-                <div>
-                  <strong>{hasApplication ? latestApplication.paymentReference || 'No reference' : 'No reference'}</strong>
-                  <p>{hasApplication ? 'Payment reference on record.' : 'Payment reference appears here after submission.'}</p>
-                </div>
-              </div>
-
-              {hasApplication ? (
-                <>
-                  <div className="summary-block">
-                    <div>
-                      <span>Method</span>
-                      <strong>
-                        {PAYMENT_METHODS.find((method) => method.value === latestApplication.paymentMethod)?.label ||
-                          latestApplication.paymentMethod ||
-                          'Not captured'}
-                      </strong>
-                    </div>
-                    <div>
-                      <span>Status</span>
-                      <strong>{PAYMENT_STATUS_LABELS[paymentStatus]}</strong>
-                    </div>
-                    <div>
-                      <span>Hostel rent paid</span>
-                      <strong>{formatCurrency(latestApplication.amountPaid)}</strong>
-                    </div>
-                    <div>
-                      <span>Reviewed on</span>
-                      <strong>
-                        {latestApplication.paymentVerifiedAt
-                          ? new Date(latestApplication.paymentVerifiedAt).toLocaleDateString()
-                          : 'Waiting for review'}
-                      </strong>
-                    </div>
-                  </div>
-
-                  <div className="payment-progress-card">
-                    <div className="payment-progress-copy">
-                      <p className="eyebrow">Payment summary</p>
-                      <h4>{paymentCopy.title}</h4>
-                      <p>{paymentCopy.summary}</p>
-                    </div>
-                    <div className="payment-progress-meta">
-                      <span className={`payment-status-badge ${paymentStatus}`}>
-                        {PAYMENT_STATUS_LABELS[paymentStatus]}
-                      </span>
-                      <small>{verifiedPayments} verified payment(s)</small>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="summary-block empty">
-                  <p>No payment record yet. Apply for a room first, then your payment status will appear here.</p>
-                </div>
-              )}
-            </div>
-
-            <aside className="info-card">
-              <div className="info-header">
-                <h3>Payment steps</h3>
-              </div>
-              <ul>
-                <li>
-                  <FaCreditCard /> Enter the hostel payment method and reference number.
-                </li>
-                <li>
-                  <FaClock /> Wait for admin payment review.
-                </li>
-                <li>
-                  <FaCheckCircle /> After verification, your hostel allocation can move forward.
-                </li>
-                <li>
-                  <FaBed /> Check room assignment after approval.
-                </li>
-              </ul>
-            </aside>
-          </section>
-        ) : activeView === 'room-info' ? (
-          <section className="main-grid">
-            <div className="overview-card">
-              <div className="card-header">
-                <div>
-                  <p className="eyebrow">Room view</p>
-                  <h3>Room allocation and availability</h3>
-                </div>
-                <span className="status-badge approved">{remainingRooms} open</span>
-              </div>
-
-              <div className="room-usage-block">
-                <div className="room-card room-card-consumed">
-                  <span>Approved rooms on campus</span>
-                  <strong>{occupiedRooms}</strong>
-                </div>
-                <div className="room-card room-card-free">
-                  <span>Remaining free rooms</span>
-                  <strong>{remainingRooms}</strong>
-                </div>
-                <div className="room-occupancy">
-                  <span>Campus occupancy</span>
-                  <div className="occupancy-bar">
-                    <div className="occupancy-fill" style={{ width: `${occupancyRate}%` }} />
-                  </div>
-                  <strong>{occupancyRate}% full</strong>
-                </div>
-              </div>
-
-              <div className="summary-block" style={{ marginTop: '1.5rem' }}>
-                <div>
-                  <span>Latest room type</span>
-                  <strong>{hasApplication ? ROOM_TYPE_LABELS[latestApplication.roomType] || latestApplication.roomType : 'Not set'}</strong>
-                </div>
-                <div>
-                  <span>Assigned room</span>
-                  <strong>{hasApplication ? latestApplication.assignedRoom || 'Waiting for admin assignment' : 'Not assigned'}</strong>
-                </div>
-                <div>
-                  <span>Room request</span>
-                  <strong>{hasApplication ? APPLICATION_STATUS_LABELS[latestApplication.status] : 'No application yet'}</strong>
-                </div>
-                <div>
-                  <span>Deadline</span>
-                  <strong>{deadline.toLocaleDateString()}</strong>
-                </div>
-              </div>
-            </div>
-
-            <aside className="info-card">
-              <div className="info-header">
-                <h3>Room checklist</h3>
-              </div>
-              <ul>
-                <li>
-                  <FaClipboardList /> Submit the hostel application first.
-                </li>
-                <li>
-                  <FaCreditCard /> Make sure payment details are verified.
-                </li>
-                <li>
-                  <FaCheckCircle /> Approved students can receive a room assignment.
-                </li>
-                <li>
-                  <FaBed /> Check this section when you want to confirm room status.
-                </li>
-              </ul>
-            </aside>
-          </section>
-        ) : activeView === 'settings' ? (
-          <Settings
-            user={student}
-            userType="student"
-            onUpdateProfile={onUpdateProfile}
+      <Container maxWidth="xl" disableGutters className="student-dashboard-container">
+        <section className="dashboard-campuses">
+          <CampusCarousel
+            slides={PORTAL_IMAGES}
+            title="Campus highlights"
+            description="A rotating visual tour of the same UR and RP images used on the landing page."
+            variant="compact"
+            className="dashboard-campus-carousel"
           />
-        ) : (
-          <>
-            <section className="top-grid">
-              <article className="hero-panel">
-                <div className="hero-pill">Application Overview</div>
-                <h2>Stay on top of your housing request without leaving the portal.</h2>
-                <p>
-                  Track your latest application status, submit hostel rent payment details, and reapply quickly if
-                  admin asks for changes.
-                </p>
+        </section>
 
-                <div className="hero-actions">
-                  <button
-                    className="primary-action"
-                    onClick={() => {
-                      setShowForm(true);
-                      setViewMode('form');
-                    }}
-                    disabled={!canApply}
-                  >
-                    {latestApplication?.status === 'rejected'
-                      ? 'Submit New Application'
-                      : hasApplication
-                        ? 'Application Active'
-                        : 'Apply for Room'}
-                  </button>
-                  <button
-                    className="secondary-action"
-                    onClick={() => {
-                      setShowForm(false);
-                      setViewMode('status');
-                      statusRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }}
-                  >
-                    See Status
-                  </button>
-                </div>
+        <Grid container spacing={3} className="student-dashboard-layout">
+          <Grid item xs={12} lg={3} className="student-dashboard-sidebar-column">
+            <DashboardSidebar
+              activeView={activeView}
+              onViewChange={handleViewChange}
+              stats={studentSidebarStats}
+              userType="student"
+              quickLinks={studentQuickLinks}
+              searchQuery={topSearch}
+              onLogout={onLogout}
+            />
+          </Grid>
 
-                <div className="hero-footline">
-                  <span className="room-badge">{remainingRooms} rooms remaining</span>
-                  <p className="hero-note">Current view: {viewMode === 'form' ? 'Application form' : 'Status summary'}</p>
-                </div>
+          <Grid item xs={12} lg={9} className="student-dashboard-content-column">
+            <Stack spacing={3} className="dashboard-content">
+              {notification && (
+                <Paper elevation={0} className="toast-notification">
+                  <FaCheckCircle className="toast-icon" />
+                  <span>{notification}</span>
+                </Paper>
+              )}
 
-                {roomClosed && (
-                  <div className="hero-alert">
-                    {pastDeadline ? (
-                      <p>Applications are closed because the deadline of {deadline.toLocaleDateString()} has passed.</p>
-                    ) : (
-                      <p>Applications are closed because no more approved room capacity remains for your campus.</p>
-                    )}
+              {topSearch.trim() && (
+                <Paper elevation={0} className="search-results-panel">
+                  <div className="section-heading">
+                    <div>
+                      <p className="eyebrow">Search results</p>
+                      <h2>Matches for "{topSearch.trim()}"</h2>
+                    </div>
+                    <span className="search-results-count">{dashboardSearchResults.length} result(s)</span>
                   </div>
-                )}
 
-                {latestApplication?.status === 'rejected' && (
-                  <div className="hero-alert warning">
-                    <p>Your last application was rejected. You can submit a corrected request now.</p>
-                  </div>
-                )}
-              </article>
+                  {dashboardSearchResults.length === 0 ? (
+                    <div className="empty-state">
+                      No dashboard matches found. Try a different word like payment, room, or profile.
+                    </div>
+                  ) : (
+                    <Grid container spacing={2} className="search-results-grid">
+                      {dashboardSearchResults.map((result) => (
+                        <Grid item xs={12} sm={6} key={result.id}>
+                          <button type="button" className="search-result-card" onClick={result.onClick}>
+                            <span className="search-result-title">
+                              <HighlightText text={result.title} query={topSearch} />
+                            </span>
+                            <span className="search-result-description">
+                              <HighlightText text={result.description} query={topSearch} />
+                            </span>
+                            <span className="search-result-detail">
+                              <HighlightText text={result.detail} query={topSearch} />
+                            </span>
+                          </button>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  )}
+                </Paper>
+              )}
 
-              <div className="metric-cards">
-                <div className="metric-card">
-                  <FaClipboardList className="metric-icon" />
-                  <span>Applications sent</span>
-                  <strong>{studentApplications.length}</strong>
-                </div>
-                <div className="metric-card">
-                  <FaBed className="metric-icon" />
-                  <span>Rooms remaining</span>
-                  <strong>{remainingRooms}</strong>
-                </div>
-                <div className="metric-card">
-                  <FaCalendarAlt className="metric-icon" />
-                  <span>Latest status</span>
-                  <strong>{hasApplication ? APPLICATION_STATUS_LABELS[latestApplication.status] : 'Ready'}</strong>
-                </div>
-                <div className="metric-card">
-                  <FaCreditCard className="metric-icon" />
-                  <span>Payment</span>
-                  <strong>{hasApplication ? PAYMENT_STATUS_LABELS[paymentStatus] : 'Not started'}</strong>
-                </div>
-              </div>
-            </section>
+              {activeView === 'profile' ? (
+                <Paper elevation={0} className="profile-panel">
+                  <div className="profile-summary-card">
+                    <div className="profile-summary-header">
+                      <div className="avatar-large">{student.name?.charAt(0).toUpperCase()}</div>
+                      <div>
+                        <p className="eyebrow">Student Profile</p>
+                        <h2>{student.name}</h2>
+                        <p>Manage your personal details and account information.</p>
+                      </div>
+                    </div>
 
-            <section className="main-grid">
-              <div ref={statusRef} className="overview-card">
-                <div className="card-header">
-                  <div>
-                    <p className="eyebrow">Application status</p>
-                    <h3>{statusCopy.title}</h3>
-                  </div>
-                  <span className={`status-badge ${applicationStatus}`}>
-                    {hasApplication ? APPLICATION_STATUS_LABELS[latestApplication.status] : 'Pending'}
-                  </span>
-                </div>
-
-                <div className="status-summary">
-                  <div>
-                    <strong>{statusCopy.eta}</strong>
-                    <p>{statusCopy.summary}</p>
-                  </div>
-                  <div>
-                    <strong>{hasApplication ? PAYMENT_STATUS_LABELS[paymentStatus] : 'Not submitted'}</strong>
-                    <p>{hasApplication ? paymentCopy.summary : 'Payment verification starts after you apply.'}</p>
-                  </div>
-                </div>
-
-                {hasApplication ? (
-                  <>
-                    <div className="summary-block">
+                    <div className="profile-details-grid">
                       <div>
                         <span>Name</span>
-                        <strong>{latestApplication.name}</strong>
+                        <strong>{student.name}</strong>
+                      </div>
+                      <div>
+                        <span>Email</span>
+                        <strong>{student.email}</strong>
+                      </div>
+                      <div>
+                        <span>Registration</span>
+                        <strong>{student.regNumber || 'Not set'}</strong>
+                      </div>
+                      <div>
+                        <span>Campus</span>
+                        <strong>{student.campus || 'Not set'}</strong>
                       </div>
                       <div>
                         <span>Gender</span>
-                        <strong>{getGenderLabel(latestApplication.gender)}</strong>
+                        <strong>{profileGenderLabel}</strong>
                       </div>
                       <div>
-                        <span>Study campus</span>
-                        <strong>{latestApplication.studyCampus || latestApplication.campus}</strong>
-                      </div>
-                      <div>
-                        <span>Room choice</span>
-                        <strong>{ROOM_TYPE_LABELS[latestApplication.roomType] || latestApplication.roomType}</strong>
-                      </div>
-                      <div>
-                        <span>Phone</span>
-                        <strong>{latestApplication.phone}</strong>
-                      </div>
-                      <div>
-                        <span>Submitted on</span>
-                        <strong>{new Date(latestApplication.submittedAt).toLocaleDateString()}</strong>
-                      </div>
-                      <div>
-                        <span>Assigned room</span>
-                        <strong>{latestApplication.assignedRoom || 'Waiting for admin assignment'}</strong>
-                      </div>
-                      <div>
-                        <span>Payment method</span>
-                        <strong>
-                          {PAYMENT_METHODS.find((method) => method.value === latestApplication.paymentMethod)?.label ||
-                            latestApplication.paymentMethod ||
-                            'Not captured'}
-                        </strong>
-                      </div>
-                      <div>
-                        <span>Payment reference</span>
-                        <strong>{latestApplication.paymentReference || 'Not captured'}</strong>
-                      </div>
-                      <div>
-                        <span>Hostel rent paid</span>
-                        <strong>{formatCurrency(latestApplication.amountPaid)}</strong>
-                      </div>
-                      <div>
-                        <span>Payment review</span>
-                        <strong>{PAYMENT_STATUS_LABELS[paymentStatus]}</strong>
-                      </div>
-                      <div>
-                        <span>Admin update access</span>
-                        <strong>{latestApplication.allowAdminUpdates ? 'Allowed' : 'Not allowed'}</strong>
+                        <span>Reset support</span>
+                        <strong>Request reset code, then enter it in the login reset flow.</strong>
                       </div>
                     </div>
-
-                    {latestPasswordResetRequest && (
-                      <div className="password-reset-status-card">
+                  </div>
+                </Paper>
+              ) : activeView === 'payment-status' ? (
+                <Grid container spacing={3} className="student-main-grid">
+                  <Grid item xs={12} lg={8}>
+                    <Paper elevation={0} className="overview-card">
+                      <div className="card-header">
                         <div>
-                          <p className="eyebrow">Password reset</p>
-                          <h4>{PASSWORD_RESET_REQUEST_STATUS_LABELS[passwordResetStatus] || 'Pending'}</h4>
+                          <p className="eyebrow">Payment view</p>
+                          <h3>{paymentCopy.title}</h3>
+                        </div>
+                        <span className={`payment-status-badge ${paymentStatus}`}>
+                          {hasApplication ? PAYMENT_STATUS_LABELS[paymentStatus] : 'Not started'}
+                        </span>
+                      </div>
+
+                      <div className="status-summary">
+                        <div>
+                          <strong>{hasApplication ? formatCurrency(latestApplication.amountPaid) : 'No payment yet'}</strong>
                           <p>
-                            {passwordResetStatus === 'approved'
-                              ? 'The admin issued a one-time code. Use it from the login reset section to set a new password.'
-                              : passwordResetStatus === 'used'
-                                ? 'Your password was updated successfully using the one-time code.'
-                                : passwordResetStatus === 'rejected'
-                                  ? 'The admin rejected the request. Send a new request if you still need help.'
-                                  : 'Your password reset request has been sent to the admin.'}
+                            {hasApplication
+                              ? 'Hostel rent entered for the latest application.'
+                              : 'Submit an application to add payment details.'}
                           </p>
                         </div>
-                        <strong className={`password-reset-pill ${passwordResetStatus}`}>
-                          {PASSWORD_RESET_REQUEST_STATUS_LABELS[passwordResetStatus] || 'Pending'}
-                        </strong>
-                      </div>
-                    )}
-
-                    <div className="payment-progress-card">
-                      <div className="payment-progress-copy">
-                        <p className="eyebrow">Payment verification</p>
-                        <h4>{paymentCopy.title}</h4>
-                        <p>{paymentCopy.summary}</p>
-                      </div>
-                      <div className="payment-progress-meta">
-                        <span className={`payment-status-badge ${paymentStatus}`}>
-                          {PAYMENT_STATUS_LABELS[paymentStatus]}
-                        </span>
-                        {latestApplication.paymentVerifiedAt && (
-                          <small>Reviewed on {new Date(latestApplication.paymentVerifiedAt).toLocaleDateString()}</small>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="room-usage-block">
-                      <div className="room-card room-card-consumed">
-                        <span>Approved rooms on campus</span>
-                        <strong>{occupiedRooms}</strong>
-                      </div>
-                      <div className="room-card room-card-free">
-                        <span>Remaining free rooms</span>
-                        <strong>{remainingRooms}</strong>
-                      </div>
-                      <div className="room-occupancy">
-                        <span>Campus occupancy</span>
-                        <div className="occupancy-bar">
-                          <div className="occupancy-fill" style={{ width: `${occupancyRate}%` }} />
+                        <div>
+                          <strong>{hasApplication ? latestApplication.paymentReference || 'No reference' : 'No reference'}</strong>
+                          <p>{hasApplication ? 'Payment reference on record.' : 'Payment reference appears here after submission.'}</p>
                         </div>
-                        <strong>{occupancyRate}% full</strong>
                       </div>
-                    </div>
-                  </>
-                ) : (
-                  <div className="summary-block empty">
-                    <p>Submit your first hostel application to see admin review and payment updates here.</p>
-                  </div>
-                )}
-              </div>
 
-              <aside className="info-card">
-                <div className="info-header">
-                  <h3>Helpful timeline</h3>
-                </div>
-                <ul>
-                  <li>
-                    <FaClock /> Submit the hostel form with your payment details in one sitting.
-                  </li>
-                  <li>
-                    <FaCreditCard /> Wait for the admin to verify your hostel rent payment.
-                  </li>
-                  <li>
-                    <FaCheckCircle /> After payment verification, the admin can approve and assign your room.
-                  </li>
-                  <li>
-                    <FaBed /> Check your assigned room once approved.
-                  </li>
-                </ul>
-              </aside>
-            </section>
+                      {hasApplication ? (
+                        <>
+                          <div className="summary-block">
+                            <div>
+                              <span>Method</span>
+                              <strong>
+                                {PAYMENT_METHODS.find((method) => method.value === latestApplication.paymentMethod)?.label ||
+                                  latestApplication.paymentMethod ||
+                                  'Not captured'}
+                              </strong>
+                            </div>
+                            <div>
+                              <span>Status</span>
+                              <strong>{PAYMENT_STATUS_LABELS[paymentStatus]}</strong>
+                            </div>
+                            <div>
+                              <span>Hostel rent paid</span>
+                              <strong>{formatCurrency(latestApplication.amountPaid)}</strong>
+                            </div>
+                            <div>
+                              <span>Reviewed on</span>
+                              <strong>
+                                {latestApplication.paymentVerifiedAt
+                                  ? new Date(latestApplication.paymentVerifiedAt).toLocaleDateString()
+                                  : 'Waiting for review'}
+                              </strong>
+                            </div>
+                          </div>
 
-            {showForm && (
-              <div ref={formRef} className="form-anchor">
-                <ApplicationForm student={student} onBack={() => setShowForm(false)} onSubmit={handleApplicationSubmit} />
-              </div>
-            )}
-          </>
-        )}
-        </div>
-      </div>
-    </div>
+                          <div className="payment-progress-card">
+                            <div className="payment-progress-copy">
+                              <p className="eyebrow">Payment summary</p>
+                              <h4>{paymentCopy.title}</h4>
+                              <p>{paymentCopy.summary}</p>
+                            </div>
+                            <div className="payment-progress-meta">
+                              <span className={`payment-status-badge ${paymentStatus}`}>
+                                {PAYMENT_STATUS_LABELS[paymentStatus]}
+                              </span>
+                              <small>{verifiedPayments} verified payment(s)</small>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="summary-block empty">
+                          <p>No payment record yet. Apply for a room first, then your payment status will appear here.</p>
+                        </div>
+                      )}
+                    </Paper>
+                  </Grid>
+
+                  <Grid item xs={12} lg={4}>
+                    <Paper elevation={0} className="info-card">
+                      <div className="info-header">
+                        <h3>Payment steps</h3>
+                      </div>
+                      <ul>
+                        <li>
+                          <FaCreditCard /> Enter the hostel payment method and reference number.
+                        </li>
+                        <li>
+                          <FaClock /> Wait for admin payment review.
+                        </li>
+                        <li>
+                          <FaCheckCircle /> After verification, your hostel allocation can move forward.
+                        </li>
+                        <li>
+                          <FaBed /> Check room assignment after approval.
+                        </li>
+                      </ul>
+                    </Paper>
+                  </Grid>
+                </Grid>
+              ) : activeView === 'room-info' ? (
+                <Grid container spacing={3} className="student-main-grid">
+                  <Grid item xs={12} lg={8}>
+                    <Paper elevation={0} className="overview-card">
+                      <div className="card-header">
+                        <div>
+                          <p className="eyebrow">Room view</p>
+                          <h3>Room allocation and availability</h3>
+                        </div>
+                        <span className="status-badge approved">{remainingRooms} open</span>
+                      </div>
+
+                      <div className="room-usage-block">
+                        <div className="room-card room-card-consumed">
+                          <span>Approved rooms on campus</span>
+                          <strong>{occupiedRooms}</strong>
+                        </div>
+                        <div className="room-card room-card-free">
+                          <span>Remaining free rooms</span>
+                          <strong>{remainingRooms}</strong>
+                        </div>
+                        <div className="room-occupancy">
+                          <span>Campus occupancy</span>
+                          <div className="occupancy-bar">
+                            <div className="occupancy-fill" style={{ width: `${occupancyRate}%` }} />
+                          </div>
+                          <strong>{occupancyRate}% full</strong>
+                        </div>
+                      </div>
+
+                      <div className="summary-block" style={{ marginTop: '1.5rem' }}>
+                        <div>
+                          <span>Latest room type</span>
+                          <strong>
+                            {hasApplication ? ROOM_TYPE_LABELS[latestApplication.roomType] || latestApplication.roomType : 'Not set'}
+                          </strong>
+                        </div>
+                        <div>
+                          <span>Assigned room</span>
+                          <strong>{hasApplication ? latestApplication.assignedRoom || 'Waiting for admin assignment' : 'Not assigned'}</strong>
+                        </div>
+                        <div>
+                          <span>Room request</span>
+                          <strong>{hasApplication ? APPLICATION_STATUS_LABELS[latestApplication.status] : 'No application yet'}</strong>
+                        </div>
+                        <div>
+                          <span>Deadline</span>
+                          <strong>{deadline.toLocaleDateString()}</strong>
+                        </div>
+                      </div>
+                    </Paper>
+                  </Grid>
+
+                  <Grid item xs={12} lg={4}>
+                    <Paper elevation={0} className="info-card">
+                      <div className="info-header">
+                        <h3>Room checklist</h3>
+                      </div>
+                      <ul>
+                        <li>
+                          <FaClipboardList /> Submit the hostel application first.
+                        </li>
+                        <li>
+                          <FaCreditCard /> Make sure payment details are verified.
+                        </li>
+                        <li>
+                          <FaCheckCircle /> Approved students can receive a room assignment.
+                        </li>
+                        <li>
+                          <FaBed /> Check this section when you want to confirm room status.
+                        </li>
+                      </ul>
+                    </Paper>
+                  </Grid>
+                </Grid>
+              ) : activeView === 'settings' ? (
+                <Settings user={student} userType="student" onUpdateProfile={onUpdateProfile} />
+              ) : (
+                <>
+                  <Grid container spacing={3} className="student-hero-grid">
+                    <Grid item xs={12} lg={8}>
+                      <Paper elevation={0} className="hero-panel">
+                        <div className="hero-pill">Application Overview</div>
+                        <h2>Stay on top of your housing request without leaving the portal.</h2>
+                        <p>
+                          Track your latest application status, submit hostel rent payment details, and reapply quickly if
+                          admin asks for changes.
+                        </p>
+
+                        <div className="hero-actions">
+                          <button
+                            className="primary-action"
+                            onClick={() => {
+                              setShowForm(true);
+                              setViewMode('form');
+                            }}
+                            disabled={!canApply}
+                          >
+                            {latestApplication?.status === 'rejected'
+                              ? 'Submit New Application'
+                              : hasApplication
+                                ? 'Application Active'
+                                : 'Apply for Room'}
+                          </button>
+                          <button
+                            className="secondary-action"
+                            onClick={() => {
+                              setShowForm(false);
+                              setViewMode('status');
+                              statusRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }}
+                          >
+                            See Status
+                          </button>
+                        </div>
+
+                        <div className="hero-footline">
+                          <span className="room-badge">{remainingRooms} rooms remaining</span>
+                          <p className="hero-note">Current view: {viewMode === 'form' ? 'Application form' : 'Status summary'}</p>
+                        </div>
+
+                        {roomClosed && (
+                          <div className="hero-alert">
+                            {pastDeadline ? (
+                              <p>Applications are closed because the deadline of {deadline.toLocaleDateString()} has passed.</p>
+                            ) : (
+                              <p>Applications are closed because no more approved room capacity remains for your campus.</p>
+                            )}
+                          </div>
+                        )}
+
+                        {latestApplication?.status === 'rejected' && (
+                          <div className="hero-alert warning">
+                            <p>Your last application was rejected. You can submit a corrected request now.</p>
+                          </div>
+                        )}
+                      </Paper>
+                    </Grid>
+
+                    <Grid item xs={12} lg={4}>
+                      <Grid container spacing={2} className="metric-cards">
+                        {studentMetrics.map((metric) => {
+                          const MetricIcon = metric.icon;
+
+                          return (
+                            <Grid item xs={12} sm={6} key={metric.id}>
+                              <Paper elevation={0} className="metric-card">
+                                <MetricIcon className="metric-icon" />
+                                <span>{metric.label}</span>
+                                <strong>{metric.value}</strong>
+                              </Paper>
+                            </Grid>
+                          );
+                        })}
+                      </Grid>
+                    </Grid>
+                  </Grid>
+
+                  <Grid container spacing={3} className="student-main-grid">
+                    <Grid item xs={12} lg={8}>
+                      <Paper elevation={0} ref={statusRef} className="overview-card">
+                        <div className="card-header">
+                          <div>
+                            <p className="eyebrow">Application status</p>
+                            <h3>{statusCopy.title}</h3>
+                          </div>
+                          <span className={`status-badge ${applicationStatus}`}>
+                            {hasApplication ? APPLICATION_STATUS_LABELS[latestApplication.status] : 'Pending'}
+                          </span>
+                        </div>
+
+                        <div className="status-summary">
+                          <div>
+                            <strong>{statusCopy.eta}</strong>
+                            <p>{statusCopy.summary}</p>
+                          </div>
+                          <div>
+                            <strong>{hasApplication ? PAYMENT_STATUS_LABELS[paymentStatus] : 'Not submitted'}</strong>
+                            <p>{hasApplication ? paymentCopy.summary : 'Payment verification starts after you apply.'}</p>
+                          </div>
+                        </div>
+
+                        {hasApplication ? (
+                          <>
+                            <div className="summary-block">
+                              <div>
+                                <span>Name</span>
+                                <strong>{latestApplication.name}</strong>
+                              </div>
+                              <div>
+                                <span>Gender</span>
+                                <strong>{getGenderLabel(latestApplication.gender)}</strong>
+                              </div>
+                              <div>
+                                <span>Study campus</span>
+                                <strong>{latestApplication.studyCampus || latestApplication.campus}</strong>
+                              </div>
+                              <div>
+                                <span>Room choice</span>
+                                <strong>{ROOM_TYPE_LABELS[latestApplication.roomType] || latestApplication.roomType}</strong>
+                              </div>
+                              <div>
+                                <span>Phone</span>
+                                <strong>{latestApplication.phone}</strong>
+                              </div>
+                              <div>
+                                <span>Submitted on</span>
+                                <strong>{new Date(latestApplication.submittedAt).toLocaleDateString()}</strong>
+                              </div>
+                              <div>
+                                <span>Assigned room</span>
+                                <strong>{latestApplication.assignedRoom || 'Waiting for admin assignment'}</strong>
+                              </div>
+                              <div>
+                                <span>Payment method</span>
+                                <strong>
+                                  {PAYMENT_METHODS.find((method) => method.value === latestApplication.paymentMethod)?.label ||
+                                    latestApplication.paymentMethod ||
+                                    'Not captured'}
+                                </strong>
+                              </div>
+                              <div>
+                                <span>Payment reference</span>
+                                <strong>{latestApplication.paymentReference || 'Not captured'}</strong>
+                              </div>
+                              <div>
+                                <span>Hostel rent paid</span>
+                                <strong>{formatCurrency(latestApplication.amountPaid)}</strong>
+                              </div>
+                              <div>
+                                <span>Payment review</span>
+                                <strong>{PAYMENT_STATUS_LABELS[paymentStatus]}</strong>
+                              </div>
+                              <div>
+                                <span>Admin update access</span>
+                                <strong>{latestApplication.allowAdminUpdates ? 'Allowed' : 'Not allowed'}</strong>
+                              </div>
+                            </div>
+
+                            {latestPasswordResetRequest && (
+                              <div className="password-reset-status-card">
+                                <div>
+                                  <p className="eyebrow">Password reset</p>
+                                  <h4>{PASSWORD_RESET_REQUEST_STATUS_LABELS[passwordResetStatus] || 'Pending'}</h4>
+                                  <p>
+                                    {passwordResetStatus === 'approved'
+                                      ? 'The admin issued a one-time code. Use it from the login reset section to set a new password.'
+                                      : passwordResetStatus === 'used'
+                                        ? 'Your password was updated successfully using the one-time code.'
+                                        : passwordResetStatus === 'rejected'
+                                          ? 'The admin rejected the request. Send a new request if you still need help.'
+                                          : 'Your password reset request has been sent to the admin.'}
+                                  </p>
+                                </div>
+                                <strong className={`password-reset-pill ${passwordResetStatus}`}>
+                                  {PASSWORD_RESET_REQUEST_STATUS_LABELS[passwordResetStatus] || 'Pending'}
+                                </strong>
+                              </div>
+                            )}
+
+                            <div className="payment-progress-card">
+                              <div className="payment-progress-copy">
+                                <p className="eyebrow">Payment verification</p>
+                                <h4>{paymentCopy.title}</h4>
+                                <p>{paymentCopy.summary}</p>
+                              </div>
+                              <div className="payment-progress-meta">
+                                <span className={`payment-status-badge ${paymentStatus}`}>
+                                  {PAYMENT_STATUS_LABELS[paymentStatus]}
+                                </span>
+                                {latestApplication.paymentVerifiedAt && (
+                                  <small>Reviewed on {new Date(latestApplication.paymentVerifiedAt).toLocaleDateString()}</small>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="room-usage-block">
+                              <div className="room-card room-card-consumed">
+                                <span>Approved rooms on campus</span>
+                                <strong>{occupiedRooms}</strong>
+                              </div>
+                              <div className="room-card room-card-free">
+                                <span>Remaining free rooms</span>
+                                <strong>{remainingRooms}</strong>
+                              </div>
+                              <div className="room-occupancy">
+                                <span>Campus occupancy</span>
+                                <div className="occupancy-bar">
+                                  <div className="occupancy-fill" style={{ width: `${occupancyRate}%` }} />
+                                </div>
+                                <strong>{occupancyRate}% full</strong>
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="summary-block empty">
+                            <p>Submit your first hostel application to see admin review and payment updates here.</p>
+                          </div>
+                        )}
+                      </Paper>
+                    </Grid>
+
+                    <Grid item xs={12} lg={4}>
+                      <Paper elevation={0} className="info-card">
+                        <div className="info-header">
+                          <h3>Helpful timeline</h3>
+                        </div>
+                        <ul>
+                          <li>
+                            <FaClock /> Submit the hostel form with your payment details in one sitting.
+                          </li>
+                          <li>
+                            <FaCreditCard /> Wait for the admin to verify your hostel rent payment.
+                          </li>
+                          <li>
+                            <FaCheckCircle /> After payment verification, the admin can approve and assign your room.
+                          </li>
+                          <li>
+                            <FaBed /> Check your assigned room once approved.
+                          </li>
+                        </ul>
+                      </Paper>
+                    </Grid>
+                  </Grid>
+
+                  {showForm && (
+                    <Box ref={formRef} className="form-anchor">
+                      <ApplicationForm student={student} onBack={() => setShowForm(false)} onSubmit={handleApplicationSubmit} />
+                    </Box>
+                  )}
+                </>
+              )}
+            </Stack>
+          </Grid>
+        </Grid>
+      </Container>
+    </Box>
   );
 };
 

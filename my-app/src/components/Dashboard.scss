@@ -1650,6 +1650,84 @@
   color: #93c5fd !important;
 }
 
+.student-dashboard .student-dashboard-container {
+  width: 100%;
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem;
+}
+
+.student-dashboard .dashboard-campuses {
+  padding: 1rem 0 0;
+}
+
+.student-dashboard .student-dashboard-layout {
+  width: 100%;
+  margin: 0;
+}
+
+.student-dashboard .student-dashboard-sidebar-column,
+.student-dashboard .student-dashboard-content-column {
+  min-width: 0;
+}
+
+.student-dashboard .dashboard-content {
+  padding: 0;
+  max-width: none;
+  gap: 1.25rem;
+}
+
+.student-dashboard .metric-cards {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  width: 100%;
+}
+
+.student-dashboard .metric-cards > .MuiGrid-item {
+  display: flex;
+}
+
+.student-dashboard .metric-card {
+  width: 100%;
+}
+
+.student-dashboard .student-hero-grid,
+.student-dashboard .student-main-grid {
+  align-items: stretch;
+}
+
+.student-dashboard .student-hero-grid > .MuiGrid-item,
+.student-dashboard .student-main-grid > .MuiGrid-item {
+  display: flex;
+}
+
+.student-dashboard .student-hero-grid .hero-panel,
+.student-dashboard .student-main-grid .overview-card,
+.student-dashboard .student-main-grid .info-card,
+.student-dashboard .profile-panel,
+.student-dashboard .search-results-panel {
+  width: 100%;
+}
+
+@media (max-width: 1100px) {
+  .student-dashboard .student-dashboard-container {
+    padding: 0 1rem 3rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .student-dashboard .metric-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .student-dashboard .student-dashboard-container {
+    padding: 0 0.75rem 2rem;
+  }
+}
+
 /* Final override so later legacy rules do not flatten the header styling */
 .dashboard.light .dashboard-header {
   background: transparent !important;

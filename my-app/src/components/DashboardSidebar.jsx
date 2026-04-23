@@ -26,6 +26,45 @@ const DashboardSidebar = ({
   searchQuery = '',
 }) => {
   const normalizedSearch = searchQuery.trim().toLowerCase();
+  const totalApplications = stats.totalApplications || 0;
+  const totalRooms = stats.totalRooms || 0;
+  const approvedApplications = stats.approvedApplications || 0;
+  const pendingApplications = stats.pendingApplications || 0;
+  const pendingPaymentReviews = stats.pendingPaymentReviews || 0;
+  const waitlistedApplications = stats.waitlistedApplications || 0;
+  const occupancyRate = totalRooms > 0 ? Math.round((approvedApplications / totalRooms) * 100) : 0;
+  const approvalRate = totalApplications > 0 ? Math.round((approvedApplications / totalApplications) * 100) : 0;
+  const reviewLoad = totalApplications > 0 ? Math.round(((pendingApplications + pendingPaymentReviews) / totalApplications) * 100) : 0;
+  const chartSeries =
+    userType === 'admin'
+      ? [
+          {
+            id: 'occupancy',
+            label: 'Room occupancy',
+            value: occupancyRate,
+            note: `${approvedApplications}/${totalRooms || 0} rooms filled`,
+          },
+          {
+            id: 'approval',
+            label: 'Approval rate',
+            value: approvalRate,
+            note: `${approvedApplications} approved applications`,
+          },
+          {
+            id: 'review-load',
+            label: 'Review load',
+            value: reviewLoad,
+            note: `${pendingApplications + pendingPaymentReviews} waiting for action`,
+          },
+          {
+            id: 'waitlist',
+            label: 'Waitlist pressure',
+            value: totalApplications > 0 ? Math.round((waitlistedApplications / totalApplications) * 100) : 0,
+            note: `${waitlistedApplications} students in queue`,
+          },
+        ]
+      : [];
+
   const adminCards = [
     {
       id: 'overview',
@@ -194,6 +233,41 @@ const DashboardSidebar = ({
           <div className="sidebar-section-title">{userType === 'student' ? 'More' : 'Workspace'}</div>
           <div className="sidebar-nav-list sidebar-nav-list--compact">
             {secondaryCards.map((card) => renderCard(card, true))}
+          </div>
+        </div>
+      )}
+
+      {userType === 'admin' && (
+        <div className="sidebar-section sidebar-analysis-panel">
+          <div className="sidebar-section-title">Chart Analysis</div>
+          <div className="sidebar-analysis-summary">
+            <div>
+              <span>Occupancy</span>
+              <strong>{occupancyRate}%</strong>
+            </div>
+            <div>
+              <span>Approval</span>
+              <strong>{approvalRate}%</strong>
+            </div>
+            <div>
+              <span>Review load</span>
+              <strong>{reviewLoad}%</strong>
+            </div>
+          </div>
+
+          <div className="sidebar-chart-list" role="img" aria-label="Admin dashboard chart analysis">
+            {chartSeries.map((item) => (
+              <div key={item.id} className="sidebar-chart-row">
+                <div className="sidebar-chart-copy">
+                  <strong>{item.label}</strong>
+                  <span>{item.note}</span>
+                </div>
+                <div className="sidebar-chart-track" aria-hidden="true">
+                  <div className="sidebar-chart-fill" style={{ width: `${Math.min(item.value, 100)}%` }} />
+                </div>
+                <span className="sidebar-chart-percent">{Math.min(item.value, 100)}%</span>
+              </div>
+            ))}
           </div>
         </div>
       )}
