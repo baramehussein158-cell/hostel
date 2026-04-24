@@ -354,6 +354,14 @@ const Dashboard = ({
     return result;
   };
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [activeView]);
+
   const handleViewChange = (nextView) => {
     setActiveView(nextView);
 
@@ -391,10 +399,12 @@ const Dashboard = ({
 
         <div className="header-main">
           <div className="hero-copy">
-            <h1 className="greeting-title">{timeGreeting}, {displayName}</h1>
-            <p className="time-note">
-              Local time: {currentTimeLabel} | Campus: {campusName}
-            </p>
+            <div className="greeting-row">
+              <h1 className="greeting-title">{timeGreeting}, {displayName}</h1>
+              <p className="time-note">
+                Local time: {currentTimeLabel} | Campus: {campusName}
+              </p>
+            </div>
           </div>
         </div>
       </header>

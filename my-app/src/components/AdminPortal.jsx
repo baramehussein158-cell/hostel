@@ -791,11 +791,13 @@ const AdminPortal = ({
         </div>
 
         <div className="admin-hero">
-          <div>
-            <h1 className="greeting-title">{timeGreeting}, {displayedAdminName}</h1>
-            <p className="time-note">
-              Local time: {currentTimeLabel} | Campus scope: {selectedCampusLabel}
-            </p>
+          <div className="admin-hero-copy">
+            <div className="greeting-row">
+              <h1 className="greeting-title">{timeGreeting}, {displayedAdminName}</h1>
+              <p className="time-note">
+                Local time: {currentTimeLabel} | Campus scope: {selectedCampusLabel}
+              </p>
+            </div>
           </div>
         </div>
       </header>
