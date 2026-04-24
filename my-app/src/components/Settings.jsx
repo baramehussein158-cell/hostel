@@ -65,8 +65,8 @@ const Settings = ({
     setMessage('');
 
     try {
-      if (formData.phone && !/^\+\d{1,12}$/.test(formData.phone)) {
-        setMessage('Phone number must start with + and contain up to 12 digits, for example +250788445512.');
+      if (formData.phone && !/^\+250\d{9}$/.test(formData.phone)) {
+        setMessage('Phone number must be a Rwandan number, for example +250788445512.');
         return;
       }
 
@@ -174,7 +174,7 @@ const Settings = ({
                     maxLength={13}
                     placeholder="+250788445512"
                   />
-                  <small className="field-hint">Use + followed by up to 12 digits. No letters.</small>
+                  <small className="field-hint">Use a Rwandan number in the format +250 followed by 9 digits.</small>
                 </div>
 
                 <div className="form-group">

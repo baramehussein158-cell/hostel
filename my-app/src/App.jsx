@@ -45,7 +45,7 @@ import './App.scss';
 
 const APPLICATION_DEADLINE = new Date('2026-05-15T23:59:59');
 const PASSWORD_POLICY = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-const STUDENT_PHONE_POLICY = /^\+\d{1,12}$/;
+const STUDENT_PHONE_POLICY = /^\+250\d{9}$/;
 
 const getLatestApplicationForStudent = (applications, student) => {
   if (!student) {
@@ -608,7 +608,7 @@ function AppContent() {
     if (!STUDENT_PHONE_POLICY.test(nextPhone)) {
       return {
         success: false,
-        message: 'Phone number must start with + and contain up to 12 digits, for example +250788445512.',
+        message: 'Phone number must be a Rwandan number, for example +250788445512.',
       };
     }
 
@@ -948,7 +948,7 @@ function AppContent() {
     if (nextPhone && !STUDENT_PHONE_POLICY.test(nextPhone)) {
       return {
         success: false,
-        message: 'Phone number must start with + and contain up to 12 digits, for example +250788445512.',
+        message: 'Phone number must be a Rwandan number, for example +250788445512.',
       };
     }
 

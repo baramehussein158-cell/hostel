@@ -29,7 +29,7 @@ import {
   formatCurrency,
 } from '../data/portalData';
 import { PORTAL_IMAGES } from '../data/siteImages';
-import { getDisplayName, getTimeGreeting } from '../utils/display';
+import { getDisplayName, getLocalTimeLabel, getTimeGreeting } from '../utils/display';
 import CampusCarousel from './CampusCarousel';
 import HighlightText from './HighlightText';
 import DashboardSidebar from './DashboardSidebar';
@@ -113,6 +113,8 @@ const Dashboard = ({
     'Student'
   );
   const timeGreeting = getTimeGreeting();
+  const currentTimeLabel = getLocalTimeLabel();
+  const campusName = campus === 'RP' ? 'Rwanda Polytechnic' : 'University of Rwanda';
   const occupancyRate = totalRooms > 0 ? Math.round((occupiedRooms / totalRooms) * 100) : 0;
   const applicationStatus = latestApplication?.status ?? 'ready';
   const paymentStatus = latestApplication?.paymentStatus ?? 'pending';
@@ -390,6 +392,9 @@ const Dashboard = ({
         <div className="header-main">
           <div className="hero-copy">
             <h1 className="greeting-title">{timeGreeting}, {displayName}</h1>
+            <p className="time-note">
+              Local time: {currentTimeLabel} | Campus: {campusName}
+            </p>
           </div>
         </div>
       </header>
@@ -1018,8 +1023,8 @@ const ApplicationForm = ({ student, onBack, onSubmit }) => {
       return;
     }
 
-    if (!/^\+\d{1,12}$/.test(formData.phone)) {
-      setFormMessage('Phone number must start with + and contain up to 12 digits, for example +250788445512.');
+    if (!/^\+250\d{9}$/.test(formData.phone)) {
+      setFormMessage('Phone number must be a Rwandan number, for example +250788445512.');
       return;
     }
 
@@ -1107,7 +1112,7 @@ const ApplicationForm = ({ student, onBack, onSubmit }) => {
               placeholder="+250788445512"
               required
             />
-            <small className="field-hint">Use + followed by up to 12 digits. No letters.</small>
+            <small className="field-hint">Use a Rwandan number in the format +250 followed by 9 digits.</small>
           </div>
           <div className="form-group">
             <label htmlFor="roomType">Preferred Room Type</label>

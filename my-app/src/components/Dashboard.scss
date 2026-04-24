@@ -1439,10 +1439,8 @@
 }
 
 .dashboard.light .dashboard-header h1 {
-  background: linear-gradient(90deg, #0f172a, #2563eb 45%, #0f766e 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  background: none;
+  color: #0f172a;
 }
 
 .dashboard.light .dashboard-header .eyebrow {
@@ -1529,10 +1527,8 @@
 }
 
 .dashboard.dark .dashboard-header h1 {
-  background: linear-gradient(90deg, #eef5ff, #93c5fd 45%, #6df2a2 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  background: none;
+  color: #eef5ff;
 }
 
 .dashboard.dark .dashboard-header .eyebrow {
@@ -1552,17 +1548,13 @@
 }
 
 .dashboard.light .dashboard-header h1 {
-  background: linear-gradient(90deg, #0f172a, #2563eb 45%, #0f766e 100%) !important;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent !important;
+  background: none !important;
+  color: #0f172a !important;
 }
 
 .dashboard.dark .dashboard-header h1 {
-  background: linear-gradient(90deg, #eef5ff, #93c5fd 45%, #6df2a2 100%) !important;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent !important;
+  background: none !important;
+  color: #eef5ff !important;
 }
 
 .dashboard.light .dashboard-header .eyebrow {
@@ -1676,17 +1668,13 @@
 }
 
 .dashboard.light .dashboard-header h1 {
-  background: linear-gradient(90deg, #0f172a, #2563eb 45%, #0f766e 100%) !important;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent !important;
+  background: none !important;
+  color: #0f172a !important;
 }
 
 .dashboard.dark .dashboard-header h1 {
-  background: linear-gradient(90deg, #eef5ff, #93c5fd 45%, #6df2a2 100%) !important;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent !important;
+  background: none !important;
+  color: #eef5ff !important;
 }
 
 .dashboard.light .dashboard-header .eyebrow {
@@ -2560,27 +2548,23 @@
 }
 
 .dashboard.light .dashboard-header {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(232, 245, 255, 0.94)) !important;
+  background: transparent !important;
   border-bottom-color: rgba(96, 165, 250, 0.22) !important;
 }
 
 .dashboard.dark .dashboard-header {
-  background: linear-gradient(135deg, rgba(8, 20, 38, 0.98), rgba(16, 58, 94, 0.94)) !important;
+  background: transparent !important;
   border-bottom-color: rgba(109, 242, 162, 0.22) !important;
 }
 
 .dashboard.light .dashboard-header h1 {
-  background: linear-gradient(90deg, #0f172a, #2563eb 45%, #0f766e 100%) !important;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent !important;
+  background: none !important;
+  color: #0f172a !important;
 }
 
 .dashboard.dark .dashboard-header h1 {
-  background: linear-gradient(90deg, #eef5ff, #93c5fd 45%, #6df2a2 100%) !important;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent !important;
+  background: none !important;
+  color: #eef5ff !important;
 }
 
 .dashboard.light .dashboard-header .eyebrow {

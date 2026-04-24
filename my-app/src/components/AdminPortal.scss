@@ -201,10 +201,8 @@
 }
 
 .admin-portal.light .admin-header h1 {
-  background: linear-gradient(90deg, #0f172a, #2563eb 45%, #0f766e 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  background: none;
+  color: #0f172a;
 }
 
 .admin-portal.light .admin-header .eyebrow {
@@ -217,10 +215,8 @@
 }
 
 .admin-portal.dark .admin-header h1 {
-  background: linear-gradient(90deg, #eef5ff, #93c5fd 45%, #6df2a2 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  background: none;
+  color: #eef5ff;
 }
 
 .admin-portal.dark .admin-header .eyebrow {
@@ -239,17 +235,13 @@
 }
 
 .admin-portal.light .admin-header h1 {
-  background: linear-gradient(90deg, #0f172a, #2563eb 45%, #0f766e 100%) !important;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent !important;
+  background: none !important;
+  color: #0f172a !important;
 }
 
 .admin-portal.dark .admin-header h1 {
-  background: linear-gradient(90deg, #eef5ff, #93c5fd 45%, #6df2a2 100%) !important;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent !important;
+  background: none !important;
+  color: #eef5ff !important;
 }
 
 .admin-portal.light .admin-header .eyebrow {
@@ -2251,17 +2243,13 @@
 }
 
 .admin-portal.light .admin-header h1 {
-  background: linear-gradient(90deg, #0f172a, #2563eb 45%, #0f766e 100%) !important;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent !important;
+  background: none !important;
+  color: #0f172a !important;
 }
 
 .admin-portal.dark .admin-header h1 {
-  background: linear-gradient(90deg, #eef5ff, #93c5fd 45%, #6df2a2 100%) !important;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent !important;
+  background: none !important;
+  color: #eef5ff !important;
 }
 
 .admin-portal.light .admin-header .eyebrow {

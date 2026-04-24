@@ -36,7 +36,7 @@ import {
   sortApplicationsByDate,
 } from '../data/portalData';
 import { PORTAL_IMAGES } from '../data/siteImages';
-import { getDisplayName, getInitials, getTimeGreeting } from '../utils/display';
+import { getDisplayName, getInitials, getLocalTimeLabel, getTimeGreeting } from '../utils/display';
 import CampusCarousel from './CampusCarousel';
 import HighlightText from './HighlightText';
 import DashboardSidebar from './DashboardSidebar';
@@ -105,6 +105,7 @@ const AdminPortal = ({
     session?.profileImageUpdatedAt || adminProfile?.profileImageUpdatedAt
   );
   const timeGreeting = getTimeGreeting();
+  const currentTimeLabel = getLocalTimeLabel();
   const searchQuery = studentSearch.trim().toLowerCase();
   const selectedCampusLabel =
     campusFilter === 'UR' ? 'University of Rwanda' : campusFilter === 'RP' ? 'Rwanda Polytechnic' : 'All campuses';
@@ -792,6 +793,9 @@ const AdminPortal = ({
         <div className="admin-hero">
           <div>
             <h1 className="greeting-title">{timeGreeting}, {displayedAdminName}</h1>
+            <p className="time-note">
+              Local time: {currentTimeLabel} | Campus scope: {selectedCampusLabel}
+            </p>
           </div>
         </div>
       </header>
