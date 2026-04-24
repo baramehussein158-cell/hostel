@@ -385,6 +385,9 @@ const Dashboard = ({
           <div className="hero-copy">
             <p className="eyebrow">CampusStay Student Portal</p>
             <h1>{timeGreeting}, {displayName}</h1>
+            <p className="time-note">
+              Welcome back, {displayName}. You are signed in for the {campusName} campus.
+            </p>
             <p className="subheading">
               Manage your room application, submit payment details, and track admin decisions from one portal.
             </p>

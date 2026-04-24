@@ -13,16 +13,6 @@ import {
   FaSignOutAlt,
   FaUser,
 } from 'react-icons/fa';
-import {
-  BarChart,
-  Bar,
-  CartesianGrid,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
 import HighlightText from './HighlightText';
 import './DashboardSidebar.scss';
 
@@ -36,52 +26,9 @@ const DashboardSidebar = ({
   searchQuery = '',
 }) => {
   const normalizedSearch = searchQuery.trim().toLowerCase();
-  const totalApplications = stats.totalApplications || 0;
   const totalRooms = stats.totalRooms || 0;
   const approvedApplications = stats.approvedApplications || 0;
-  const pendingApplications = stats.pendingApplications || 0;
-  const pendingPaymentReviews = stats.pendingPaymentReviews || 0;
-  const waitlistedApplications = stats.waitlistedApplications || 0;
   const occupancyRate = totalRooms > 0 ? Math.round((approvedApplications / totalRooms) * 100) : 0;
-  const approvalRate = totalApplications > 0 ? Math.round((approvedApplications / totalApplications) * 100) : 0;
-  const reviewLoad = totalApplications > 0 ? Math.round(((pendingApplications + pendingPaymentReviews) / totalApplications) * 100) : 0;
-  const chartSeries =
-    userType === 'admin'
-      ? [
-          {
-            id: 'occupancy',
-            label: 'Room occupancy',
-            shortLabel: 'Occupancy',
-            value: occupancyRate,
-            color: '#0f766e',
-            note: `${approvedApplications}/${totalRooms || 0} rooms filled`,
-          },
-          {
-            id: 'approval',
-            label: 'Approval rate',
-            shortLabel: 'Approval',
-            value: approvalRate,
-            color: '#2563eb',
-            note: `${approvedApplications} approved applications`,
-          },
-          {
-            id: 'review-load',
-            label: 'Review load',
-            shortLabel: 'Review',
-            value: reviewLoad,
-            color: '#7c3aed',
-            note: `${pendingApplications + pendingPaymentReviews} waiting for action`,
-          },
-          {
-            id: 'waitlist',
-            label: 'Waitlist pressure',
-            shortLabel: 'Waitlist',
-            value: totalApplications > 0 ? Math.round((waitlistedApplications / totalApplications) * 100) : 0,
-            color: '#f59e0b',
-            note: `${waitlistedApplications} students in queue`,
-          },
-        ]
-      : [];
 
   const adminCards = [
     {
@@ -90,6 +37,13 @@ const DashboardSidebar = ({
       icon: FaChartBar,
       count: stats.totalStudents || 0,
       description: 'Total students',
+    },
+    {
+      id: 'analytics',
+      label: 'Chart Analysis',
+      icon: FaChartBar,
+      count: occupancyRate,
+      description: 'Room capacity analysis',
     },
     {
       id: 'students',
@@ -258,80 +212,6 @@ const DashboardSidebar = ({
           <div className="sidebar-section-title">{userType === 'student' ? 'More' : 'Workspace'}</div>
           <div className="sidebar-nav-list sidebar-nav-list--compact">
             {secondaryCards.map((card) => renderCard(card, true))}
-          </div>
-        </div>
-      )}
-
-      {userType === 'admin' && (
-        <div className="sidebar-section sidebar-analysis-panel">
-          <div className="sidebar-section-title">Chart Analysis</div>
-          <div className="sidebar-analysis-summary">
-            <div>
-              <span>Occupancy</span>
-              <strong>{occupancyRate}%</strong>
-            </div>
-            <div>
-              <span>Approval</span>
-              <strong>{approvalRate}%</strong>
-            </div>
-            <div>
-              <span>Review load</span>
-              <strong>{reviewLoad}%</strong>
-            </div>
-          </div>
-
-          <div className="sidebar-chart-shell">
-            <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={chartSeries} margin={{ top: 12, right: 4, left: -12, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(148, 163, 184, 0.2)" />
-                <XAxis
-                  dataKey="shortLabel"
-                  tickLine={false}
-                  axisLine={false}
-                  interval={0}
-                  tick={{ fontSize: 11, fill: 'currentColor' }}
-                />
-                <YAxis hide domain={[0, 100]} />
-                <Tooltip
-                  cursor={{ fill: 'rgba(37, 99, 235, 0.08)' }}
-                  content={({ active, payload }) => {
-                    if (!active || !payload?.length) {
-                      return null;
-                    }
-
-                    const item = payload[0].payload;
-
-                    return (
-                      <div className="sidebar-chart-tooltip">
-                        <strong>{item.label}</strong>
-                        <span>{item.note}</span>
-                        <em>{Math.min(item.value, 100)}%</em>
-                      </div>
-                    );
-                  }}
-                />
-                <Bar dataKey="value" radius={[10, 10, 0, 0]} maxBarSize={36}>
-                  {chartSeries.map((item) => (
-                    <Cell key={item.id} fill={item.color} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="sidebar-chart-list" role="img" aria-label="Admin dashboard chart analysis">
-            {chartSeries.map((item) => (
-              <div key={item.id} className="sidebar-chart-row">
-                <div className="sidebar-chart-copy">
-                  <strong>{item.label}</strong>
-                  <span>{item.note}</span>
-                </div>
-                <div className="sidebar-chart-track" aria-hidden="true">
-                  <div className="sidebar-chart-fill" style={{ width: `${Math.min(item.value, 100)}%` }} />
-                </div>
-                <span className="sidebar-chart-percent">{Math.min(item.value, 100)}%</span>
-              </div>
-            ))}
           </div>
         </div>
       )}

@@ -11,6 +11,16 @@ import {
   FaSun,
   FaUsers,
 } from 'react-icons/fa';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import { useTheme } from '../contexts/ThemeContext';
 import {
   APPLICATION_STATUS_LABELS,
@@ -233,6 +243,7 @@ const AdminPortal = ({
   const pendingPasswordResetRequests = campusScopedPasswordResetRequests.filter(
     (request) => request.status === 'pending'
   ).length;
+  const waitlistedApplications = campusScopedApplications.filter((app) => app.status === 'waitlisted').length;
   const approvedAllocations = useMemo(
     () => sortApplicationsByDate(filteredApplications.filter((application) => application.status === 'approved')),
     [filteredApplications]
@@ -243,6 +254,51 @@ const AdminPortal = ({
   ).length;
   const occupancyRate = totalRooms > 0 ? Math.round((approvedApplications.length / totalRooms) * 100) : 0;
   const openRoomGroups = campusScopedRooms.filter((room) => room.status === 'open').length;
+  const chartSeries = useMemo(
+    () => [
+      {
+        id: 'occupancy',
+        label: 'Room occupancy',
+        shortLabel: 'Occupancy',
+        value: occupancyRate,
+        color: '#0f766e',
+        note: `${approvedApplications.length}/${totalRooms || 0} rooms filled`,
+      },
+      {
+        id: 'approval',
+        label: 'Approval rate',
+        shortLabel: 'Approval',
+        value: campusScopedApplications.length > 0 ? Math.round((approvedApplications.length / campusScopedApplications.length) * 100) : 0,
+        color: '#2563eb',
+        note: `${approvedApplications.length} approved applications`,
+      },
+      {
+        id: 'review-load',
+        label: 'Review load',
+        shortLabel: 'Review',
+        value: campusScopedApplications.length > 0 ? Math.round(((pendingApplications + pendingPaymentReviews) / campusScopedApplications.length) * 100) : 0,
+        color: '#7c3aed',
+        note: `${pendingApplications + pendingPaymentReviews} waiting for action`,
+      },
+      {
+        id: 'waitlist',
+        label: 'Waitlist pressure',
+        shortLabel: 'Waitlist',
+        value: campusScopedApplications.length > 0 ? Math.round((waitlistedApplications / campusScopedApplications.length) * 100) : 0,
+        color: '#f59e0b',
+        note: `${waitlistedApplications} students in queue`,
+      },
+    ],
+    [
+      approvedApplications.length,
+      campusScopedApplications.length,
+      occupancyRate,
+      pendingApplications,
+      pendingPaymentReviews,
+      totalRooms,
+      waitlistedApplications,
+    ]
+  );
 
   // Sidebar stats
   const sidebarStats = {
@@ -252,7 +308,7 @@ const AdminPortal = ({
     pendingPaymentReviews,
     approvedApplications: approvedApplications.length,
     totalRooms,
-    waitlistedApplications: campusScopedApplications.filter((app) => app.status === 'waitlisted').length,
+    waitlistedApplications,
     pendingPasswordResets: pendingPasswordResetRequests,
   };
 
@@ -335,6 +391,14 @@ const AdminPortal = ({
         detail: `${pendingApplications} pending applications`,
         keywords: ['overview', 'summary', 'students', 'applications', 'payments', 'rooms'].join(' '),
         onClick: () => setActiveView('overview'),
+      },
+      {
+        id: 'analytics',
+        title: 'Chart Analysis',
+        description: `${occupancyRate}% occupancy and ${waitlistedApplications} student(s) waiting`,
+        detail: 'Open the analytics dashboard',
+        keywords: ['analytics', 'chart', 'analysis', 'occupancy', 'approval', 'review', 'waitlist'].join(' '),
+        onClick: () => setActiveView('analytics'),
       },
       ...visibleCampusSummaries.map((summary) => ({
         id: `campus-${summary.campus}`,
@@ -472,13 +536,15 @@ const AdminPortal = ({
     pendingPaymentReviews,
     verifiedPayments.length,
     pendingPasswordResetRequests,
-    visibleCampusSummaries,
-    filteredStudents,
-    filteredApplications,
-    filteredRoomInventory,
-    filteredPasswordResetRequests,
-    getLatestApplicationForStudent,
-  ]);
+      visibleCampusSummaries,
+      filteredStudents,
+      filteredApplications,
+      filteredRoomInventory,
+      filteredPasswordResetRequests,
+      occupancyRate,
+      waitlistedApplications,
+      getLatestApplicationForStudent,
+    ]);
 
   const selectedStudent = useMemo(
     () => filteredStudents.find((student) => student.id === selectedStudentId) ?? filteredStudents[0] ?? null,
@@ -712,6 +778,9 @@ const AdminPortal = ({
           <div>
             <p className="eyebrow">Admin Monitor</p>
             <h1>{timeGreeting}, {displayedAdminName}</h1>
+            <p className="time-note">
+              Welcome back, {displayedAdminName}. You are managing {selectedCampusLabel}.
+            </p>
             <p className="admin-copy">
               Monitor registrations, verify hostel rent payments, approve qualified students, and support account
               recovery from one place.
@@ -1167,6 +1236,94 @@ const AdminPortal = ({
         </section>
         )}
 
+        {activeView === 'analytics' && (
+          <section className="admin-card admin-analytics-panel">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">Chart Analysis</p>
+                <h2>Campus room capacity and approval pressure</h2>
+              </div>
+              <FaChartBar className="section-icon" />
+            </div>
+
+            <div className="admin-analysis-summary">
+              <div>
+                <span>Occupancy</span>
+                <strong>{occupancyRate}%</strong>
+              </div>
+              <div>
+                <span>Approval</span>
+                <strong>
+                  {campusScopedApplications.length > 0
+                    ? Math.round((approvedApplications.length / campusScopedApplications.length) * 100)
+                    : 0}
+                  %
+                </strong>
+              </div>
+              <div>
+                <span>Review load</span>
+                <strong>
+                  {campusScopedApplications.length > 0
+                    ? Math.round(((pendingApplications + pendingPaymentReviews) / campusScopedApplications.length) * 100)
+                    : 0}
+                  %
+                </strong>
+              </div>
+            </div>
+
+            <div className="admin-chart-shell">
+              <ResponsiveContainer width="100%" height={240}>
+                <BarChart data={chartSeries} margin={{ top: 16, right: 8, left: -10, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(148, 163, 184, 0.2)" />
+                  <XAxis
+                    dataKey="shortLabel"
+                    tickLine={false}
+                    axisLine={false}
+                    interval={0}
+                    tick={{ fontSize: 12, fill: 'currentColor' }}
+                  />
+                  <YAxis hide domain={[0, 100]} />
+                  <Tooltip
+                    cursor={{ fill: 'rgba(37, 99, 235, 0.08)' }}
+                    content={({ active, payload }) => {
+                      if (!active || !payload?.length) {
+                        return null;
+                      }
+
+                      const item = payload[0].payload;
+
+                      return (
+                        <div className="admin-chart-tooltip">
+                          <strong>{item.label}</strong>
+                          <span>{item.note}</span>
+                          <em>{Math.min(item.value, 100)}%</em>
+                        </div>
+                      );
+                    }}
+                  />
+                  <Bar dataKey="value" radius={[12, 12, 0, 0]} maxBarSize={44}>
+                    {chartSeries.map((item) => (
+                      <Cell key={item.id} fill={item.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="admin-chart-list">
+              {chartSeries.map((item) => (
+                <div key={item.id} className="admin-chart-row">
+                  <div className="admin-chart-copy">
+                    <strong>{item.label}</strong>
+                    <span>{item.note}</span>
+                  </div>
+                  <span className="admin-chart-percent">{Math.min(item.value, 100)}%</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         {(activeView === 'rooms' || activeView === 'applications' || activeView === '') && (
         <section className="admin-layout">
           {(activeView === 'rooms' || activeView === '') && (
@@ -1284,7 +1441,24 @@ const AdminPortal = ({
                     matchedStudent?.profileImageUpdatedAt
                   );
                   const paymentStatus = application.paymentStatus ?? 'pending';
-                  const canApprove = paymentStatus === 'verified';
+                  const campusRooms = roomInventory.filter((room) => room.campus === application.campus);
+                  const targetRoom =
+                    campusRooms.find((room) => room.typeKey === application.roomType) ?? null;
+                  const targetRoomOccupied = targetRoom ? getOccupiedCountForRoom(targetRoom) : 0;
+                  const targetRoomAvailable = targetRoom ? Math.max(targetRoom.total - targetRoomOccupied, 0) : 0;
+                  const campusTotalAvailable = campusRooms.reduce((total, room) => {
+                    const occupied = getOccupiedCountForRoom(room);
+                    return total + Math.max(room.total - occupied, 0);
+                  }, 0);
+                  const roomReady = Boolean(targetRoom) && targetRoom.status === 'open' && targetRoomAvailable > 0;
+                  const canApprove = paymentStatus === 'verified' && roomReady;
+                  const approvalCopy = !targetRoom
+                    ? 'No room category is configured for this campus.'
+                    : targetRoom.status !== 'open'
+                      ? `${targetRoom.label} is closed at the moment.`
+                      : targetRoomAvailable > 0
+                        ? `${targetRoomAvailable} ${targetRoom.label} slot(s) remain in ${application.campus}.`
+                        : `${targetRoom.label} is full in ${application.campus}.`;
 
                   return (
                     <div key={application.id} className="application-row">
@@ -1344,31 +1518,30 @@ const AdminPortal = ({
                         <div className="room-availability-notice">
                           <h4>Room Availability for {application.campus} Campus</h4>
                           <div className="campus-room-summary">
-                            {roomInventory
-                              .filter((room) => room.campus === application.campus)
-                              .map((room) => {
-                                const occupied = getOccupiedCountForRoom(room);
-                                const available = Math.max(room.total - occupied, 0);
-                                return (
-                                  <div key={room.id} className="room-type-summary">
-                                    <span className="room-type">{room.label}</span>
-                                    <span className={`availability ${available > 0 ? 'available' : 'full'}`}>
-                                      {available} available ({occupied} occupied / {room.total} total)
-                                    </span>
-                                  </div>
-                                );
-                              })}
+                            {campusRooms.map((room) => {
+                              const occupied = getOccupiedCountForRoom(room);
+                              const available = Math.max(room.total - occupied, 0);
+                              return (
+                                <div key={room.id} className="room-type-summary">
+                                  <span className="room-type">{room.label}</span>
+                                  <span className={`availability ${available > 0 ? 'available' : 'full'}`}>
+                                    {available} available ({occupied} occupied / {room.total} total)
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                          <div className={`campus-approval-status ${roomReady ? 'ready' : 'blocked'}`}>
+                            <strong>{approvalCopy}</strong>
+                            <span>
+                              Target room: {targetRoom?.label || 'Not configured'} | Campus total remaining:{' '}
+                              {campusTotalAvailable}
+                            </span>
                           </div>
                           <div className="campus-total">
                             <strong>
                               Total available rooms in {application.campus}:{' '}
-                              {roomInventory
-                                .filter((room) => room.campus === application.campus)
-                                .reduce((total, room) => {
-                                  const occupied = getOccupiedCountForRoom(room);
-                                  const available = Math.max(room.total - occupied, 0);
-                                  return total + available;
-                                }, 0)}
+                              {campusTotalAvailable}
                             </strong>
                           </div>
                         </div>

@@ -74,11 +74,11 @@
 .dashboard-layout-with-sidebar {
   display: grid;
   grid-template-columns: 19.5rem minmax(0, 1fr);
-  gap: 1.25rem;
+  gap: 1rem;
   align-items: start;
-  max-width: 1480px;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: 1rem 2rem 4rem;
+  padding: 0.9rem 1.25rem 3rem;
   position: relative;
 }
 
@@ -123,10 +123,10 @@
 .dashboard .dashboard-sidebar {
   display: grid !important;
   position: sticky !important;
-  top: 7.5rem !important;
+  top: 6.75rem !important;
   left: auto !important;
   width: 100% !important;
-  max-height: calc(100dvh - 8rem);
+  max-height: calc(100dvh - 7.25rem);
   overflow-x: hidden;
   overflow-y: auto;
   z-index: 40;
@@ -321,34 +321,6 @@
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
 }
 
-.profile-upload-btn {
-  display: inline-block;
-  margin-top: 0.75rem;
-  padding: 0.6rem 1.2rem;
-  border-radius: 50px;
-  background: rgba(255, 255, 255, 0.12);
-  color: inherit;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 600;
-  transition: all 0.25s ease;
-}
-
-.profile-upload-btn:hover {
-  background: rgba(255, 255, 255, 0.18);
-  transform: translateY(-1px);
-}
-
-.profile-upload-hint {
-  display: block;
-  margin-top: 0.5rem;
-  font-size: 0.8rem;
-  line-height: 1.45;
-  opacity: 0.72;
-  max-width: 280px;
-}
-
 .dashboard {
   min-height: 100vh;
   font-family: 'Inter', sans-serif;
@@ -465,34 +437,6 @@
   background: rgba(59, 130, 246, 0.12);
 }
 
-.profile-upload-btn {
-  display: inline-block;
-  margin-top: 0.75rem;
-  padding: 0.6rem 1.2rem;
-  border-radius: 50px;
-  background: rgba(255, 255, 255, 0.12);
-  color: inherit;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 600;
-  transition: all 0.25s ease;
-}
-
-.profile-upload-btn:hover {
-  background: rgba(255, 255, 255, 0.18);
-  transform: translateY(-1px);
-}
-
-.profile-upload-hint {
-  display: block;
-  margin-top: 0.5rem;
-  font-size: 0.8rem;
-  line-height: 1.45;
-  opacity: 0.72;
-  max-width: 280px;
-}
-
 .dashboard.light {
   background: #ffffff;
   color: #0f172a;
@@ -524,8 +468,7 @@
 .dashboard.light .payment-progress-copy p,
 .dashboard.light .payment-progress-meta small,
 .dashboard.light .info-card p,
-.dashboard.light .overview-card p,
-.dashboard.light .profile-upload-hint {
+.dashboard.light .overview-card p {
   color: #475569;
   opacity: 1;
 }
@@ -554,7 +497,6 @@
   color: #1d4ed8;
 }
 
-.dashboard.light .profile-upload-btn,
 .dashboard.light .theme-toggle,
 .dashboard.light .secondary-action {
   background: #ffffff;
@@ -562,7 +504,6 @@
   border-color: #cbd5e1;
 }
 
-.dashboard.light .profile-upload-btn:hover,
 .dashboard.light .theme-toggle:hover,
 .dashboard.light .secondary-action:hover {
   background: #f8fafc;
@@ -1537,7 +1478,6 @@
 .dashboard.light .payment-progress-meta small,
 .dashboard.light .info-card p,
 .dashboard.light .overview-card p,
-.dashboard.light .profile-upload-hint,
 .dashboard.light .section-subtitle p {
   color: #475569;
   opacity: 1;
@@ -1552,7 +1492,6 @@
 .dashboard.light .campus-chip,
 .dashboard.light .theme-toggle,
 .dashboard.light .secondary-action,
-.dashboard.light .profile-upload-btn,
 .dashboard.light .logout-btn,
 .dashboard.light .back-btn {
   background: #ffffff;
@@ -1629,9 +1568,9 @@
 
 .student-dashboard .student-dashboard-container {
   width: 100%;
-  max-width: 1480px;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: 0 2rem 4rem;
+  padding: 0 1.25rem 3rem;
 }
 
 .student-dashboard .dashboard-campuses {
@@ -1651,7 +1590,7 @@
 .student-dashboard .dashboard-content {
   padding: 0;
   max-width: none;
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
 .student-dashboard .metric-cards {
@@ -1685,6 +1624,19 @@
 .student-dashboard .profile-panel,
 .student-dashboard .search-results-panel {
   width: 100%;
+}
+
+.student-dashboard .profile-summary-card {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.student-dashboard .profile-summary-header {
+  display: grid;
+  grid-template-columns: 5rem minmax(0, 1fr);
+  gap: 1rem;
+  align-items: center;
 }
 
 @media (max-width: 1100px) {
@@ -1774,7 +1726,6 @@
 .dashboard.dark .payment-progress-meta small,
 .dashboard.dark .info-card p,
 .dashboard.dark .overview-card p,
-.dashboard.dark .profile-upload-hint,
 .dashboard.dark .section-subtitle p {
   color: #c7d5ea;
   opacity: 1;
@@ -1789,7 +1740,6 @@
 .dashboard.dark .campus-chip,
 .dashboard.dark .theme-toggle,
 .dashboard.dark .secondary-action,
-.dashboard.dark .profile-upload-btn,
 .dashboard.dark .logout-btn,
 .dashboard.dark .back-btn {
   background: #10263f;
@@ -1930,8 +1880,7 @@
   .logout-btn,
   .primary-action,
   .secondary-action,
-  .back-btn,
-  .profile-upload-btn {
+  .back-btn {
     width: 100%;
   }
 
@@ -2040,11 +1989,11 @@
 .dashboard .dashboard-layout-with-sidebar {
   display: grid !important;
   grid-template-columns: 19.5rem minmax(0, 1fr);
-  gap: 1.25rem;
+  gap: 1rem;
   align-items: start;
-  max-width: 1480px;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: 1rem 2rem 4rem;
+  padding: 0.9rem 1.25rem 3rem;
 }
 
 .dashboard .dashboard-sidebar {
@@ -2075,8 +2024,8 @@
 .dashboard-header {
   display: grid;
   gap: 1.2rem;
-  padding: 1.25rem 2rem 0.75rem;
-  max-width: 1480px;
+  padding: 1.1rem 1.25rem 0.75rem;
+  max-width: 1240px;
   margin: 0 auto;
   position: sticky;
   top: 0;
@@ -2309,23 +2258,23 @@
 .dashboard .dashboard-layout-with-sidebar {
   display: grid !important;
   grid-template-columns: 19.5rem minmax(0, 1fr);
-  gap: 1.25rem;
+  gap: 1rem;
   align-items: start;
-  max-width: 1480px;
+  max-width: 1240px;
   margin: 0 auto;
-  padding-top: 1rem;
-  padding-left: 2rem;
-  padding-right: 2rem;
-  padding-bottom: 4rem;
+  padding-top: 0.9rem;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  padding-bottom: 3rem;
 }
 
 .dashboard .dashboard-sidebar {
   display: grid !important;
   position: sticky !important;
-  top: 7.5rem !important;
+  top: 6.75rem !important;
   left: auto !important;
   width: 100% !important;
-  max-height: calc(100dvh - 9rem);
+  max-height: calc(100dvh - 7.25rem);
 }
 
 .dashboard .dashboard-content {
