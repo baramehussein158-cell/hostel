@@ -1,22 +1,27 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   FaUser,
   FaMoon,
   FaSun,
   FaSave,
+  FaImage,
   FaUserEdit,
   FaPalette,
   FaCheck,
 } from 'react-icons/fa';
 import { useTheme } from '../contexts/ThemeContext';
+import { buildProfileImageSrc } from '../data/portalData';
 import './Settings.scss';
+
+const MAX_PROFILE_IMAGE_SIZE = 5 * 1024 * 1024;
 
 const Settings = ({
   user,
   onUpdateProfile,
   userType = 'student'
 }) => {
-  const { theme, color, changeTheme, changeColor, themeOptions, colorOptions } = useTheme();
+  const { theme, color, changeTheme, changeColor, colorOptions } = useTheme();
+  const fileInputRef = useRef(null);
   const [activeTab, setActiveTab] = useState('profile');
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -25,6 +30,11 @@ const Settings = ({
     gender: user?.gender || '',
     allowAdminUpdates: user?.allowAdminUpdates || false,
   });
+  const [profileImageFile, setProfileImageFile] = useState(null);
+  const [profileImageError, setProfileImageError] = useState('');
+  const [profileImagePreview, setProfileImagePreview] = useState(
+    buildProfileImageSrc(user?.profileImageUrl, user?.profileImageUpdatedAt)
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -36,7 +46,32 @@ const Settings = ({
       gender: user?.gender || '',
       allowAdminUpdates: user?.allowAdminUpdates || false,
     });
-  }, [user?.allowAdminUpdates, user?.email, user?.gender, user?.name, user?.phone]);
+    setProfileImageFile(null);
+    setProfileImageError('');
+    setProfileImagePreview(buildProfileImageSrc(user?.profileImageUrl, user?.profileImageUpdatedAt));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }, [
+    user?.allowAdminUpdates,
+    user?.email,
+    user?.gender,
+    user?.name,
+    user?.phone,
+    user?.profileImageUpdatedAt,
+    user?.profileImageUrl,
+  ]);
+
+  useEffect(() => {
+    if (!profileImageFile) {
+      return undefined;
+    }
+
+    const objectUrl = URL.createObjectURL(profileImageFile);
+    setProfileImagePreview(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [profileImageFile]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -46,14 +81,56 @@ const Settings = ({
     }));
   };
 
+  const handleProfileImageChange = (event) => {
+    const nextFile = event.target.files?.[0];
+
+    if (!nextFile) {
+      setProfileImageFile(null);
+      setProfileImageError('');
+      setProfileImagePreview(buildProfileImageSrc(user?.profileImageUrl, user?.profileImageUpdatedAt));
+      return;
+    }
+
+    if (!nextFile.type.startsWith('image/')) {
+      setProfileImageError('Please choose an image file for the profile preview.');
+      setProfileImageFile(null);
+      event.target.value = '';
+      return;
+    }
+
+    if (nextFile.size > MAX_PROFILE_IMAGE_SIZE) {
+      setProfileImageError('Image files must be 5 MB or smaller.');
+      setProfileImageFile(null);
+      event.target.value = '';
+      return;
+    }
+
+    setProfileImageError('');
+    setProfileImageFile(nextFile);
+  };
+
+  const handleClearProfileImageSelection = () => {
+    setProfileImageFile(null);
+    setProfileImageError('');
+    setProfileImagePreview(buildProfileImageSrc(user?.profileImageUrl, user?.profileImageUpdatedAt));
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleSaveProfile = async () => {
     setIsSaving(true);
     setMessage('');
 
     try {
-      const result = await onUpdateProfile(formData);
+      const result = await onUpdateProfile({
+        ...formData,
+        profileImageFile,
+      });
       if (result.success) {
         setMessage('Profile updated successfully!');
+        handleClearProfileImageSelection();
       } else {
         setMessage(result.message || 'Failed to update profile');
       }
@@ -116,6 +193,66 @@ const Settings = ({
             <div className="settings-section">
               <h3>Profile Information</h3>
               <div className="profile-form">
+                <div className="image-upload-row">
+                  <div className="image-upload-heading">
+                    <label htmlFor={`${userType}-profile-image`}>Profile image</label>
+                    <span>Upload an image to preview it before saving. Max size 5 MB.</span>
+                  </div>
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    id={`${userType}-profile-image`}
+                    name="profileImageFile"
+                    accept="image/*"
+                    onChange={handleProfileImageChange}
+                  />
+
+                  <div className="image-upload-preview">
+                    <div className="image-preview-frame">
+                      {profileImagePreview ? (
+                        <img
+                          src={profileImagePreview}
+                          alt={`${user?.name || 'Profile'} preview`}
+                        />
+                      ) : (
+                        <div className="image-preview-placeholder">
+                          <FaImage />
+                          <span>No image selected</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="image-upload-copy">
+                      <strong>
+                        {profileImageFile
+                          ? profileImageFile.name
+                          : user?.profileImageUrl
+                            ? 'Current profile image'
+                            : 'Preview your profile image'}
+                      </strong>
+                      <span>
+                        {profileImageFile
+                          ? 'This local preview updates immediately and uploads when you save.'
+                          : 'Pick a file to see how it will look on the profile card and resident dialog.'}
+                      </span>
+                    </div>
+
+                    <div className="image-upload-actions">
+                      <button
+                        type="button"
+                        className="preview-reset-button"
+                        onClick={handleClearProfileImageSelection}
+                        disabled={!profileImageFile}
+                      >
+                        Reset selection
+                      </button>
+                    </div>
+                  </div>
+
+                  {profileImageError && <p className="field-error">{profileImageError}</p>}
+                </div>
+
                 <div className="form-group">
                   <label htmlFor="name">Full Name</label>
                   <input

@@ -13,6 +13,16 @@ import {
   FaSignOutAlt,
   FaUser,
 } from 'react-icons/fa';
+import {
+  BarChart,
+  Bar,
+  CartesianGrid,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import HighlightText from './HighlightText';
 import './DashboardSidebar.scss';
 
@@ -41,25 +51,33 @@ const DashboardSidebar = ({
           {
             id: 'occupancy',
             label: 'Room occupancy',
+            shortLabel: 'Occupancy',
             value: occupancyRate,
+            color: '#0f766e',
             note: `${approvedApplications}/${totalRooms || 0} rooms filled`,
           },
           {
             id: 'approval',
             label: 'Approval rate',
+            shortLabel: 'Approval',
             value: approvalRate,
+            color: '#2563eb',
             note: `${approvedApplications} approved applications`,
           },
           {
             id: 'review-load',
             label: 'Review load',
+            shortLabel: 'Review',
             value: reviewLoad,
+            color: '#7c3aed',
             note: `${pendingApplications + pendingPaymentReviews} waiting for action`,
           },
           {
             id: 'waitlist',
             label: 'Waitlist pressure',
+            shortLabel: 'Waitlist',
             value: totalApplications > 0 ? Math.round((waitlistedApplications / totalApplications) * 100) : 0,
+            color: '#f59e0b',
             note: `${waitlistedApplications} students in queue`,
           },
         ]
@@ -260,6 +278,45 @@ const DashboardSidebar = ({
               <span>Review load</span>
               <strong>{reviewLoad}%</strong>
             </div>
+          </div>
+
+          <div className="sidebar-chart-shell">
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={chartSeries} margin={{ top: 12, right: 4, left: -12, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(148, 163, 184, 0.2)" />
+                <XAxis
+                  dataKey="shortLabel"
+                  tickLine={false}
+                  axisLine={false}
+                  interval={0}
+                  tick={{ fontSize: 11, fill: 'currentColor' }}
+                />
+                <YAxis hide domain={[0, 100]} />
+                <Tooltip
+                  cursor={{ fill: 'rgba(37, 99, 235, 0.08)' }}
+                  content={({ active, payload }) => {
+                    if (!active || !payload?.length) {
+                      return null;
+                    }
+
+                    const item = payload[0].payload;
+
+                    return (
+                      <div className="sidebar-chart-tooltip">
+                        <strong>{item.label}</strong>
+                        <span>{item.note}</span>
+                        <em>{Math.min(item.value, 100)}%</em>
+                      </div>
+                    );
+                  }}
+                />
+                <Bar dataKey="value" radius={[10, 10, 0, 0]} maxBarSize={36}>
+                  {chartSeries.map((item) => (
+                    <Cell key={item.id} fill={item.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </div>
 
           <div className="sidebar-chart-list" role="img" aria-label="Admin dashboard chart analysis">

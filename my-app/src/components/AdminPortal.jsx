@@ -30,6 +30,7 @@ import { getDisplayName, getInitials, getLocalTimeLabel, getTimeGreeting } from 
 import CampusCarousel from './CampusCarousel';
 import HighlightText from './HighlightText';
 import DashboardSidebar from './DashboardSidebar';
+import ResidentDetailsDialog from './ResidentDetailsDialog';
 import Settings from './Settings';
 import './AdminPortal.scss';
 
@@ -66,6 +67,18 @@ const AdminPortal = ({
   const [activeView, setActiveView] = useState('overview');
   const [passwordDrafts, setPasswordDrafts] = useState({});
   const [selectedStudentId, setSelectedStudentId] = useState('');
+  const [residentDialogOpen, setResidentDialogOpen] = useState(false);
+  const [roomDrafts, setRoomDrafts] = useState({});
+  const [assignmentDrafts, setAssignmentDrafts] = useState({});
+  const [paymentNotesDrafts, setPaymentNotesDrafts] = useState({});
+  const [selectedStudentDraft, setSelectedStudentDraft] = useState({
+    name: '',
+    email: '',
+    regNumber: '',
+    campus: 'UR',
+    gender: '',
+    allowAdminUpdates: false,
+  });
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [campusFilter, setCampusFilter] = useState('ALL');
   const [studentSearch, setStudentSearch] = useState('');
@@ -85,33 +98,6 @@ const AdminPortal = ({
   const searchQuery = studentSearch.trim().toLowerCase();
   const selectedCampusLabel =
     campusFilter === 'UR' ? 'University of Rwanda' : campusFilter === 'RP' ? 'Rwanda Polytechnic' : 'All campuses';
-
-  const roomDrafts = useMemo(() =>
-    roomInventory.reduce((drafts, room) => {
-      drafts[room.id] = {
-        total: room.total,
-        status: room.status,
-      };
-      return drafts;
-    }, {}),
-    [roomInventory]
-  );
-
-  const assignmentDrafts = useMemo(() =>
-    applications.reduce((drafts, application) => {
-      drafts[application.id] = application.assignedRoom ?? '';
-      return drafts;
-    }, {}),
-    [applications]
-  );
-
-  const paymentNotesDrafts = useMemo(() =>
-    applications.reduce((drafts, application) => {
-      drafts[application.id] = application.paymentVerificationNotes ?? '';
-      return drafts;
-    }, {}),
-    [applications]
-  );
 
   useEffect(() => {
     if (registeredUsers.length === 0) {
@@ -133,6 +119,34 @@ const AdminPortal = ({
     const timer = setTimeout(() => setFlash(null), 4000);
     return () => clearTimeout(timer);
   }, [flash]);
+
+  useEffect(() => {
+    setRoomDrafts(
+      roomInventory.reduce((drafts, room) => {
+        drafts[room.id] = {
+          total: room.total,
+          status: room.status,
+        };
+        return drafts;
+      }, {})
+    );
+  }, [roomInventory]);
+
+  useEffect(() => {
+    setAssignmentDrafts(
+      applications.reduce((drafts, application) => {
+        drafts[application.id] = application.assignedRoom ?? '';
+        return drafts;
+      }, {})
+    );
+
+    setPaymentNotesDrafts(
+      applications.reduce((drafts, application) => {
+        drafts[application.id] = application.paymentVerificationNotes ?? '';
+        return drafts;
+      }, {})
+    );
+  }, [applications]);
 
   const campusScopedRooms = useMemo(
     () => roomInventory.filter((room) => matchesCampusFilter(room.campus, campusFilter)),
@@ -404,7 +418,7 @@ const AdminPortal = ({
             .join(' '),
           onClick: () => {
             setActiveView('students');
-            setSelectedStudentId(student.id);
+            openResidentDialog(student.id);
           },
         };
       }),
@@ -471,27 +485,32 @@ const AdminPortal = ({
     [filteredStudents, selectedStudentId]
   );
 
-  const selectedStudentDraft = useMemo(() => {
-    if (!selectedStudent) {
-      return {
-        name: '',
-        email: '',
-        regNumber: '',
-        campus: 'UR',
-        gender: '',
-        allowAdminUpdates: false,
-      };
-    }
-
-    return {
-      name: selectedStudent.name ?? '',
-      email: selectedStudent.email ?? '',
-      regNumber: selectedStudent.regNumber ?? '',
-      campus: selectedStudent.campus ?? 'UR',
-      gender: selectedStudent.gender ?? '',
-      allowAdminUpdates: Boolean(selectedStudent.allowAdminUpdates),
-    };
+  useEffect(() => {
+    setSelectedStudentDraft(
+      selectedStudent
+        ? {
+            name: selectedStudent.name ?? '',
+            email: selectedStudent.email ?? '',
+            regNumber: selectedStudent.regNumber ?? '',
+            campus: selectedStudent.campus ?? 'UR',
+            gender: selectedStudent.gender ?? '',
+            allowAdminUpdates: Boolean(selectedStudent.allowAdminUpdates),
+          }
+        : {
+            name: '',
+            email: '',
+            regNumber: '',
+            campus: 'UR',
+            gender: '',
+            allowAdminUpdates: false,
+          }
+    );
   }, [selectedStudent]);
+
+  const selectedStudentLatestApplication = useMemo(
+    () => (selectedStudent ? getLatestApplicationForStudent(selectedStudent) : null),
+    [getLatestApplicationForStudent, selectedStudent]
+  );
 
   const paymentInbox = useMemo(
     () =>
@@ -607,6 +626,15 @@ const AdminPortal = ({
         currentSelectedStudentId === selectedStudent.id ? '' : currentSelectedStudentId
       );
     }
+  };
+
+  const openResidentDialog = (studentId) => {
+    setSelectedStudentId(studentId);
+    setResidentDialogOpen(true);
+  };
+
+  const closeResidentDialog = () => {
+    setResidentDialogOpen(false);
   };
 
   const handleRowDelete = async (student) => {
@@ -1670,7 +1698,7 @@ const AdminPortal = ({
                           type="button"
                           className="action-button"
                           disabled={isSaving}
-                          onClick={() => setSelectedStudentId(student.id)}
+                          onClick={() => openResidentDialog(student.id)}
                         >
                           Select / View
                         </button>
@@ -1716,6 +1744,13 @@ const AdminPortal = ({
           </article>
         </section>
         )}
+
+        <ResidentDetailsDialog
+          open={residentDialogOpen}
+          student={selectedStudent}
+          latestApplication={selectedStudentLatestApplication}
+          onClose={closeResidentDialog}
+        />
 
         {activeView === 'settings' && (
           <Settings

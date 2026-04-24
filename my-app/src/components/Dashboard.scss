@@ -1303,28 +1303,6 @@
   gap: 0.5rem;
 }
 
-.consent-block {
-  align-self: stretch;
-}
-
-.checkbox-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  padding: 1rem;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.08);
-  cursor: pointer;
-  line-height: 1.6;
-}
-
-.checkbox-card input {
-  margin-top: 0.2rem;
-  width: auto;
-  flex-shrink: 0;
-}
-
 .form-group label {
   font-weight: 600;
 }
@@ -1537,7 +1515,6 @@
 .dashboard.light .room-card,
 .dashboard.light .room-occupancy,
 .dashboard.light .payment-form-block,
-.dashboard.light .checkbox-card,
 .dashboard.light .read-only-highlight,
 .dashboard.light .form-group input,
 .dashboard.light .form-group select,
@@ -1775,7 +1752,6 @@
 .dashboard.dark .room-card,
 .dashboard.dark .room-occupancy,
 .dashboard.dark .payment-form-block,
-.dashboard.dark .checkbox-card,
 .dashboard.dark .read-only-highlight,
 .dashboard.dark .form-group input,
 .dashboard.dark .form-group select,
@@ -2428,7 +2404,6 @@
 .dashboard .room-card,
 .dashboard .room-occupancy,
 .dashboard .payment-form-block,
-.dashboard .checkbox-card,
 .dashboard .read-only-highlight,
 .dashboard .form-group input,
 .dashboard .form-group select,
@@ -2547,7 +2522,6 @@
 .dashboard .room-card,
 .dashboard .room-occupancy,
 .dashboard .payment-form-block,
-.dashboard .checkbox-card,
 .dashboard .read-only-highlight,
 .dashboard .form-group input,
 .dashboard .form-group select,

@@ -327,3 +327,43 @@ Your CampusStay Portal now has:
 - ✅ Perfect on all devices
 
 Ready to deploy! 🚀
+
+---
+
+# Assessment Checklist Companion
+
+The app now includes a lightweight assessment page that mirrors the rubric below without changing the main hostel workflow.
+
+## Core Checks
+- React + Sass + MUI structure
+- Theme toggle and sidebar navigation
+- Routing via hash-based portal views
+- Resident detail dialog
+- Table sorting, filtering, and pagination
+- Validation for login, registration, and room management
+- Room allocation and payment tracking
+
+## Marking Rubric
+- Proper React structure
+- SCSS modular
+- Dark/Light mode
+- Header toggle
+- Sidebar toggles
+- Full routing
+- Stable navigation
+- DataGrid sorting
+- Filtering
+- Pagination
+- View modal for resident
+- Delete confirmation
+- Add New resident/room
+- Image/file preview
+- Email validation
+- Numeric validation (bed no.)
+- Required field validation
+- File type validation
+- File size validation
+- Recharts usage
+- Room allocation logic
+- Responsive UI
+- Clean code

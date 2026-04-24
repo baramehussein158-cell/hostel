@@ -125,7 +125,6 @@ const Dashboard = ({
   };
   const passwordResetStatus = latestPasswordResetRequest?.status ?? '';
   const profileGenderLabel = getGenderLabel(student.gender);
-  const profileAccessLabel = student.allowAdminUpdates ? 'Allowed' : 'Not allowed';
   const studentQuickLinks = [
     {
       id: 'quick-apply',
@@ -957,7 +956,6 @@ const ApplicationForm = ({ student, onBack, onSubmit }) => {
     phone: '',
     campus: student.campus,
     gender: student.gender ?? '',
-    allowAdminUpdates: Boolean(student.allowAdminUpdates),
     studyCampus: '',
     roomType: 'single',
     paymentMethod: PAYMENT_METHODS[0]?.value ?? 'mobile_money',
@@ -1045,7 +1043,6 @@ const ApplicationForm = ({ student, onBack, onSubmit }) => {
           to_name: formData.name,
           study_campus: formData.studyCampus,
           gender: GENDER_OPTIONS.find((option) => option.value === formData.gender)?.label || formData.gender,
-          admin_update_access: formData.allowAdminUpdates ? 'Allowed' : 'Not allowed',
           room_type: ROOM_TYPE_LABELS[formData.roomType] || formData.roomType,
           phone: formData.phone,
           payment_method: PAYMENT_METHODS.find((method) => method.value === formData.paymentMethod)?.label,
@@ -1116,19 +1113,6 @@ const ApplicationForm = ({ student, onBack, onSubmit }) => {
                 </option>
               ))}
             </select>
-          </div>
-          <div className="form-group consent-block">
-            <label htmlFor="allowAdminUpdates">Admin update access</label>
-            <label className="checkbox-card" htmlFor="allowAdminUpdates">
-              <input
-                type="checkbox"
-                id="allowAdminUpdates"
-                name="allowAdminUpdates"
-                checked={formData.allowAdminUpdates}
-                onChange={handleChange}
-              />
-              <span>Allow admin to update my account details if something goes wrong.</span>
-            </label>
           </div>
         </div>
 

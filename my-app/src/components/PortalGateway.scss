@@ -137,6 +137,19 @@
     }
   }
 
+  &.teal {
+    border-color: #14b8a6;
+
+    &::before {
+      background: linear-gradient(135deg, #14b8a6 0%, #0f766e 100%);
+    }
+
+    &:hover {
+      border-color: #14b8a6;
+      box-shadow: 0 8px 32px rgba(20, 184, 166, 0.3);
+    }
+  }
+
   &.hovered {
     transform: translateY(-8px);
   }
@@ -206,6 +219,10 @@
 
   .portal-card.red & {
     background: rgba(239, 68, 68, 0.2);
+  }
+
+  .portal-card.teal & {
+    background: rgba(20, 184, 166, 0.2);
   }
 
   @media (max-width: 480px) {

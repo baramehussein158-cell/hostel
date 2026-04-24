@@ -330,6 +330,42 @@
   margin-top: 0.25rem;
 }
 
+.sidebar-chart-shell {
+  padding: 0.85rem 0.75rem 0.4rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  color: #0f172a;
+}
+
+.sidebar-chart-tooltip {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.95);
+  color: #f8fafc;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.22);
+}
+
+.sidebar-chart-tooltip strong {
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.sidebar-chart-tooltip span {
+  font-size: 0.74rem;
+  line-height: 1.35;
+  color: rgba(248, 250, 252, 0.78);
+}
+
+.sidebar-chart-tooltip em {
+  font-style: normal;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #93c5fd;
+}
+
 .sidebar-chart-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 5rem;
@@ -384,7 +420,8 @@
 }
 
 .admin-portal.dark .sidebar-analysis-summary div,
-.admin-portal.dark .sidebar-chart-track {
+.admin-portal.dark .sidebar-chart-track,
+.admin-portal.dark .sidebar-chart-shell {
   background: rgba(255, 255, 255, 0.08);
 }
 
@@ -397,6 +434,11 @@
 .admin-portal.dark .sidebar-analysis-summary span,
 .admin-portal.dark .sidebar-chart-copy span {
   color: rgba(238, 245, 255, 0.72);
+}
+
+.admin-portal.dark .sidebar-chart-shell {
+  border-color: rgba(109, 242, 162, 0.12);
+  color: #eef5ff;
 }
 
 @media (max-width: 1100px) {

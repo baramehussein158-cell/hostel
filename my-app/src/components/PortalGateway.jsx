@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaGraduationCap, FaUserShield, FaArrowRight } from 'react-icons/fa';
+import { FaArrowRight, FaGraduationCap, FaUserShield } from 'react-icons/fa';
 import { useTheme } from '../contexts/ThemeContext';
 import './PortalGateway.scss';
 

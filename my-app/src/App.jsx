@@ -38,6 +38,7 @@ import {
   updatePasswordResetRequest,
   updateUserProfileForUsers,
   updateUserPasswordForUsers,
+  uploadProfileImage,
 } from './services/portalRepository';
 import sessionManager from './utils/sessionManager';
 import './App.scss';
@@ -132,6 +133,19 @@ const getStudentAccountKeyFromIdentity = ({ campus, regNumber, email }) =>
 
 const generateResetCode = () => `${Math.floor(100000 + Math.random() * 900000)}`;
 
+const getRouteFromHash = () => {
+  if (typeof window === 'undefined') {
+    return 'gateway';
+  }
+
+  const rawHash = window.location.hash.replace(/^#\/?/, '').trim().toLowerCase();
+  if (rawHash === 'student' || rawHash === 'admin') {
+    return rawHash;
+  }
+
+  return 'gateway';
+};
+
 function AppContent() {
   const { theme } = useTheme();
   const [users, setUsers] = useState([]);
@@ -148,7 +162,14 @@ function AppContent() {
   });
   const [isSyncing, setIsSyncing] = useState(true);
   const [syncError, setSyncError] = useState('');
-  const [selectedPortal, setSelectedPortal] = useState(() => readStoredValue('selected-portal', null));
+  const [selectedPortal, setSelectedPortal] = useState(() => {
+    const initialRoute = getRouteFromHash();
+    if (initialRoute === 'student' || initialRoute === 'admin') {
+      return initialRoute;
+    }
+
+    return readStoredValue('selected-portal', null);
+  });
 
   function handleLogout() {
     sessionManager.destroySession();
@@ -178,15 +199,31 @@ function AppContent() {
   }, [session]);
 
   useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    const syncRoute = () => {
+      const nextRoute = getRouteFromHash();
+      const storedPortal = readStoredValue('selected-portal', null);
+      const nextPortal = nextRoute === 'gateway' ? storedPortal : nextRoute;
+      setSelectedPortal((currentPortal) => (currentPortal === nextPortal ? currentPortal : nextPortal));
+    };
+
     const handlePopState = () => {
       if (session) {
         handleLogout();
+        return;
       }
+
+      syncRoute();
     };
 
+    window.addEventListener('hashchange', syncRoute);
     window.addEventListener('popstate', handlePopState);
 
     return () => {
+      window.removeEventListener('hashchange', syncRoute);
       window.removeEventListener('popstate', handlePopState);
     };
   }, [session]);
@@ -893,6 +930,7 @@ function AppContent() {
     const nextPhone = updates.phone?.trim() ?? activeStudent.phone ?? '';
     const nextGender = updates.gender ?? activeStudent.gender;
     const nextAllowAdminUpdates = Boolean(updates.allowAdminUpdates);
+    const profileImageFile = updates.profileImageFile ?? null;
 
     if (!nextName || !nextEmail || !nextGender) {
       return { success: false, message: 'Name, email, and gender are required.' };
@@ -936,6 +974,7 @@ function AppContent() {
     });
 
     try {
+      const profileImage = profileImageFile ? await uploadProfileImage(activeStudent.id, profileImageFile) : null;
       await updateUserProfileForUsers(relatedUserIds, {
         name: nextName,
         email: nextEmail,
@@ -945,6 +984,13 @@ function AppContent() {
         updatedAt: new Date().toISOString(),
         updatedBy: 'student',
         accountKey: updatedAccountKey,
+        ...(profileImage
+          ? {
+              profileImageUrl: profileImage.url,
+              profileImagePath: profileImage.path,
+              profileImageUpdatedAt: profileImage.updatedAt,
+            }
+          : {}),
       });
 
       await updateApplicationsByIds(relatedApplicationIds, {
@@ -967,6 +1013,13 @@ function AppContent() {
           email: nextEmail,
           regNumber: activeStudent.regNumber,
           accountKey: updatedAccountKey,
+          ...(profileImage
+            ? {
+                profileImageUrl: profileImage.url,
+                profileImagePath: profileImage.path,
+                profileImageUpdatedAt: profileImage.updatedAt,
+              }
+            : {}),
         };
       });
 
@@ -982,12 +1035,14 @@ function AppContent() {
     const nextEmail = updates.email?.trim() ?? session?.email ?? ADMIN_ACCOUNT.email;
     const nextPhone = updates.phone?.trim() ?? session?.phone ?? '';
     const nextGender = updates.gender ?? session?.gender ?? '';
+    const profileImageFile = updates.profileImageFile ?? null;
 
     if (!nextName || !nextEmail) {
       return { success: false, message: 'Name and email are required.' };
     }
 
     try {
+      const profileImage = profileImageFile ? await uploadProfileImage('admin-profile', profileImageFile) : null;
       setSession((currentSession) => {
         if (currentSession?.role !== 'admin') {
           return currentSession;
@@ -999,6 +1054,12 @@ function AppContent() {
           email: nextEmail,
           phone: nextPhone,
           gender: nextGender,
+          ...(profileImage
+            ? {
+                profileImageUrl: profileImage.url,
+                profileImageUpdatedAt: profileImage.updatedAt,
+              }
+            : {}),
         };
       });
 
@@ -1188,15 +1249,25 @@ function AppContent() {
     }
   };
 
+  const setRouteHash = (nextRoute) => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    window.location.hash = nextRoute === 'gateway' ? '' : `#${nextRoute}`;
+  };
+
   const handlePortalSelect = (portal) => {
     setSelectedPortal(portal);
     localStorage.setItem('selected-portal', JSON.stringify(portal));
+    setRouteHash(portal);
   };
 
   const handleBackFromPortal = () => {
     setSelectedPortal(null);
     localStorage.removeItem('selected-portal');
     setSession(null);
+    setRouteHash('gateway');
   };
 
   const headerRole = session?.role ?? 'guest';
